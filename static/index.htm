@@ -1,0 +1,796 @@
+<html>
+
+<head>
+  <title>INFO 4310 - HW4</title>
+  <!-- <link href="./style.css" rel="stylesheet" type="text/css"> -->
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://d3js.org/topojson.v3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-tile@1"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+
+  <style>
+    body {
+      font-family: 'Barlow', 'Helvetica', sans-serif;
+      font-weight: 400;
+      margin: 0 0 0 100px;
+      padding: 0;
+      min-width: 1400px;
+      overflow-x: scroll;
+      overflow-y: hidden;
+      overscroll-behavior-x: none;
+    }
+
+    h1 {
+      font-weight: 800;
+      font-size: 3em;
+      margin: 20px 0 0 0;
+      padding: 0;
+      background: linear-gradient(to right, #7339D0, #d81289);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    h2 {
+      font-weight: 700;
+      font-size: 1em;
+      margin: 0;
+      padding: 0 0 5px 0;
+      color: #777;
+      border-bottom: 1px solid #777;
+    }
+
+    h3 {
+      font-weight: 700;
+      font-size: 1.05em;
+      margin: 0;
+      padding: 20px 0 15px 0;
+      color: #7339D0;
+    }
+
+    h3.withRule {
+      border-top: 1px solid #ccc;
+      padding-top: 12px;
+      margin-top: 15px;
+    }
+
+    h3#best {
+      font-weight: 800;
+      font-size: 1.15em;
+      color: #d81289;
+    }
+
+    p {
+      margin: 0;
+      padding: 3px 0;
+      line-height: 1.3em;
+    }
+
+    p#tagline {
+      font-size: 1.1em;
+      color: #7339D0;
+      margin: 0;
+      padding: 0 0 35 0;
+    }
+
+    /* BUTTONS */
+    button {
+      font-family: 'Barlow', 'Helvetica', sans-serif;
+      background-color: #ffffff;
+      border: 2px solid #777;
+      color: #777;
+      border-radius: 20px;
+      margin: 0 7px 10px 0;
+      padding: 6px 10px 8px 10px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* button[value="cafes"]::before {
+      content: "#";
+      color: gray;
+    }
+    .clicked[value="cafes"]::before {
+      content: url("logo.png");
+      content: "#";
+      color: purple;
+    }     */
+
+    .clicked {
+      background-color: #e3d2fd;
+      border: 2px solid #7339D0;
+      color: #7339D0;
+    }
+
+    button:hover {
+      text-decoration: underline dotted;
+      text-underline-offset: 3px;
+    }
+
+    .clicked:hover {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    #distance button {
+      width: 80px;
+    }
+
+    #category button {
+      width: 125px;
+    }
+
+    button#selectAllButton,
+    button#resetButton {
+      margin: 0 0 12px 0;
+      padding: 0;
+      border: 0;
+      font-size: .95em;
+      font-weight: 500;
+      color: #7339D0;
+    }
+
+    #selectAllButton:hover,
+    #resetButton:hover {
+      background-color: white;
+      border: 0;
+      border-radius: 0;
+      text-decoration: underline dotted;
+      text-underline-offset: 3px;
+    }
+
+    /* CONTAINERS */
+    .flex-container {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      flex-wrap: nowrap;
+    }
+
+    div.filterColumn {
+      margin: 0;
+      padding: 10px 35px 10px 0;
+      min-width: 300px;
+      max-width: 300px;
+    }
+
+    div.filterButtonContainer {
+      height: calc(100vh - 170px);
+      overflow-y: scroll;
+    }
+
+    div.restaurant-list-info {
+      max-width: 400px;
+      min-width: 300px;
+      margin: 0;
+      padding: 145px 20px 0 0;
+    }
+
+    .restaurant-list {
+      height: calc(100vh - 240px);
+      margin: 0;
+      padding: 5px 35px 10px 10px;
+      overflow-y: scroll;
+    }
+
+    .restaurant-list a {
+      text-decoration: none !important;
+      color: inherit;
+    }
+
+    .restaurant-item {
+      margin-bottom: 10px;
+    }
+
+    .restaurant-card {
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      padding: 20px 30px;
+      margin: 0 0 13px 0;
+      font-size: medium;
+      box-shadow: 0 0 7px #ccc;
+    }
+
+    .restaurant-card div.categoryDivStyle,
+    .restaurant-card-hover div.categoryDivStyle,
+    .best-restaurant-card-hover div.categoryDivStyle {
+      margin: 6px 0 8px 0;
+    }
+
+    .restaurant-card-hover span.categoryStyle {
+      margin: 2px 5px 2px 0;
+      padding: 2px 6px 4px 6px;
+      border: 1px solid #7339D0;
+      color: #7339D0;
+      font-weight: 600;
+      font-size: .95em;
+      text-transform: lowercase;
+      border-radius: 11px;
+    }
+
+    .restaurant-card span.categoryStyle,
+    .best-restaurant-card-hover span.categoryStyle {
+      margin: 2px 5px 2px 0;
+      padding: 2px 6px 4px 6px;
+      border: 1px solid #C63186;
+      color: #C63186;
+      font-weight: 600;
+      font-size: .95em;
+      text-transform: lowercase;
+      border-radius: 11px;
+    }
+
+    .restaurant-card p.snippetStyle,
+    .restaurant-card-hover p.snippetStyle,
+    .best-restaurant-card-hover p.snippetStyle {
+      margin: 5px 0 0 30px;
+      text-indent: 0;
+      font-style: italic;
+    }
+
+    .restaurant-card p.snippetStyle::before,
+    .restaurant-card-hover p.snippetStyle::before,
+    .best-restaurant-card-hover p.snippetStyle::before {
+      content: url('snippet.svg');
+      width: 24px;
+      margin: 0 0 0 -28px;
+      padding: 0;
+      display: inline-block;
+      /* border: 1px solid red; */
+    }
+
+    .restaurant-card-hover,
+    .best-restaurant-card-hover {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 5px 5px;
+      margin: 0 0 10px 0;
+      font-size: small;
+      box-shadow: 0 0 7px #ccc;
+      background-color: rgba(255, 255, 255, 0.9);
+    }
+
+    div.mapColumn {
+      overflow-x: scroll;
+      overflow-y: hidden;
+    }
+
+    .tick line {
+      visibility: hidden;
+    }
+
+    .tick text {
+      font-size: 16px
+    }
+
+    .domain {
+      visibility: hidden;
+
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <div class="flex-container">
+
+    <!--  ---------------
+              FILTERS 
+          --------------- -->
+    <div class="filterColumn">
+      <h2>FILTERS</h2>
+
+      <div class="filterButtonContainer">
+
+        <!-- RATING FILTER-->
+        <h3>RATING</h3>
+        <svg id="histogram" width="300" height="115"></svg>
+
+        <!-- DISTANCE FILTER-->
+        <h3 class="withRule">DISTANCE</h3>
+        <div id="distance">
+          <button id="mi1_4">.25 mi</button>
+          <button id="mi1_2">.5 mi</button>
+          <button id="mi1">1 mi</button>
+        </div>
+
+        <!-- CATEGORY FILTER-->
+        <h3 class="withRule">CATEGORY</h3>
+        <button id="selectAllButton" value="selectAll">SELECT ALL</button>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<button
+          id="resetButton" value="reset">CLEAR ALL</button>
+
+        <div id="category">
+          <button id="c01" value="restaurants">restaurants</button>
+          <button id="c02" value="cafes">cafes</button>
+          <button id="c03" value="coffee">coffee</button>
+          <button id="c04" value="sandwiches">sandwiches</button>
+          <button id="c05" value="sushi">sushi</button>
+          <button id="c06" value="pizza">pizza</button>
+          <button id="c07" value="donuts">donuts</button>
+          <button id="c08" value="bakeries">bakeries</button>
+          <button id="c09" value="ethnicmarkets">ethnic</button>
+          <button id="c10" value="newamerican">american</button>
+          <button id="c11" value="chinese">chinese</button>
+          <button id="c12" value="french">french</button>
+          <button id="c13" value="indpak">indpak</button>
+          <button id="c14" value="italian">italian</button>
+          <button id="c15" value="japanese">japanese</button>
+          <button id="c16" value="mexican">mexican</button>
+          <button id="c17" value="thai">thai</button>
+          <button id="c18" value="vietnamese">vietnamese</button>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!--  ---------------
+                MAP 
+          --------------- -->
+    <div class="mapColumn">
+      <div id="restaurant-hover" class="restaurant-hover" style="position:absolute"></div>
+      <svg id="svgMap" width="1000" height="1100" top="30">
+      </svg>
+    </div>
+
+  </div>
+
+
+
+  <!-- ==================
+        MAP SCRIPT
+    =================== -->
+  <script id="map">
+    const svgMap = d3.select("#svgMap");
+    const width = svgMap.attr("width");
+    const height = svgMap.attr("height");
+    const deltas = [-100, -4, -1, 0];
+
+    let url = (x, y, z) =>
+      `https://api.mapbox.com/styles/v1/desaiwang/ckttxzrvq0s4i18l4he5vtltt/tiles/${z}/${x}/${y}${devicePixelRatio > 1 ? "@2x" : ""}?access_token=pk.eyJ1IjoiZGVzYWl3YW5nIiwiYSI6ImNrc2puMHIyaTJmbWsydG41bmljMWExdjIifQ.A4w7M2K7sSIN-uLuXarl_w`
+
+    //set up colors 
+    const selectedColor = "#7339D0";
+    const greyedoutColor = "#A5A0AC";
+
+    const requestMapData = async () => {
+
+      //state data
+      // let statesAll = await d3.csv("./acs_prevalence.csv", d3.autoType);
+      // let states = statesAll; //this is used for filtering
+
+      //filters that's placed on statesAll for current View
+      var filters = {};
+
+      // MAP
+      const projection = d3.geoMercator()
+        .scale(1 / (2 * Math.PI))
+        .translate([0, 0]);
+
+
+      const render = d3.geoPath(projection);
+
+      const tile = d3.tile()
+        .extent([[0, 0], [width, height]])
+        .tileSize(512)
+        .clampX(false);
+
+      const levels = svgMap.append("g")
+        .attr("pointer-events", "none")
+        .selectAll("g")
+        .data(deltas)
+        .join("g")
+        .style("opacity", null); //set to 0.3 to see low resolution files
+
+
+      //Mouseover interaction
+      let tooltipWidth = 250;
+      let tooltipHeight = 45;
+
+      let tooltip = svgMap.append("g")
+        .attr("class", "tooltip")
+        .attr("transform", `translate(${20},20)`)
+        .attr("visibility", "hidden");
+
+      let box = tooltip.append("rect")
+        .attr("fill", "white")
+        .attr("opacity", 0.8)
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("height", tooltipHeight);
+
+      let txt = tooltip.append("text")
+        .attr("fill", "black")
+        // .attr("text-anchor", "middle")
+        .attr("alignment-baseline", "hanging")
+        .attr("x", 10)
+        .attr("y", 5);
+      let txt2 = tooltip.append("text")
+        .attr("fill", "black")
+        // .attr("text-anchor", "middle")
+        .attr("alignment-baseline", "hanging")
+        .attr("x", 10)
+        .attr("y", 25);
+
+      // let test = tooltip.append("g").attr("id", "stars");
+
+      let svgEateries = svgMap.append("g");
+      let svgFoodiePicks = svgMap.append("g");
+
+      var zoom = d3.zoom()
+        .scaleExtent([1 << 12, 1 << 20])
+        .on("zoom", ({ transform }) => zoomed(transform));
+
+
+      //centerLocation
+      let centerCoordinates = {
+        latitude: 41.4925,
+        longitude: -99.9018
+      };
+
+      svgMap
+        .call(zoom)
+        .call(zoom.transform, d3.zoomIdentity
+          .translate(width / 2, height / 2)
+          .scale(- 1 << 12)
+          .translate(...projection([centerCoordinates.longitude, centerCoordinates.latitude]))
+          .scale(-1)
+        )
+        .on("mousewheel.zoom", null)
+        .on("DOMMouseScroll.zoom", null); //disable scrolling while zooming
+
+
+      function zoomed(transform) {
+        // console.log("regular projection", projection([42.36541856, -71.05688332]))
+
+        levels.each(function (delta) {
+          const tiles = tile.zoomDelta(delta)(transform);
+
+
+          d3.select(this)
+            .selectAll("image")
+            .data(tiles, d => d)
+            .join("image")
+            .attr("xlink:href", d => url(...d3.tileWrap(d)))
+            .attr("x", ([x]) => (x + tiles.translate[0]) * tiles.scale)
+            .attr("y", ([, y]) => (y + tiles.translate[1]) * tiles.scale)
+            .attr("width", tiles.scale)
+            .attr("height", tiles.scale);
+        });
+
+        projection
+          .scale(transform.k / (2 * Math.PI))
+          .translate([transform.x, transform.y]);
+
+      };
+
+
+      function pointPassesFilters(point) {
+
+        let stillPassed = true;
+
+        Object.values(filters).forEach(filterFunc => {
+
+          stillPassed = filterFunc(point) && stillPassed;
+
+        });
+
+        return stillPassed;
+
+      }
+
+      //calls update on filters
+      function updateData() {
+
+        //update filters
+
+
+        // Draw the circles
+        // svgEateries.selectAll("circle.eateries").data(eateries)
+        //   .join("circle")
+        //   .attr("class", "eateries")
+        //   .attr("fill", (d) => {
+        //     d.dist = getDistanceFromLatLonInMiles(myCoordinates.latitude, myCoordinates.longitude, d.latitude, d.longitude);
+        //     d.inside = d.dist < filter_dist
+        //     if (d.inside) {
+        //       return selectedColor
+        //     }
+        //     else { return greyedoutColor }
+        //   })
+        //   .attr("r", 5)
+        //   .style("stroke", "white")
+        //   .attr("stroke-width", (d) => {
+        //     if (d.inside) { return "2px" }
+        //   })
+        //   .attr("opacity", 0.9)
+        //   .attr("transform", (d) => `translate(${projection([d.longitude, d.latitude])})`)
+        //   .on("mouseover", (e, d) => {
+        //     // console.log("normal")
+        //     updateRestaurantHover([d], e.offsetX, e.offsetY, false)
+
+        //   })
+        //   .on("mouseout", (event) => {
+        //     d3
+        //       .select('#restaurant-hover')
+        //       .selectAll("*").remove();
+        //   });
+
+
+      }
+
+      updateData();
+
+    }
+
+    requestMapData();
+
+    // ---------------
+    // HELPER FUNCTIONS
+    // ---------------
+
+    //makes sure element shows up withinbounds
+    function elementLocation(mouseX, mouseY, elementWidth, elementHeight, boundaryX, xMargin, yMargin) {
+
+      let xPos = mouseX + xMargin;
+      let yPos = mouseY - yMargin - elementHeight;
+
+      if ((xPos + elementWidth) > boundaryX) {
+        xPos = mouseX - xMargin - elementWidth
+      }
+      if (yPos < 0) {
+        yPos = mouseY - yMargin
+      }
+
+      return { x: xPos, y: yPos };
+
+    }
+
+
+    function getDistanceFromLatLonInMiles(lat1, lon1, lat2, lon2) {
+      var R = 3963; // Radius of the earth in miles
+      var dLat = deg2rad(lat2 - lat1);
+      var dLon = deg2rad(lon2 - lon1);
+      var a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2)
+        ;
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      var d = R * c;
+      return d;
+    }
+
+    function deg2rad(deg) {
+      return deg * (Math.PI / 180)
+    }
+
+
+    // Number of stars to create
+    const numStars = 5;
+
+    // Function to create a star element
+    /* testing star generation */
+    /* adapted from: https://jsfiddle.net/Auqj8/1/ */
+
+    function createStar(isFilled, isHalf) {
+      const star = document.createElement('span');
+      star.classList.add('star');
+      if (isFilled) {
+        star.classList.add('on');
+      }
+      if (isHalf) {
+        star.classList.add('half');
+      }
+
+      return star;
+    }
+
+    // Function to generate stars, can take either purple or pink as color
+    function generateStars(data, color) {
+
+      let rating = data.rating;
+
+      let div = document.createElement("div");
+
+      // Clear previous stars
+      div.innerHTML = '';
+
+      // Calculate full stars
+      const fullStars = Math.floor(rating);
+
+      // Calculate half star
+      const hasHalfStar = rating % 1 !== 0;
+
+      // Generate full stars
+      for (let i = 0; i < fullStars; i++) {
+        // const star = createStar(true, false);
+        // div.appendChild(star);
+
+        const star = document.createElement('span')
+        star.className = (`fa fa-star checked ${color}`);
+        div.appendChild(star);
+
+      }
+
+      // Generate half star
+      if (hasHalfStar) {
+        // const halfStar = createStar(false, true);
+        // div.appendChild(halfStar);
+
+        const star = document.createElement('span')
+        star.className = (`fa fa-star-half-full ${color}`);
+        div.appendChild(star);
+      }
+
+      // Generate empty stars
+      const emptyStars = numStars - fullStars - (hasHalfStar ? 1 : 0);
+      for (let i = 0; i < emptyStars; i++) {
+        // const star = createStar(false, false);
+        // div.appendChild(star);
+
+        const star = document.createElement('span')
+        star.className = (`fa fa-star-o ${color}`);
+        div.appendChild(star);
+      }
+
+      let p = document.createElement("p");
+      p.textContent = ` (${data.review_count} reviews)`;
+      p.style.display = "inline"; // Set display to inline
+      p.style.color = "#555"
+      div.appendChild(p);
+
+      return div;
+    }
+
+    // ---------------
+    // RESTAURANT CARD
+    // ---------------
+    function updateRestaurantInfoBox(eateries) {
+
+      const restaurantListDiv = d3.select('#restaurantList');
+      restaurantListDiv.selectAll("*").remove();
+
+      if (eateries.length == 0) {
+        restaurantListDiv
+          .append('div')
+          .attr('class', 'restaurant-card')
+          .append('p')
+          .text("Nothing meets your criteria. Try increasing distance or changing filtered categories.")
+      } else {
+        // Bind data to restaurant cards
+        const restaurantCards = restaurantListDiv.selectAll('.restaurant-card')
+          .data(eateries.slice(0, 5)); // Limit to first 5 restaurants
+
+        // Enter selection - create new elements for restaurants
+        const newRestaurantCards = restaurantCards.enter()
+          .append('div')
+          .attr('class', 'restaurant-card');
+
+        const anchorTags = newRestaurantCards
+          .style('color', 'inherit')
+          .style('text-decoration', 'none');
+
+        // Append individual spans for each search category within a div
+        anchorTags.each(function (d) {
+          d3.select(this)
+            .append('a')
+            .attr('href', d => d.url) // Set href attribute to the restaurant's URL
+            .attr('target', '_blank') // Open link in a new tab
+            .append('p')
+            .attr('class', 'restaurant-name')
+            .text(d => d.name);
+
+          d3.select(this)
+            .append('div')
+            .node()
+            .appendChild(generateStars(d, 'pink'));
+
+          const categories = d['search category'];
+          // console.log(categories);
+          //JSON.parse(d.categories_json);
+
+          // Append a div to contain individual spans for each search category
+          const categoryDiv = d3.select(this)
+            .append('div')
+            .attr('class', 'categoryDivStyle');
+
+          // Append individual spans for each search category within the div
+          const categorySpans = categoryDiv.selectAll('.categorySpan') // Assuming you want to use a class for styling
+            .data(categories)
+            .enter()
+            .append('span')
+            .attr('class', 'categoryStyle') // Use appropriate class for styling
+            .text(category => category);
+
+          const locationInfo = JSON.parse(d.location_json);
+          d3.select(this)
+            .append('p')
+            .text(`${locationInfo.display_address.join(', ')}`);
+
+          d3.select(this)
+            .append('p')
+            .attr('class', 'snippetStyle')
+            .text(d => `"${d.snippet_text}"`);
+        });
+
+        // Update existing restaurant cards
+        restaurantCards.select('a')
+          .attr('href', d => d.url);
+
+        // Remove excess restaurant cards
+        restaurantCards.exit().remove();
+      }
+    }
+
+
+    function updateRestaurantHover(eateries, mouseX, mouseY, isBest) {
+
+      let restaurantListDiv = d3
+        .select('#restaurant-hover');
+
+
+      restaurantListDiv.selectAll("*").remove();
+
+      let cardClass = isBest ? 'best-restaurant-card-hover' : 'restaurant-card-hover';
+      let color = isBest ? 'pink' : 'purple';
+
+      // Bind data to restaurant cards
+      const newRestaurantCards = restaurantListDiv.selectAll('div')
+        .data(eateries)
+        .enter()
+        .append('div')
+        .attr('class', cardClass);
+
+      const anchorTags = newRestaurantCards
+        .style('text-decoration', 'none');
+
+      // Append individual spans for each search category within a div
+      anchorTags.each(function (d) {
+        d3.select(this)
+          .append('p')
+          .attr('class', 'restaurant-name')
+          .text(d => d.name);
+
+        d3.select(this)
+          .append('div')
+          .node()
+          .appendChild(generateStars(d, color));
+
+        const categories = d['search category'];
+
+        // Append a div to contain individual spans for each search category
+        const categoryDiv = d3.select(this)
+          .append('div')
+          .attr('class', 'categoryDivStyle');
+
+        // Append individual spans for each search category within the div
+        const categorySpans = categoryDiv.selectAll('.categorySpan') // Assuming you want to use a class for styling
+          .data(categories)
+          .enter()
+          .append('span')
+          .attr('class', 'categoryStyle') // Use appropriate class for styling
+          .text(category => category);
+
+      });
+
+      // console.log("width", anchorTags.node().offsetWidth)
+      // console.log("height", anchorTags.node().offsetHeight)
+      loc = elementLocation(mouseX, mouseY, anchorTags.node().offsetWidth, anchorTags.node().offsetHeight, width, 10, 10)
+
+      restaurantListDiv.style("transform", `translate(${loc.x}px, ${loc.y}px)`);
+    }
+
+  </script>
+
+</body>

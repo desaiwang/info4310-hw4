@@ -374,12 +374,13 @@
       var filters = {};
 
       // MAP
-      const projection = d3.geoMercator()
+      const projection = d3.geoMercator() //geoAlbersUsa() to see alaska
         .scale(1 / (2 * Math.PI))
         .translate([0, 0]);
 
 
       const render = d3.geoPath(projection);
+
 
       const tile = d3.tile()
         .extent([[0, 0], [width, height]])
@@ -393,6 +394,35 @@
         .join("g")
         .style("opacity", null); //set to 0.3 to see low resolution files
 
+      const us = await d3.json("./us.json");
+      const code_names = await d3.csv("./state-name-codes.csv", d3.autoType);
+
+
+      // 3b. Generate the data structures we will need
+      var stateDict = {}   // stateID ===> stateData
+
+      code_names.forEach(d => {
+        stateDict[d.state_code] = d.state_name;
+      });
+
+      // us.objects.state.forEach(d => {
+      //   d.name = stateDict[d.id]
+      // });
+
+
+
+      console.log(us);
+      var states = topojson.feature(us, us.objects.states);     // List of state outlines to fill
+      var statesMesh = topojson.mesh(us, us.objects.states);    // 'Mesh' of all outlines put together for a stroke
+
+
+      states.features.forEach(d => { d.name = stateDict[d.id] });
+      console.log("do states have names?", states);
+
+
+      var data = []; //TODO: update this when data changes, colorScale will also be automatically updated
+      let colors = d3.schemeBlues[9];
+      //let colorScaleState = d3.scaleQuantize(d3.extent(statePercentages), colors);
 
       //Mouseover interaction
       let tooltipWidth = 250;
@@ -423,11 +453,84 @@
         .attr("x", 10)
         .attr("y", 25);
 
-      // let test = tooltip.append("g").attr("id", "stars");
+      let statePaths = svgMap.selectAll("path.state").data(states.features)
+        .join("path")
+        .attr("class", "state")
+        .attr("note", d => d.id)  // debugging
+        .attr("d", render)
+        .attr("fill", "red")
+        .attr("opacity", 0.5)
+        .on('mouseover', mouseEntersState)
+        .on('mouseout', mouseLeavesState);
 
-      let svgEateries = svgMap.append("g");
-      let svgFoodiePicks = svgMap.append("g");
+      let momesh = svgMap.append("path")
+        .attr("class", "mouseover outline")
+        .style("fill", "none")
+        .style("stroke", "black")
+        .style("stroke-width", 3)
+        .attr("d", "");
 
+      function mouseEntersState() {
+        // Make tooltip visible
+        tooltip.style("visibility", "visible")
+
+        // Find the state SVG element and add stroke
+        let state = d3.select(this);
+
+        // Using .datum() to recover the data for the state element (because we used a .join() to make it)...
+        // ... get the name of the state and count
+        let stateID = state.datum().id;
+        // let stateDat = stateDict[stateID]
+
+        txt.text(state.datum().name);
+        // txt2.text(stateDat.total);
+
+        // You can use the geoPath() generator to do all sorts of helpful things 
+        // let [xPos, yPos] = path.centroid( state.datum() );  // Get the pixel "center" of the state
+
+        let bounds = render.bounds(state.datum());   // Get the pixel boundaries of the state
+        // In both cases here, the geoPath() is parsing the fancy topoJSON data to figure out pixels using the projection
+
+        // Place it at the bottom of the state, centered
+        let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
+        let yPos = bounds[1][1] - 15;
+
+        // Transform the <g> group so that everything moves together easily
+        tooltip.attr("transform", `translate(${xPos},${yPos})`);
+
+        // To fix the oscillation, we add this in the CSS for .mouseover
+        //  pointer-events: none;
+
+        // ** Adding this code can do the mouseover outline the "proper" way
+        // Technically, the right way to do this is with another mesh for some complicated reasons
+        //  You have to use the second parameter of topojson.mesh() to pick out this state's boundaries
+        // First, make a new mesh with a filter for only borders of the current state
+        var mo = topojson.mesh(us, us.objects.states, function (a, b) { return a.id === stateID || b.id === stateID; });
+
+        //  Then apply it to your special mesh that's on top of everything else (added earlier in this file)
+        momesh.datum(mo).attr("d", render)
+
+
+
+
+      }
+
+      function mouseLeavesState() {
+
+        // Hide when you leave a state
+        tooltip.style("visibility", "hidden");
+
+        let state = d3.select(this);
+
+        // Reset old style mouseover stroke
+        // state.attr("stroke","none")
+        //      .attr("stroke-width", 0);
+        // }
+
+        // Here we are hiding the mouseover mesh we added as bonus content
+        //momesh.attr("d", "");
+
+      }
       var zoom = d3.zoom()
         .scaleExtent([1 << 12, 1 << 20])
         .on("zoom", ({ transform }) => zoomed(transform));
@@ -467,11 +570,14 @@
             .attr("y", ([, y]) => (y + tiles.translate[1]) * tiles.scale)
             .attr("width", tiles.scale)
             .attr("height", tiles.scale);
+
         });
 
         projection
           .scale(transform.k / (2 * Math.PI))
           .translate([transform.x, transform.y]);
+
+        statePaths.attr("d", d3.geoPath(projection))
 
       };
 
@@ -539,7 +645,7 @@
     // HELPER FUNCTIONS
     // ---------------
 
-    //makes sure element shows up withinbounds
+    //makes sure element shows up within bounds
     function elementLocation(mouseX, mouseY, elementWidth, elementHeight, boundaryX, xMargin, yMargin) {
 
       let xPos = mouseX + xMargin;
@@ -557,239 +663,6 @@
     }
 
 
-    function getDistanceFromLatLonInMiles(lat1, lon1, lat2, lon2) {
-      var R = 3963; // Radius of the earth in miles
-      var dLat = deg2rad(lat2 - lat1);
-      var dLon = deg2rad(lon2 - lon1);
-      var a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2)
-        ;
-      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      var d = R * c;
-      return d;
-    }
-
-    function deg2rad(deg) {
-      return deg * (Math.PI / 180)
-    }
-
-
-    // Number of stars to create
-    const numStars = 5;
-
-    // Function to create a star element
-    /* testing star generation */
-    /* adapted from: https://jsfiddle.net/Auqj8/1/ */
-
-    function createStar(isFilled, isHalf) {
-      const star = document.createElement('span');
-      star.classList.add('star');
-      if (isFilled) {
-        star.classList.add('on');
-      }
-      if (isHalf) {
-        star.classList.add('half');
-      }
-
-      return star;
-    }
-
-    // Function to generate stars, can take either purple or pink as color
-    function generateStars(data, color) {
-
-      let rating = data.rating;
-
-      let div = document.createElement("div");
-
-      // Clear previous stars
-      div.innerHTML = '';
-
-      // Calculate full stars
-      const fullStars = Math.floor(rating);
-
-      // Calculate half star
-      const hasHalfStar = rating % 1 !== 0;
-
-      // Generate full stars
-      for (let i = 0; i < fullStars; i++) {
-        // const star = createStar(true, false);
-        // div.appendChild(star);
-
-        const star = document.createElement('span')
-        star.className = (`fa fa-star checked ${color}`);
-        div.appendChild(star);
-
-      }
-
-      // Generate half star
-      if (hasHalfStar) {
-        // const halfStar = createStar(false, true);
-        // div.appendChild(halfStar);
-
-        const star = document.createElement('span')
-        star.className = (`fa fa-star-half-full ${color}`);
-        div.appendChild(star);
-      }
-
-      // Generate empty stars
-      const emptyStars = numStars - fullStars - (hasHalfStar ? 1 : 0);
-      for (let i = 0; i < emptyStars; i++) {
-        // const star = createStar(false, false);
-        // div.appendChild(star);
-
-        const star = document.createElement('span')
-        star.className = (`fa fa-star-o ${color}`);
-        div.appendChild(star);
-      }
-
-      let p = document.createElement("p");
-      p.textContent = ` (${data.review_count} reviews)`;
-      p.style.display = "inline"; // Set display to inline
-      p.style.color = "#555"
-      div.appendChild(p);
-
-      return div;
-    }
-
-    // ---------------
-    // RESTAURANT CARD
-    // ---------------
-    function updateRestaurantInfoBox(eateries) {
-
-      const restaurantListDiv = d3.select('#restaurantList');
-      restaurantListDiv.selectAll("*").remove();
-
-      if (eateries.length == 0) {
-        restaurantListDiv
-          .append('div')
-          .attr('class', 'restaurant-card')
-          .append('p')
-          .text("Nothing meets your criteria. Try increasing distance or changing filtered categories.")
-      } else {
-        // Bind data to restaurant cards
-        const restaurantCards = restaurantListDiv.selectAll('.restaurant-card')
-          .data(eateries.slice(0, 5)); // Limit to first 5 restaurants
-
-        // Enter selection - create new elements for restaurants
-        const newRestaurantCards = restaurantCards.enter()
-          .append('div')
-          .attr('class', 'restaurant-card');
-
-        const anchorTags = newRestaurantCards
-          .style('color', 'inherit')
-          .style('text-decoration', 'none');
-
-        // Append individual spans for each search category within a div
-        anchorTags.each(function (d) {
-          d3.select(this)
-            .append('a')
-            .attr('href', d => d.url) // Set href attribute to the restaurant's URL
-            .attr('target', '_blank') // Open link in a new tab
-            .append('p')
-            .attr('class', 'restaurant-name')
-            .text(d => d.name);
-
-          d3.select(this)
-            .append('div')
-            .node()
-            .appendChild(generateStars(d, 'pink'));
-
-          const categories = d['search category'];
-          // console.log(categories);
-          //JSON.parse(d.categories_json);
-
-          // Append a div to contain individual spans for each search category
-          const categoryDiv = d3.select(this)
-            .append('div')
-            .attr('class', 'categoryDivStyle');
-
-          // Append individual spans for each search category within the div
-          const categorySpans = categoryDiv.selectAll('.categorySpan') // Assuming you want to use a class for styling
-            .data(categories)
-            .enter()
-            .append('span')
-            .attr('class', 'categoryStyle') // Use appropriate class for styling
-            .text(category => category);
-
-          const locationInfo = JSON.parse(d.location_json);
-          d3.select(this)
-            .append('p')
-            .text(`${locationInfo.display_address.join(', ')}`);
-
-          d3.select(this)
-            .append('p')
-            .attr('class', 'snippetStyle')
-            .text(d => `"${d.snippet_text}"`);
-        });
-
-        // Update existing restaurant cards
-        restaurantCards.select('a')
-          .attr('href', d => d.url);
-
-        // Remove excess restaurant cards
-        restaurantCards.exit().remove();
-      }
-    }
-
-
-    function updateRestaurantHover(eateries, mouseX, mouseY, isBest) {
-
-      let restaurantListDiv = d3
-        .select('#restaurant-hover');
-
-
-      restaurantListDiv.selectAll("*").remove();
-
-      let cardClass = isBest ? 'best-restaurant-card-hover' : 'restaurant-card-hover';
-      let color = isBest ? 'pink' : 'purple';
-
-      // Bind data to restaurant cards
-      const newRestaurantCards = restaurantListDiv.selectAll('div')
-        .data(eateries)
-        .enter()
-        .append('div')
-        .attr('class', cardClass);
-
-      const anchorTags = newRestaurantCards
-        .style('text-decoration', 'none');
-
-      // Append individual spans for each search category within a div
-      anchorTags.each(function (d) {
-        d3.select(this)
-          .append('p')
-          .attr('class', 'restaurant-name')
-          .text(d => d.name);
-
-        d3.select(this)
-          .append('div')
-          .node()
-          .appendChild(generateStars(d, color));
-
-        const categories = d['search category'];
-
-        // Append a div to contain individual spans for each search category
-        const categoryDiv = d3.select(this)
-          .append('div')
-          .attr('class', 'categoryDivStyle');
-
-        // Append individual spans for each search category within the div
-        const categorySpans = categoryDiv.selectAll('.categorySpan') // Assuming you want to use a class for styling
-          .data(categories)
-          .enter()
-          .append('span')
-          .attr('class', 'categoryStyle') // Use appropriate class for styling
-          .text(category => category);
-
-      });
-
-      // console.log("width", anchorTags.node().offsetWidth)
-      // console.log("height", anchorTags.node().offsetHeight)
-      loc = elementLocation(mouseX, mouseY, anchorTags.node().offsetWidth, anchorTags.node().offsetHeight, width, 10, 10)
-
-      restaurantListDiv.style("transform", `translate(${loc.x}px, ${loc.y}px)`);
-    }
 
   </script>
 

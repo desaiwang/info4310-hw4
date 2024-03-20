@@ -468,7 +468,7 @@
         .translate([0, 0]);
 
 
-      const render = d3.geoPath(projection);
+      let render = d3.geoPath(projection);
 
 
       const tile = d3.tile()
@@ -559,48 +559,30 @@
         .style("stroke-width", 3)
         .attr("d", "");
 
+      var state_datum = states.features[0]; //use this to store selected SVG element to use for zooming, initialized with first feature
+
       function mouseEntersState() {
         // Make tooltip visible
         tooltip.style("visibility", "visible")
 
-        // Find the state SVG element and add stroke
         let state = d3.select(this);
+        state_datum = state.datum();
 
-        // Using .datum() to recover the data for the state element (because we used a .join() to make it)...
-        // ... get the name of the state and count
         let stateID = state.datum().id;
         // let stateDat = stateDict[stateID]
 
         txt.text(state.datum().name);
         // txt2.text(stateDat.total);
 
-        // You can use the geoPath() generator to do all sorts of helpful things 
-        // let [xPos, yPos] = path.centroid( state.datum() );  // Get the pixel "center" of the state
+        let bounds = render.bounds(state.datum());
+        let xPos = (state_datum.name === "Alaska") ? bounds[0][0] : (bounds[0][0] + bounds[1][0]) / 2;
+        let yPos = bounds[1][1];
 
-        let bounds = render.bounds(state.datum());   // Get the pixel boundaries of the state
-        // In both cases here, the geoPath() is parsing the fancy topoJSON data to figure out pixels using the projection
-
-        // Place it at the bottom of the state, centered
-        let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
-        let yPos = bounds[1][1] - 15;
-
-        // Transform the <g> group so that everything moves together easily
         tooltip.attr("transform", `translate(${xPos},${yPos})`);
 
-        // To fix the oscillation, we add this in the CSS for .mouseover
-        //  pointer-events: none;
-
-        // ** Adding this code can do the mouseover outline the "proper" way
-        // Technically, the right way to do this is with another mesh for some complicated reasons
-        //  You have to use the second parameter of topojson.mesh() to pick out this state's boundaries
-        // First, make a new mesh with a filter for only borders of the current state
         var mo = topojson.mesh(us, us.objects.states, function (a, b) { return a.id === stateID || b.id === stateID; });
 
-        //  Then apply it to your special mesh that's on top of everything else (added earlier in this file)
         momesh.datum(mo).attr("d", render)
-
-
-
 
       }
 
@@ -616,8 +598,8 @@
         //      .attr("stroke-width", 0);
         // }
 
-        // Here we are hiding the mouseover mesh we added as bonus content
-        //momesh.attr("d", "");
+        // hiding the mouseover mesh
+        momesh.attr("d", "");
 
       }
       var zoom = d3.zoom()
@@ -666,7 +648,19 @@
           .scale(transform.k / (2 * Math.PI))
           .translate([transform.x, transform.y]);
 
-        statePaths.attr("d", d3.geoPath(projection))
+        render = d3.geoPath(projection);
+
+        //update state outlines
+        statePaths.attr("d", render);
+
+        //update hover path location
+        momesh.attr("d", render);
+
+        //update text location
+        let bounds = render.bounds(state_datum);
+        let xPos = (state_datum.name === "Alaska") ? bounds[0][0] : (bounds[0][0] + bounds[1][0]) / 2;
+        let yPos = bounds[1][1];
+        tooltip.attr("transform", `translate(${xPos},${yPos})`);
 
       };
 

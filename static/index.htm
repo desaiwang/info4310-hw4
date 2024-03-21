@@ -23,37 +23,34 @@
       margin: 0 0 0 100px;
       padding: 0;
       min-width: 1400px;
-      overflow-x: scroll;
+      /* overflow-x: scroll;
       overflow-y: hidden;
-      overscroll-behavior-x: none;
+      overscroll-behavior-x: none; */
     }
 
     h1 {
-      font-weight: 800;
+      font-weight: 600;
       font-size: 3em;
       margin: 20px 0 0 0;
       padding: 0;
-      background: linear-gradient(to right, #7339D0, #d81289);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
+      color: black;
     }
 
     h2 {
       font-weight: 700;
-      font-size: 1em;
+      font-size: 2em;
       margin: 0;
       padding: 0 0 5px 0;
-      color: #777;
-      border-bottom: 1px solid #777;
+      color: #3A7C98;
+      /* border-bottom: 1px solid #777; */
     }
 
     h3 {
       font-weight: 700;
       font-size: 1.05em;
       margin: 0;
-      padding: 20px 0 15px 0;
-      color: #7339D0;
+      padding: 0px 0 15px 0;
+      color: #3A7C98;
     }
 
     h3.withRule {
@@ -76,7 +73,7 @@
 
     p#tagline {
       font-size: 1.1em;
-      color: #7339D0;
+      color: #3A7C98;
       margin: 0;
       padding: 0 0 35 0;
     }
@@ -151,7 +148,7 @@
       border: 0;
       font-size: .95em;
       font-weight: 500;
-      color: #7339D0;
+      color: #3A7C98;
     }
 
     #selectAllButton:hover,
@@ -179,9 +176,15 @@
       max-width: 300px;
     }
 
+
+    div.mapColumn {
+      margin: 0;
+      padding: 10px 35px 10px 0;
+    }
+
     div.filterButtonContainer {
       height: calc(100vh - 170px);
-      overflow-y: scroll;
+      /* overflow-y: scroll; */
     }
 
     div.restaurant-list-info {
@@ -207,74 +210,6 @@
       margin-bottom: 10px;
     }
 
-    .restaurant-card {
-      border: 1px solid #ccc;
-      border-radius: 20px;
-      padding: 20px 30px;
-      margin: 0 0 13px 0;
-      font-size: medium;
-      box-shadow: 0 0 7px #ccc;
-    }
-
-    .restaurant-card div.categoryDivStyle,
-    .restaurant-card-hover div.categoryDivStyle,
-    .best-restaurant-card-hover div.categoryDivStyle {
-      margin: 6px 0 8px 0;
-    }
-
-    .restaurant-card-hover span.categoryStyle {
-      margin: 2px 5px 2px 0;
-      padding: 2px 6px 4px 6px;
-      border: 1px solid #7339D0;
-      color: #7339D0;
-      font-weight: 600;
-      font-size: .95em;
-      text-transform: lowercase;
-      border-radius: 11px;
-    }
-
-    .restaurant-card span.categoryStyle,
-    .best-restaurant-card-hover span.categoryStyle {
-      margin: 2px 5px 2px 0;
-      padding: 2px 6px 4px 6px;
-      border: 1px solid #C63186;
-      color: #C63186;
-      font-weight: 600;
-      font-size: .95em;
-      text-transform: lowercase;
-      border-radius: 11px;
-    }
-
-    .restaurant-card p.snippetStyle,
-    .restaurant-card-hover p.snippetStyle,
-    .best-restaurant-card-hover p.snippetStyle {
-      margin: 5px 0 0 30px;
-      text-indent: 0;
-      font-style: italic;
-    }
-
-    .restaurant-card p.snippetStyle::before,
-    .restaurant-card-hover p.snippetStyle::before,
-    .best-restaurant-card-hover p.snippetStyle::before {
-      content: url('snippet.svg');
-      width: 24px;
-      margin: 0 0 0 -28px;
-      padding: 0;
-      display: inline-block;
-      /* border: 1px solid red; */
-    }
-
-    .restaurant-card-hover,
-    .best-restaurant-card-hover {
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      padding: 5px 5px;
-      margin: 0 0 10px 0;
-      font-size: small;
-      box-shadow: 0 0 7px #ccc;
-      background-color: rgba(255, 255, 255, 0.9);
-    }
-
     div.mapColumn {
       overflow-x: scroll;
       overflow-y: hidden;
@@ -297,6 +232,12 @@
 </head>
 
 <body>
+  <div>
+    <h2>EMPLOYMENT RATE</h2>
+    <h1 style="margin-bottom: 1.25em;">In 2022, the employment rate for the disabled population in the United States is
+      <span id=usa_p_estimate style="color: #3A7C98">13.9%</span>.
+    </h1>
+  </div>
 
   <div class="flex-container">
 
@@ -304,27 +245,13 @@
               FILTERS 
           --------------- -->
     <div class="filterColumn">
-      <h2>FILTERS</h2>
+      <h10>FILTERS</h10>
 
       <div class="filterButtonContainer">
-
-        <!-- RATING FILTER-->
-        <h3>RATING</h3>
-        <svg id="histogram" width="300" height="115"></svg>
-
-        <!-- DISTANCE FILTER-->
-        <h3 class="withRule">DISTANCE</h3>
-        <div id="distance">
-          <button id="mi1_4">.25 mi</button>
-          <button id="mi1_2">.5 mi</button>
-          <button id="mi1">1 mi</button>
-        </div>
-
         <!-- CATEGORY FILTER-->
-        <h3 class="withRule">CATEGORY</h3>
+        <h3 class="withRule">POPULATION CHARACTERISTICS</h3>
         <button id="selectAllButton" value="selectAll">SELECT ALL</button>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<button
           id="resetButton" value="reset">CLEAR ALL</button>
-
         <div id="category">
           <label for="mapType">Map Type:</label>
           <select id="mapType" name="mapType">
@@ -410,13 +337,22 @@
                 MAP 
           --------------- -->
     <div class="mapColumn">
-      <div id="restaurant-hover" class="restaurant-hover" style="position:absolute"></div>
-      <svg id="svgMap" width="1000" height="1100" top="30">
+      <h10>MAPS</h10>
+      <h3 class="withRule">EMPLOYMENT RATE ESTIMATE (2022)</h3>
+      <h3 style="color: black">The employment rate for non-institutionalized,
+        <span id="gender">male or female</span>,
+        with <span id="disabilityType">any</span> disability,
+        <span id="age">all ages</span>,
+        <span id="race">all races</span>,
+        <span id="hispanic">regardless of ethnicity</span>,
+        with <span id="education"></span> in the Unites States is <span id="dynamic_p_estimate">13.9%</span> in 2022.
+      </h3>
+      <div id="restaurant-hover" class="restaurant-hover"></div>
+      <svg id="svgMap" width="1000" height="700" top="10">
       </svg>
     </div>
 
   </div>
-
 
 
   <!-- ==================
@@ -449,6 +385,8 @@
         value: 0 //TODO: delete this? I think it's a bit redundant
       };
 
+
+
       //state data (filter based on selected)
       let statesAll = await d3.csv("./acs_prevalence.csv", d3.autoType);
       let statesData = statesAll.filter(function (row) {
@@ -472,12 +410,14 @@
         d3.select(`select#${d}`)
           .on("change", function () {
             columnValues[d] = Number(d3.select(this).property("value"));
-            console.log(`${d} changed, logging column values:`, columnValues);
+            //console.log(`${d} changed, logging column values:`, columnValues);
 
             updateData();
           });
       })
 
+      //these are columns that affect text
+      let textColumns = ["gender", "disabilityType", "age", "race", "education", "hispanic"]
 
 
       //load map data and match up state names to codes
@@ -509,7 +449,8 @@
       }
 
       //console.log("all_p_estimates", all_p_estimates);
-
+      //updates text for all disability text for usa (this assumes the first selection is everyone with disability)
+      d3.select("span#usa_p_estimate").text(`${dataDict["the United States"].p_estimate}%`);
 
       var states = topojson.feature(us, us.objects.states);     // List of state outlines to fill
       var statesMesh = topojson.mesh(us, us.objects.states);    // 'Mesh' of all outlines put together for a stroke
@@ -577,7 +518,7 @@
         .attr("opacity", 0.8)
         .attr("x", 0)
         .attr("y", 10)
-        .attr("width", 100)
+        .attr("width", 110)
         .attr("height", tooltipHeight);
 
       let txt = tooltip.append("text")
@@ -728,14 +669,14 @@
             row.hispanic === columnValues.hispanic
           )
         });
-        console.log(statesData);
+        //console.log(statesData);
 
-        console.log("dataDict before", dataDict)
+        //console.log("dataDict before", dataDict)
         //refilters the states to be displayed
         statesData.forEach(d => {
           dataDict[d.state] = { n_estimate: d.n_estimate, p_estimate: d.p_estimate }
         });
-        console.log("dataDict after", dataDict)
+        //console.log("dataDict after", dataDict)
 
         //TODO: should we rescale to show more color ranges, or keep for consistency?
         all_p_estimates = [];
@@ -749,6 +690,9 @@
           }
         }
 
+        console.log("usa p est: ", dataDict["the United States"])
+
+
         colorScaleState = d3.scaleQuantize(d3.extent(all_p_estimates), colors);
 
         statePaths.attr("fill", d => {
@@ -756,6 +700,12 @@
           else return colorScaleState(dataDict[d.name].p_estimate)
         })
 
+        //dynamically fill description spans
+        textColumns.forEach(d => {
+          let value = key[d][Number(columnValues[d])];
+          d3.select(`span#${d}`).text(value);
+        })
+        d3.select("span#dynamic_p_estimate").text(`${dataDict["the United States"].p_estimate}%`);
 
 
       }
@@ -769,6 +719,56 @@
     // ---------------
     // HELPER FUNCTIONS
     // ---------------
+
+    //key to match numbers to names, used to dynamically populate descriptions
+    let key = {
+      gender: {
+        0: 'male or female',
+        1: 'male',
+        2: 'female'
+      },
+      disabilityType: {
+        1: 'any',
+        2: 'visual',
+        3: 'hearing',
+        4: 'ambulatory',
+        5: 'cognitive',
+        6: 'self-care',
+        7: 'independent living'
+      },
+      age: {
+        0: 'all ages',
+        1: 'ages 4 and under',
+        2: 'ages 5-15',
+        3: 'ages 16-20',
+        4: 'ages 21-64',
+        5: 'ages 16-64',
+        6: 'ages 18-64',
+        7: 'ages 65-74',
+        8: 'ages 65+',
+        9: 'ages Ages 75+'
+      },
+      race: {
+        0: 'all races',
+        1: 'White',
+        2: 'Black/African American',
+        3: 'Native American or Alaska native',
+        4: 'Asian',
+        5: 'some other race(s)'
+      },
+      education: {
+        0: 'all education levels',
+        1: 'less than a high school education',
+        2: 'a high school diploma or equivalent',
+        3: 'some college/associates degree',
+        4: 'a BA degree or higher'
+      },
+      hispanic: {
+        0: 'regardless of ethnicity',
+        1: 'Hispanic',
+        2: 'non-Hispanic'
+      }
+    }
 
     //makes sure element shows up within bounds
     function elementLocation(mouseX, mouseY, elementWidth, elementHeight, boundaryX, xMargin, yMargin) {

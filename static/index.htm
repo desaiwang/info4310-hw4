@@ -319,7 +319,7 @@
           </select>
 
           <label for="value">Value:</label>
-          <select id="value" name="value">
+          <select id="val" name="value">
             <option value="percentage" selected>Percentage</option>
             <option value="number">Number</option>
           </select>
@@ -386,6 +386,7 @@
       };
 
 
+    
 
       //state data (filter based on selected)
       let statesAll = await d3.csv("./acs_prevalence.csv", d3.autoType);
@@ -402,6 +403,9 @@
         )
       }); //this is used for filtering
 
+
+
+      
       //setting up selections to track selections for prevalence 
       //TODO: need to adapt to different datasets
       let prevalenceColumns = ["mapType", "gender", "disabilityType", "age", "race", "education", "hispanic", "values"];
@@ -536,7 +540,15 @@
 
       var state_datum = states.features[0]; //use this to store selected SVG element to use for zooming, initialized with first feature
 
+      let selectedValue = "percentage";
+     
       function mouseEntersState() {
+      
+        d3.select("#val").on("change", function() {
+          selectedValue =  d3.select(this).property("value");
+          console.log(selectedValue)
+        });
+      
         // Make tooltip visible
         tooltip.style("visibility", "visible")
 
@@ -546,8 +558,14 @@
         let stateID = state_datum.id;
 
         txt.text(state_datum.name);
-        txt2.text(dataDict[state_datum.name].p_estimate + "%");
+        
+        if (selectedValue === "percentage") {
+          txt2.text(dataDict[state_datum.name].p_estimate + "%");
+        }
+        if (selectedValue == "number"){
+          txt2.text(dataDict[state_datum.name].n_estimate);
 
+        }
         let bounds = render.bounds(state.datum());
         let xPos = (state_datum.name === "Alaska") ? bounds[0][0] : (bounds[0][0] + bounds[1][0]) / 2;
         let yPos = bounds[1][1];
@@ -767,7 +785,7 @@
         0: 'regardless of ethnicity',
         1: 'Hispanic',
         2: 'non-Hispanic'
-      }
+      },
     }
 
     //makes sure element shows up within bounds

@@ -129,16 +129,17 @@
       width: 125px;
     }
 
-    #category{
+    #category {
       display: flex;
       flex-direction: column;
     }
-    #category select{
-     width:200px;
-     height: 2em;
+
+    #category select {
+      width: 200px;
+      height: 2em;
     }
 
-    #category label{
+    #category label {
       margin-top: .5em;
       margin-bottom: 0.1em;
     }
@@ -325,8 +326,8 @@
           id="resetButton" value="reset">CLEAR ALL</button>
 
         <div id="category">
-          <label for="gender">Map Type:</label>
-          <select id="gender" name="mapType">
+          <label for="mapType">Map Type:</label>
+          <select id="mapType" name="mapType">
             <option value="0" selected>With or Without Disability</option>
             <option value="1">With Disability</option>
             <option value="2">Without Disability</option>
@@ -338,7 +339,7 @@
             <option value="1">Males</option>
             <option value="2">Females</option>
           </select>
-    
+
           <label for="disabilityType">Disability Type:</label>
           <select id="disabilityType" name="disabilityType">
             <option value="1" selected>Any Disability</option>
@@ -349,7 +350,7 @@
             <option value="6">Self-Care Disability</option>
             <option value="7">Independent Living Disability</option>
           </select>
-    
+
           <label for="age">Age:</label>
           <select id="age" name="age">
             <option value="0" selected>All Ages</option>
@@ -363,7 +364,7 @@
             <option value="9">Ages 65+</option>
             <option value="8">Ages 75+</option>
           </select>
-    
+
           <label for="race">Race:</label>
           <select id="race" name="race">
             <option value="0" selected>All races</option>
@@ -373,7 +374,7 @@
             <option value="4">Asian</option>
             <option value="5">Some other race(s)</option>
           </select>
-    
+
           <label for="education">Education:</label>
           <select id="education" name="education">
             <option value="0" selected>All education levels</option>
@@ -382,37 +383,19 @@
             <option value="3">Some college/associates degree</option>
             <option value="4">A BA degree or higher</option>
           </select>
-    
+
           <label for="hispanic">Hispanic:</label>
           <select id="hispanic" name="hispanic">
             <option value="0" selected>Regardless of ethnicity</option>
             <option value="1">Hispanic</option>
             <option value="2">Non-Hispanic</option>
           </select>
-    
+
           <label for="value">Value:</label>
           <select id="value" name="value">
             <option value="percentage" selected>Percentage</option>
             <option value="number">Number</option>
           </select>
-          <!-- <button id="c01" value="restaurants">restaurants</button>
-          <button id="c02" value="cafes">cafes</button>
-          <button id="c03" value="coffee">coffee</button>
-          <button id="c04" value="sandwiches">sandwiches</button>
-          <button id="c05" value="sushi">sushi</button>
-          <button id="c06" value="pizza">pizza</button>
-          <button id="c07" value="donuts">donuts</button>
-          <button id="c08" value="bakeries">bakeries</button>
-          <button id="c09" value="ethnicmarkets">ethnic</button>
-          <button id="c10" value="newamerican">american</button>
-          <button id="c11" value="chinese">chinese</button>
-          <button id="c12" value="french">french</button>
-          <button id="c13" value="indpak">indpak</button>
-          <button id="c14" value="italian">italian</button>
-          <button id="c15" value="japanese">japanese</button>
-          <button id="c16" value="mexican">mexican</button>
-          <button id="c17" value="thai">thai</button>
-          <button id="c18" value="vietnamese">vietnamese</button> -->
 
 
 
@@ -454,22 +437,95 @@
 
     const requestMapData = async () => {
 
-      //state data
-      let statesAll = await d3.csv("./acs_prevalence.csv", d3.autoType);
-      let statesData = statesAll; //this is used for filtering
-      console.log(statesData);
+      //initialize dict with column values
+      let columnValues = {
+        mapType: 0,
+        gender: 0,
+        disabilityType: 1,
+        age: 0,
+        race: 0,
+        education: 0,
+        hispanic: 0,
+        value: 0 //TODO: delete this? I think it's a bit redundant
+      };
 
-      //filters that's placed on statesAll for current View
-      var filters = {};
+      //state data (filter based on selected)
+      let statesAll = await d3.csv("./acs_prevalence.csv", d3.autoType);
+      let statesData = statesAll.filter(function (row) {
+        return (
+          row.gender === columnValues.gender
+          &&
+          row.disability_type === columnValues.disabilityType
+          &&
+          row.age === columnValues.age &&
+          row.race === columnValues.race &&
+          row.education === columnValues.education &&
+          row.hispanic === columnValues.hispanic
+        )
+      }); //this is used for filtering
+
+      //setting up selections to track selections for prevalence 
+      //TODO: need to adapt to different datasets
+      let prevalenceColumns = ["mapType", "gender", "disabilityType", "age", "race", "education", "hispanic", "values"];
+      prevalenceColumns.forEach((d) => {
+
+        d3.select(`select#${d}`)
+          .on("change", function () {
+            columnValues[d] = Number(d3.select(this).property("value"));
+            console.log(`${d} changed, logging column values:`, columnValues);
+
+            updateData();
+          });
+      })
+
+
+
+      //load map data and match up state names to codes
+      const us = await d3.json("./us.json");
+      const code_names = await d3.csv("./state-name-codes.csv", d3.autoType);
+
+
+      // 3b. Generate the data structures we will need
+      var stateDict = {}   // stateID ===> stateData
+
+      code_names.forEach(d => {
+        stateDict[d.state_code] = d.state_name;
+      });
+
+      var dataDict = {}
+      statesData.forEach(d => {
+        dataDict[d.state] = { n_estimate: d.n_estimate, p_estimate: d.p_estimate }
+      });
+      //console.log("dataDict", dataDict);
+
+      //create list of p_estimates to calculate extent
+      let all_p_estimates = [];
+
+      for (const key in dataDict) {
+        if (dataDict.hasOwnProperty(key)) {
+          const values = dataDict[key];
+          all_p_estimates.push(values.p_estimate);
+        }
+      }
+
+      //console.log("all_p_estimates", all_p_estimates);
+
+
+      var states = topojson.feature(us, us.objects.states);     // List of state outlines to fill
+      var statesMesh = topojson.mesh(us, us.objects.states);    // 'Mesh' of all outlines put together for a stroke
+
+      //add names to each state
+      states.features.forEach(d => {
+        d.name = stateDict[d.id]
+      });
+
 
       // MAP
       const projection = d3.geoMercator() //geoAlbersUsa() to see alaska
         .scale(1 / (2 * Math.PI))
         .translate([0, 0]);
 
-
       let render = d3.geoPath(projection);
-
 
       const tile = d3.tile()
         .extent([[0, 0], [width, height]])
@@ -483,35 +539,29 @@
         .join("g")
         .style("opacity", null); //set to 0.3 to see low resolution files
 
-      const us = await d3.json("./us.json");
-      const code_names = await d3.csv("./state-name-codes.csv", d3.autoType);
-
-
-      // 3b. Generate the data structures we will need
-      var stateDict = {}   // stateID ===> stateData
-
-      code_names.forEach(d => {
-        stateDict[d.state_code] = d.state_name;
-      });
-
-      // us.objects.state.forEach(d => {
-      //   d.name = stateDict[d.id]
-      // });
-
-
-
-      console.log(us);
-      var states = topojson.feature(us, us.objects.states);     // List of state outlines to fill
-      var statesMesh = topojson.mesh(us, us.objects.states);    // 'Mesh' of all outlines put together for a stroke
-
-
-      states.features.forEach(d => { d.name = stateDict[d.id] });
-      console.log("do states have names?", states);
-
-
       var data = []; //TODO: update this when data changes, colorScale will also be automatically updated
       let colors = d3.schemeBlues[9];
-      //let colorScaleState = d3.scaleQuantize(d3.extent(statePercentages), colors);
+      let colorScaleState = d3.scaleQuantize(d3.extent(all_p_estimates), colors);
+
+      let statePaths = svgMap.selectAll("path.state").data(states.features)
+        .join("path")
+        .attr("class", "state")
+        .attr("note", d => d.id)  // debugging
+        .attr("d", render)
+        .attr("fill", d => {
+          if (d.name == "Virgin Islands") return "none" //we don't have data for Virgin Islands
+          else return colorScaleState(dataDict[d.name].p_estimate)
+        })
+        .attr("opacity", 0.8)
+        .on('mouseover', mouseEntersState)
+        .on('mouseout', mouseLeavesState);
+
+      let momesh = svgMap.append("path")
+        .attr("class", "mouseover outline")
+        .style("fill", "none")
+        .style("stroke", "black")
+        .style("stroke-width", 3)
+        .attr("d", "");
 
       //Mouseover interaction
       let tooltipWidth = 250;
@@ -526,7 +576,8 @@
         .attr("fill", "white")
         .attr("opacity", 0.8)
         .attr("x", 0)
-        .attr("y", 0)
+        .attr("y", 10)
+        .attr("width", 100)
         .attr("height", tooltipHeight);
 
       let txt = tooltip.append("text")
@@ -534,30 +585,13 @@
         // .attr("text-anchor", "middle")
         .attr("alignment-baseline", "hanging")
         .attr("x", 10)
-        .attr("y", 5);
+        .attr("y", 15);
       let txt2 = tooltip.append("text")
         .attr("fill", "black")
         // .attr("text-anchor", "middle")
         .attr("alignment-baseline", "hanging")
         .attr("x", 10)
-        .attr("y", 25);
-
-      let statePaths = svgMap.selectAll("path.state").data(states.features)
-        .join("path")
-        .attr("class", "state")
-        .attr("note", d => d.id)  // debugging
-        .attr("d", render)
-        .attr("fill", "red")
-        .attr("opacity", 0.5)
-        .on('mouseover', mouseEntersState)
-        .on('mouseout', mouseLeavesState);
-
-      let momesh = svgMap.append("path")
-        .attr("class", "mouseover outline")
-        .style("fill", "none")
-        .style("stroke", "black")
-        .style("stroke-width", 3)
-        .attr("d", "");
+        .attr("y", 35);
 
       var state_datum = states.features[0]; //use this to store selected SVG element to use for zooming, initialized with first feature
 
@@ -568,11 +602,10 @@
         let state = d3.select(this);
         state_datum = state.datum();
 
-        let stateID = state.datum().id;
-        // let stateDat = stateDict[stateID]
+        let stateID = state_datum.id;
 
-        txt.text(state.datum().name);
-        // txt2.text(stateDat.total);
+        txt.text(state_datum.name);
+        txt2.text(dataDict[state_datum.name].p_estimate + "%");
 
         let bounds = render.bounds(state.datum());
         let xPos = (state_datum.name === "Alaska") ? bounds[0][0] : (bounds[0][0] + bounds[1][0]) / 2;
@@ -679,43 +712,50 @@
 
       }
 
-      //calls update on filters
+      //calls update on filters when selections are changed
       function updateData() {
 
 
-        console.log("testing");
-        //update filters
+        statesData = statesAll.filter(function (row) {
+          return (
+            row.gender === columnValues.gender
+            &&
+            row.disability_type === columnValues.disabilityType
+            &&
+            row.age === columnValues.age &&
+            row.race === columnValues.race &&
+            row.education === columnValues.education &&
+            row.hispanic === columnValues.hispanic
+          )
+        });
+        console.log(statesData);
 
+        console.log("dataDict before", dataDict)
+        //refilters the states to be displayed
+        statesData.forEach(d => {
+          dataDict[d.state] = { n_estimate: d.n_estimate, p_estimate: d.p_estimate }
+        });
+        console.log("dataDict after", dataDict)
 
-        // Draw the circles
-        // svgEateries.selectAll("circle.eateries").data(eateries)
-        //   .join("circle")
-        //   .attr("class", "eateries")
-        //   .attr("fill", (d) => {
-        //     d.dist = getDistanceFromLatLonInMiles(myCoordinates.latitude, myCoordinates.longitude, d.latitude, d.longitude);
-        //     d.inside = d.dist < filter_dist
-        //     if (d.inside) {
-        //       return selectedColor
-        //     }
-        //     else { return greyedoutColor }
-        //   })
-        //   .attr("r", 5)
-        //   .style("stroke", "white")
-        //   .attr("stroke-width", (d) => {
-        //     if (d.inside) { return "2px" }
-        //   })
-        //   .attr("opacity", 0.9)
-        //   .attr("transform", (d) => `translate(${projection([d.longitude, d.latitude])})`)
-        //   .on("mouseover", (e, d) => {
-        //     // console.log("normal")
-        //     updateRestaurantHover([d], e.offsetX, e.offsetY, false)
+        //TODO: should we rescale to show more color ranges, or keep for consistency?
+        all_p_estimates = [];
 
-        //   })
-        //   .on("mouseout", (event) => {
-        //     d3
-        //       .select('#restaurant-hover')
-        //       .selectAll("*").remove();
-        //   });
+        // reevaluate all p_estimates
+        for (const key in dataDict) {
+          if (dataDict.hasOwnProperty(key)) {
+            const values = dataDict[key];
+            // Add value2 to the allValue2s array
+            all_p_estimates.push(values.p_estimate);
+          }
+        }
+
+        colorScaleState = d3.scaleQuantize(d3.extent(all_p_estimates), colors);
+
+        statePaths.attr("fill", d => {
+          if (d.name == "Virgin Islands") return "none" //we don't have data for Virgin Islands
+          else return colorScaleState(dataDict[d.name].p_estimate)
+        })
+
 
 
       }

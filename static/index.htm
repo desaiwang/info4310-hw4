@@ -23,37 +23,34 @@
       margin: 0 0 0 100px;
       padding: 0;
       min-width: 1400px;
-      overflow-x: scroll;
+      /* overflow-x: scroll;
       overflow-y: hidden;
-      overscroll-behavior-x: none;
+      overscroll-behavior-x: none; */
     }
 
     h1 {
-      font-weight: 800;
+      font-weight: 600;
       font-size: 3em;
       margin: 20px 0 0 0;
       padding: 0;
-      background: linear-gradient(to right, #7339D0, #d81289);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
+      color: black;
     }
 
     h2 {
       font-weight: 700;
-      font-size: 1em;
+      font-size: 2em;
       margin: 0;
       padding: 0 0 5px 0;
-      color: #777;
-      border-bottom: 1px solid #777;
+      color: #3A7C98;
+      /* border-bottom: 1px solid #777; */
     }
 
     h3 {
       font-weight: 700;
       font-size: 1.05em;
       margin: 0;
-      padding: 20px 0 15px 0;
-      color: #7339D0;
+      padding: 0px 0 15px 0;
+      color: #3A7C98;
     }
 
     h3.withRule {
@@ -76,7 +73,7 @@
 
     p#tagline {
       font-size: 1.1em;
-      color: #7339D0;
+      color: #3A7C98;
       margin: 0;
       padding: 0 0 35 0;
     }
@@ -129,6 +126,21 @@
       width: 125px;
     }
 
+    #category {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #category select {
+      width: 200px;
+      height: 2em;
+    }
+
+    #category label {
+      margin-top: .5em;
+      margin-bottom: 0.1em;
+    }
+
     button#selectAllButton,
     button#resetButton {
       margin: 0 0 12px 0;
@@ -136,7 +148,7 @@
       border: 0;
       font-size: .95em;
       font-weight: 500;
-      color: #7339D0;
+      color: #3A7C98;
     }
 
     #selectAllButton:hover,
@@ -164,9 +176,15 @@
       max-width: 300px;
     }
 
+
+    div.mapColumn {
+      margin: 0;
+      padding: 10px 35px 10px 0;
+    }
+
     div.filterButtonContainer {
       height: calc(100vh - 170px);
-      overflow-y: scroll;
+      /* overflow-y: scroll; */
     }
 
     div.restaurant-list-info {
@@ -192,74 +210,6 @@
       margin-bottom: 10px;
     }
 
-    .restaurant-card {
-      border: 1px solid #ccc;
-      border-radius: 20px;
-      padding: 20px 30px;
-      margin: 0 0 13px 0;
-      font-size: medium;
-      box-shadow: 0 0 7px #ccc;
-    }
-
-    .restaurant-card div.categoryDivStyle,
-    .restaurant-card-hover div.categoryDivStyle,
-    .best-restaurant-card-hover div.categoryDivStyle {
-      margin: 6px 0 8px 0;
-    }
-
-    .restaurant-card-hover span.categoryStyle {
-      margin: 2px 5px 2px 0;
-      padding: 2px 6px 4px 6px;
-      border: 1px solid #7339D0;
-      color: #7339D0;
-      font-weight: 600;
-      font-size: .95em;
-      text-transform: lowercase;
-      border-radius: 11px;
-    }
-
-    .restaurant-card span.categoryStyle,
-    .best-restaurant-card-hover span.categoryStyle {
-      margin: 2px 5px 2px 0;
-      padding: 2px 6px 4px 6px;
-      border: 1px solid #C63186;
-      color: #C63186;
-      font-weight: 600;
-      font-size: .95em;
-      text-transform: lowercase;
-      border-radius: 11px;
-    }
-
-    .restaurant-card p.snippetStyle,
-    .restaurant-card-hover p.snippetStyle,
-    .best-restaurant-card-hover p.snippetStyle {
-      margin: 5px 0 0 30px;
-      text-indent: 0;
-      font-style: italic;
-    }
-
-    .restaurant-card p.snippetStyle::before,
-    .restaurant-card-hover p.snippetStyle::before,
-    .best-restaurant-card-hover p.snippetStyle::before {
-      content: url('snippet.svg');
-      width: 24px;
-      margin: 0 0 0 -28px;
-      padding: 0;
-      display: inline-block;
-      /* border: 1px solid red; */
-    }
-
-    .restaurant-card-hover,
-    .best-restaurant-card-hover {
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      padding: 5px 5px;
-      margin: 0 0 10px 0;
-      font-size: small;
-      box-shadow: 0 0 7px #ccc;
-      background-color: rgba(255, 255, 255, 0.9);
-    }
-
     div.mapColumn {
       overflow-x: scroll;
       overflow-y: hidden;
@@ -282,6 +232,12 @@
 </head>
 
 <body>
+  <div>
+    <h2>EMPLOYMENT RATE</h2>
+    <h1 style="margin-bottom: 1.25em;">In 2022, the employment rate for the disabled population in the United States is
+      <span id=usa_p_estimate style="color: #3A7C98">13.9%</span>.
+    </h1>
+  </div>
 
   <div class="flex-container">
 
@@ -289,46 +245,88 @@
               FILTERS 
           --------------- -->
     <div class="filterColumn">
-      <h2>FILTERS</h2>
+      <h10>FILTERS</h10>
 
       <div class="filterButtonContainer">
-
-        <!-- RATING FILTER-->
-        <h3>RATING</h3>
-        <svg id="histogram" width="300" height="115"></svg>
-
-        <!-- DISTANCE FILTER-->
-        <h3 class="withRule">DISTANCE</h3>
-        <div id="distance">
-          <button id="mi1_4">.25 mi</button>
-          <button id="mi1_2">.5 mi</button>
-          <button id="mi1">1 mi</button>
-        </div>
-
         <!-- CATEGORY FILTER-->
-        <h3 class="withRule">CATEGORY</h3>
+        <h3 class="withRule">POPULATION CHARACTERISTICS</h3>
         <button id="selectAllButton" value="selectAll">SELECT ALL</button>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<button
           id="resetButton" value="reset">CLEAR ALL</button>
-
         <div id="category">
-          <button id="c01" value="restaurants">restaurants</button>
-          <button id="c02" value="cafes">cafes</button>
-          <button id="c03" value="coffee">coffee</button>
-          <button id="c04" value="sandwiches">sandwiches</button>
-          <button id="c05" value="sushi">sushi</button>
-          <button id="c06" value="pizza">pizza</button>
-          <button id="c07" value="donuts">donuts</button>
-          <button id="c08" value="bakeries">bakeries</button>
-          <button id="c09" value="ethnicmarkets">ethnic</button>
-          <button id="c10" value="newamerican">american</button>
-          <button id="c11" value="chinese">chinese</button>
-          <button id="c12" value="french">french</button>
-          <button id="c13" value="indpak">indpak</button>
-          <button id="c14" value="italian">italian</button>
-          <button id="c15" value="japanese">japanese</button>
-          <button id="c16" value="mexican">mexican</button>
-          <button id="c17" value="thai">thai</button>
-          <button id="c18" value="vietnamese">vietnamese</button>
+          <label for="mapType">Map Type:</label>
+          <select id="mapType" name="mapType">
+            <option value="0" selected>With or Without Disability</option>
+            <option value="1">With Disability</option>
+            <option value="2">Without Disability</option>
+          </select>
+
+          <label for="gender">Gender:</label>
+          <select id="gender" name="gender">
+            <option value="0" selected>Male or Female</option>
+            <option value="1">Males</option>
+            <option value="2">Females</option>
+          </select>
+
+          <label for="disabilityType">Disability Type:</label>
+          <select id="disabilityType" name="disabilityType">
+            <option value="1" selected>Any Disability</option>
+            <option value="2">Visual Disability</option>
+            <option value="3">Hearing Disability</option>
+            <option value="4">Ambulatory Disability</option>
+            <option value="5">Cognitive Disability</option>
+            <option value="6">Self-Care Disability</option>
+            <option value="7">Independent Living Disability</option>
+          </select>
+
+          <label for="age">Age:</label>
+          <select id="age" name="age">
+            <option value="0" selected>All Ages</option>
+            <option value="5">Ages 4 and under</option>
+            <option value="6">Ages 5-15</option>
+            <option value="1">Ages 16-20</option>
+            <option value="2">Ages 21-64</option>
+            <option value="3">Ages 16-64</option>
+            <option value="4">Ages 18-64</option>
+            <option value="7">Ages 65-74</option>
+            <option value="9">Ages 65+</option>
+            <option value="8">Ages 75+</option>
+          </select>
+
+          <label for="race">Race:</label>
+          <select id="race" name="race">
+            <option value="0" selected>All races</option>
+            <option value="1">White</option>
+            <option value="2">Black/African American</option>
+            <option value="3">Native American or Alaska Native</option>
+            <option value="4">Asian</option>
+            <option value="5">Some other race(s)</option>
+          </select>
+
+          <label for="education">Education:</label>
+          <select id="education" name="education">
+            <option value="0" selected>All education levels</option>
+            <option value="1">Less than a high school education</option>
+            <option value="2">A high school diploma or equivalent</option>
+            <option value="3">Some college/associates degree</option>
+            <option value="4">A BA degree or higher</option>
+          </select>
+
+          <label for="hispanic">Hispanic:</label>
+          <select id="hispanic" name="hispanic">
+            <option value="0" selected>Regardless of ethnicity</option>
+            <option value="1">Hispanic</option>
+            <option value="2">Non-Hispanic</option>
+          </select>
+
+          <label for="value">Value:</label>
+          <select id="value" name="value">
+            <option value="percentage" selected>Percentage</option>
+            <option value="number">Number</option>
+          </select>
+
+
+
+
         </div>
 
       </div>
@@ -339,13 +337,22 @@
                 MAP 
           --------------- -->
     <div class="mapColumn">
-      <div id="restaurant-hover" class="restaurant-hover" style="position:absolute"></div>
-      <svg id="svgMap" width="1000" height="1100" top="30">
+      <h10>MAPS</h10>
+      <h3 class="withRule">EMPLOYMENT RATE ESTIMATE (2022)</h3>
+      <h3 style="color: black">The employment rate for non-institutionalized,
+        <span id="gender">male or female</span>,
+        with <span id="disabilityType">any</span> disability,
+        <span id="age">all ages</span>,
+        <span id="race">all races</span>,
+        <span id="hispanic">regardless of ethnicity</span>,
+        with <span id="education"></span> in the Unites States is <span id="dynamic_p_estimate">13.9%</span> in 2022.
+      </h3>
+      <div id="restaurant-hover" class="restaurant-hover"></div>
+      <svg id="svgMap" width="1000" height="700" top="10">
       </svg>
     </div>
 
   </div>
-
 
 
   <!-- ==================
@@ -366,21 +373,100 @@
 
     const requestMapData = async () => {
 
-      //state data
-      // let statesAll = await d3.csv("./acs_prevalence.csv", d3.autoType);
-      // let states = statesAll; //this is used for filtering
+      //initialize dict with column values
+      let columnValues = {
+        mapType: 0,
+        gender: 0,
+        disabilityType: 1,
+        age: 0,
+        race: 0,
+        education: 0,
+        hispanic: 0,
+        value: 0 //TODO: delete this? I think it's a bit redundant
+      };
 
-      //filters that's placed on statesAll for current View
-      var filters = {};
+
+
+      //state data (filter based on selected)
+      let statesAll = await d3.csv("./acs_prevalence.csv", d3.autoType);
+      let statesData = statesAll.filter(function (row) {
+        return (
+          row.gender === columnValues.gender
+          &&
+          row.disability_type === columnValues.disabilityType
+          &&
+          row.age === columnValues.age &&
+          row.race === columnValues.race &&
+          row.education === columnValues.education &&
+          row.hispanic === columnValues.hispanic
+        )
+      }); //this is used for filtering
+
+      //setting up selections to track selections for prevalence 
+      //TODO: need to adapt to different datasets
+      let prevalenceColumns = ["mapType", "gender", "disabilityType", "age", "race", "education", "hispanic", "values"];
+      prevalenceColumns.forEach((d) => {
+
+        d3.select(`select#${d}`)
+          .on("change", function () {
+            columnValues[d] = Number(d3.select(this).property("value"));
+            //console.log(`${d} changed, logging column values:`, columnValues);
+
+            updateData();
+          });
+      })
+
+      //these are columns that affect text
+      let textColumns = ["gender", "disabilityType", "age", "race", "education", "hispanic"]
+
+
+      //load map data and match up state names to codes
+      const us = await d3.json("./us.json");
+      const code_names = await d3.csv("./state-name-codes.csv", d3.autoType);
+
+
+      // 3b. Generate the data structures we will need
+      var stateDict = {}   // stateID ===> stateData
+
+      code_names.forEach(d => {
+        stateDict[d.state_code] = d.state_name;
+      });
+
+      var dataDict = {}
+      statesData.forEach(d => {
+        dataDict[d.state] = { n_estimate: d.n_estimate, p_estimate: d.p_estimate }
+      });
+      //console.log("dataDict", dataDict);
+
+      //create list of p_estimates to calculate extent
+      let all_p_estimates = [];
+
+      for (const key in dataDict) {
+        if (dataDict.hasOwnProperty(key)) {
+          const values = dataDict[key];
+          all_p_estimates.push(values.p_estimate);
+        }
+      }
+
+      //console.log("all_p_estimates", all_p_estimates);
+      //updates text for all disability text for usa (this assumes the first selection is everyone with disability)
+      d3.select("span#usa_p_estimate").text(`${dataDict["the United States"].p_estimate}%`);
+
+      var states = topojson.feature(us, us.objects.states);     // List of state outlines to fill
+      var statesMesh = topojson.mesh(us, us.objects.states);    // 'Mesh' of all outlines put together for a stroke
+
+      //add names to each state
+      states.features.forEach(d => {
+        d.name = stateDict[d.id]
+      });
+
 
       // MAP
       const projection = d3.geoMercator() //geoAlbersUsa() to see alaska
         .scale(1 / (2 * Math.PI))
         .translate([0, 0]);
 
-
-      const render = d3.geoPath(projection);
-
+      let render = d3.geoPath(projection);
 
       const tile = d3.tile()
         .extent([[0, 0], [width, height]])
@@ -394,35 +480,29 @@
         .join("g")
         .style("opacity", null); //set to 0.3 to see low resolution files
 
-      const us = await d3.json("./us.json");
-      const code_names = await d3.csv("./state-name-codes.csv", d3.autoType);
-
-
-      // 3b. Generate the data structures we will need
-      var stateDict = {}   // stateID ===> stateData
-
-      code_names.forEach(d => {
-        stateDict[d.state_code] = d.state_name;
-      });
-
-      // us.objects.state.forEach(d => {
-      //   d.name = stateDict[d.id]
-      // });
-
-
-
-      console.log(us);
-      var states = topojson.feature(us, us.objects.states);     // List of state outlines to fill
-      var statesMesh = topojson.mesh(us, us.objects.states);    // 'Mesh' of all outlines put together for a stroke
-
-
-      states.features.forEach(d => { d.name = stateDict[d.id] });
-      console.log("do states have names?", states);
-
-
       var data = []; //TODO: update this when data changes, colorScale will also be automatically updated
       let colors = d3.schemeBlues[9];
-      //let colorScaleState = d3.scaleQuantize(d3.extent(statePercentages), colors);
+      let colorScaleState = d3.scaleQuantize(d3.extent(all_p_estimates), colors);
+
+      let statePaths = svgMap.selectAll("path.state").data(states.features)
+        .join("path")
+        .attr("class", "state")
+        .attr("note", d => d.id)  // debugging
+        .attr("d", render)
+        .attr("fill", d => {
+          if (d.name == "Virgin Islands") return "none" //we don't have data for Virgin Islands
+          else return colorScaleState(dataDict[d.name].p_estimate)
+        })
+        .attr("opacity", 0.8)
+        .on('mouseover', mouseEntersState)
+        .on('mouseout', mouseLeavesState);
+
+      let momesh = svgMap.append("path")
+        .attr("class", "mouseover outline")
+        .style("fill", "none")
+        .style("stroke", "black")
+        .style("stroke-width", 3)
+        .attr("d", "");
 
       //Mouseover interaction
       let tooltipWidth = 250;
@@ -437,7 +517,8 @@
         .attr("fill", "white")
         .attr("opacity", 0.8)
         .attr("x", 0)
-        .attr("y", 0)
+        .attr("y", 10)
+        .attr("width", 110)
         .attr("height", tooltipHeight);
 
       let txt = tooltip.append("text")
@@ -445,73 +526,37 @@
         // .attr("text-anchor", "middle")
         .attr("alignment-baseline", "hanging")
         .attr("x", 10)
-        .attr("y", 5);
+        .attr("y", 15);
       let txt2 = tooltip.append("text")
         .attr("fill", "black")
         // .attr("text-anchor", "middle")
         .attr("alignment-baseline", "hanging")
         .attr("x", 10)
-        .attr("y", 25);
+        .attr("y", 35);
 
-      let statePaths = svgMap.selectAll("path.state").data(states.features)
-        .join("path")
-        .attr("class", "state")
-        .attr("note", d => d.id)  // debugging
-        .attr("d", render)
-        .attr("fill", "red")
-        .attr("opacity", 0.5)
-        .on('mouseover', mouseEntersState)
-        .on('mouseout', mouseLeavesState);
-
-      let momesh = svgMap.append("path")
-        .attr("class", "mouseover outline")
-        .style("fill", "none")
-        .style("stroke", "black")
-        .style("stroke-width", 3)
-        .attr("d", "");
+      var state_datum = states.features[0]; //use this to store selected SVG element to use for zooming, initialized with first feature
 
       function mouseEntersState() {
         // Make tooltip visible
         tooltip.style("visibility", "visible")
 
-        // Find the state SVG element and add stroke
         let state = d3.select(this);
+        state_datum = state.datum();
 
-        // Using .datum() to recover the data for the state element (because we used a .join() to make it)...
-        // ... get the name of the state and count
-        let stateID = state.datum().id;
-        // let stateDat = stateDict[stateID]
+        let stateID = state_datum.id;
 
-        txt.text(state.datum().name);
-        // txt2.text(stateDat.total);
+        txt.text(state_datum.name);
+        txt2.text(dataDict[state_datum.name].p_estimate + "%");
 
-        // You can use the geoPath() generator to do all sorts of helpful things 
-        // let [xPos, yPos] = path.centroid( state.datum() );  // Get the pixel "center" of the state
+        let bounds = render.bounds(state.datum());
+        let xPos = (state_datum.name === "Alaska") ? bounds[0][0] : (bounds[0][0] + bounds[1][0]) / 2;
+        let yPos = bounds[1][1];
 
-        let bounds = render.bounds(state.datum());   // Get the pixel boundaries of the state
-        // In both cases here, the geoPath() is parsing the fancy topoJSON data to figure out pixels using the projection
-
-        // Place it at the bottom of the state, centered
-        let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
-        let yPos = bounds[1][1] - 15;
-
-        // Transform the <g> group so that everything moves together easily
         tooltip.attr("transform", `translate(${xPos},${yPos})`);
 
-        // To fix the oscillation, we add this in the CSS for .mouseover
-        //  pointer-events: none;
-
-        // ** Adding this code can do the mouseover outline the "proper" way
-        // Technically, the right way to do this is with another mesh for some complicated reasons
-        //  You have to use the second parameter of topojson.mesh() to pick out this state's boundaries
-        // First, make a new mesh with a filter for only borders of the current state
         var mo = topojson.mesh(us, us.objects.states, function (a, b) { return a.id === stateID || b.id === stateID; });
 
-        //  Then apply it to your special mesh that's on top of everything else (added earlier in this file)
         momesh.datum(mo).attr("d", render)
-
-
-
 
       }
 
@@ -527,8 +572,8 @@
         //      .attr("stroke-width", 0);
         // }
 
-        // Here we are hiding the mouseover mesh we added as bonus content
-        //momesh.attr("d", "");
+        // hiding the mouseover mesh
+        momesh.attr("d", "");
 
       }
       var zoom = d3.zoom()
@@ -577,7 +622,19 @@
           .scale(transform.k / (2 * Math.PI))
           .translate([transform.x, transform.y]);
 
-        statePaths.attr("d", d3.geoPath(projection))
+        render = d3.geoPath(projection);
+
+        //update state outlines
+        statePaths.attr("d", render);
+
+        //update hover path location
+        momesh.attr("d", render);
+
+        //update text location
+        let bounds = render.bounds(state_datum);
+        let xPos = (state_datum.name === "Alaska") ? bounds[0][0] : (bounds[0][0] + bounds[1][0]) / 2;
+        let yPos = bounds[1][1];
+        tooltip.attr("transform", `translate(${xPos},${yPos})`);
 
       };
 
@@ -596,41 +653,59 @@
 
       }
 
-      //calls update on filters
+      //calls update on filters when selections are changed
       function updateData() {
 
-        //update filters
+
+        statesData = statesAll.filter(function (row) {
+          return (
+            row.gender === columnValues.gender
+            &&
+            row.disability_type === columnValues.disabilityType
+            &&
+            row.age === columnValues.age &&
+            row.race === columnValues.race &&
+            row.education === columnValues.education &&
+            row.hispanic === columnValues.hispanic
+          )
+        });
+        //console.log(statesData);
+
+        //console.log("dataDict before", dataDict)
+        //refilters the states to be displayed
+        statesData.forEach(d => {
+          dataDict[d.state] = { n_estimate: d.n_estimate, p_estimate: d.p_estimate }
+        });
+        //console.log("dataDict after", dataDict)
+
+        //TODO: should we rescale to show more color ranges, or keep for consistency?
+        all_p_estimates = [];
+
+        // reevaluate all p_estimates
+        for (const key in dataDict) {
+          if (dataDict.hasOwnProperty(key)) {
+            const values = dataDict[key];
+            // Add value2 to the allValue2s array
+            all_p_estimates.push(values.p_estimate);
+          }
+        }
+
+        console.log("usa p est: ", dataDict["the United States"])
 
 
-        // Draw the circles
-        // svgEateries.selectAll("circle.eateries").data(eateries)
-        //   .join("circle")
-        //   .attr("class", "eateries")
-        //   .attr("fill", (d) => {
-        //     d.dist = getDistanceFromLatLonInMiles(myCoordinates.latitude, myCoordinates.longitude, d.latitude, d.longitude);
-        //     d.inside = d.dist < filter_dist
-        //     if (d.inside) {
-        //       return selectedColor
-        //     }
-        //     else { return greyedoutColor }
-        //   })
-        //   .attr("r", 5)
-        //   .style("stroke", "white")
-        //   .attr("stroke-width", (d) => {
-        //     if (d.inside) { return "2px" }
-        //   })
-        //   .attr("opacity", 0.9)
-        //   .attr("transform", (d) => `translate(${projection([d.longitude, d.latitude])})`)
-        //   .on("mouseover", (e, d) => {
-        //     // console.log("normal")
-        //     updateRestaurantHover([d], e.offsetX, e.offsetY, false)
+        colorScaleState = d3.scaleQuantize(d3.extent(all_p_estimates), colors);
 
-        //   })
-        //   .on("mouseout", (event) => {
-        //     d3
-        //       .select('#restaurant-hover')
-        //       .selectAll("*").remove();
-        //   });
+        statePaths.attr("fill", d => {
+          if (d.name == "Virgin Islands") return "none" //we don't have data for Virgin Islands
+          else return colorScaleState(dataDict[d.name].p_estimate)
+        })
+
+        //dynamically fill description spans
+        textColumns.forEach(d => {
+          let value = key[d][Number(columnValues[d])];
+          d3.select(`span#${d}`).text(value);
+        })
+        d3.select("span#dynamic_p_estimate").text(`${dataDict["the United States"].p_estimate}%`);
 
 
       }
@@ -644,6 +719,56 @@
     // ---------------
     // HELPER FUNCTIONS
     // ---------------
+
+    //key to match numbers to names, used to dynamically populate descriptions
+    let key = {
+      gender: {
+        0: 'male or female',
+        1: 'male',
+        2: 'female'
+      },
+      disabilityType: {
+        1: 'any',
+        2: 'visual',
+        3: 'hearing',
+        4: 'ambulatory',
+        5: 'cognitive',
+        6: 'self-care',
+        7: 'independent living'
+      },
+      age: {
+        0: 'all ages',
+        1: 'ages 4 and under',
+        2: 'ages 5-15',
+        3: 'ages 16-20',
+        4: 'ages 21-64',
+        5: 'ages 16-64',
+        6: 'ages 18-64',
+        7: 'ages 65-74',
+        8: 'ages 65+',
+        9: 'ages Ages 75+'
+      },
+      race: {
+        0: 'all races',
+        1: 'White',
+        2: 'Black/African American',
+        3: 'Native American or Alaska native',
+        4: 'Asian',
+        5: 'some other race(s)'
+      },
+      education: {
+        0: 'all education levels',
+        1: 'less than a high school education',
+        2: 'a high school diploma or equivalent',
+        3: 'some college/associates degree',
+        4: 'a BA degree or higher'
+      },
+      hispanic: {
+        0: 'regardless of ethnicity',
+        1: 'Hispanic',
+        2: 'non-Hispanic'
+      }
+    }
 
     //makes sure element shows up within bounds
     function elementLocation(mouseX, mouseY, elementWidth, elementHeight, boundaryX, xMargin, yMargin) {

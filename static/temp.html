@@ -30,7 +30,14 @@
 
     /* any styles u want to apply to all the text in the table */
     .tableText {
-      dominant-baseline: middle
+      dominant-baseline: middle;
+      text-anchor: end;
+    }
+
+    .tableText.Location {
+      text-anchor: start;
+      fill: #3573D9;
+      font-weight: bold;
     }
 
     .withBar {
@@ -56,6 +63,34 @@
     .tableSeperator {
       stroke: gray;
       stroke-width: 1px;
+    }
+
+    .tableHeaderBox {
+      fill: #E1EAFA;
+    }
+
+    .tableHeaderBox.Location {
+      fill: #3573D9;
+    }
+
+    .tHeader {
+      font-weight: 500;
+      fill: black;
+      text-anchor: end;
+    }
+
+    .tHeaderText.Location {
+      fill: white;
+      text-anchor: start;
+    }
+
+    .closeSquare {
+      fill: #8BAEE8;
+    }
+
+    .closeX {
+      stroke: white;
+      stroke-width: 3px;
     }
   </style>
 </head>
@@ -119,20 +154,30 @@ Within SVG, complex stuff happening
 
   const rowHeight = 30;
 
+  const tableCategories = ["Location", "Estimate (%)", "90% MOEp", "Estimate (number)", "90% MOEn", "Base Population", "Sample Size"];
+  const tableGroups = ["Location", "Percent", "Number", "Base Population", "Sample Size"];
+
+
   const locationStart = 0;
   const locationWidth = 175;
 
-  const estimateStart = locationStart + locationWidth;
-  const estimateWidth = 60;
+  const pEstimateStart = locationStart + locationWidth;
+  const pEstimateWidth = 80;
 
-  const moeStart = estimateStart + estimateWidth;
-  const moeWidth = 60;
+  const pMoeStart = pEstimateStart + pEstimateWidth;
+  const pMoeWidth = 80;
 
-  const populationStart = moeStart + moeWidth;
-  const populationWidth = 100;
+  const nEstimateStart = pMoeStart + pMoeWidth;
+  const nEstimateWidth = 100;
+
+  const nMoeStart = nEstimateStart + nEstimateWidth;
+  const nMoeWidth = 80;
+
+  const populationStart = nMoeStart + nMoeWidth;
+  const populationWidth = 120;
 
   const sampleStart = populationStart + populationWidth;
-  const sampleWidth = 70;
+  const sampleWidth = 90;
 
   const thousandFormatter = d3.format(",");
   const floatFormatter = d3.format(".1f");
@@ -142,6 +187,36 @@ Within SVG, complex stuff happening
 
   const mouseOverLabelBoxHeight = 20;
   const mouseOverLabelBoxWidth = 75;
+
+  const headerHeight = 50;
+  const tableFontSize = 12;
+  const textMargin = 10;
+
+  const closeHeight = 30;
+  const closeWidth = 40;
+  const closeInnerBoxHeight = 20;
+  const xMargin = 3;
+
+  const tableSpacingDict = {};
+
+  // syntax for this dict, value 0 is start pos, value 1 is width, value 2 is header name, value 3 is formatter for displaying the value
+  tableSpacingDict[tableCategories[0]] = [locationStart, locationWidth, "location", null];
+  tableSpacingDict[tableCategories[1]] = [pEstimateStart, pEstimateWidth, "p_estimate", null];
+  tableSpacingDict[tableCategories[2]] = [pMoeStart, pMoeWidth, "p_estimate_moe", null];
+  tableSpacingDict[tableCategories[3]] = [nEstimateStart, nEstimateWidth, "n_estimate", thousandFormatter];
+  tableSpacingDict[tableCategories[4]] = [nMoeStart, nMoeWidth, "n_estimate_moe", thousandFormatter];
+  tableSpacingDict[tableCategories[5]] = [populationStart, populationWidth, "base_population", thousandFormatter];
+  tableSpacingDict[tableCategories[6]] = [sampleStart, sampleWidth, "sample_size", thousandFormatter];
+
+  const tableGroupPositions = {}
+
+  tableGroupPositions[tableGroups[0]] = [locationStart, locationWidth];
+  tableGroupPositions[tableGroups[1]] = [d3.min([pEstimateStart, pMoeStart]), pEstimateWidth + pMoeWidth];
+  tableGroupPositions[tableGroups[2]] = [d3.min([nEstimateStart, nMoeStart]), nEstimateWidth + nMoeWidth];
+  tableGroupPositions[tableGroups[3]] = [populationStart, populationWidth];
+  tableGroupPositions[tableGroups[4]] = [sampleStart, sampleWidth];
+
+  // console.log(tableSpacingDict["Location"][3] != null);
 
   const empScale = d3.scaleLinear()
     //.domain(empExtent)
@@ -165,6 +240,7 @@ Within SVG, complex stuff happening
     let allWithout = d3.map(goodData, d => {
       return d["without"];
     })
+
 
 
     updateTableRows(goodData);
@@ -222,15 +298,13 @@ Within SVG, complex stuff happening
     // console.log(sorted_dataset);
     // sorted_dataset.forEach(d => {
     //   console.log("This loop: ", d["location"]);
-    // });
-
-
-
+    // });    
+    addHeader(empSVG);
     empSVG.selectAll('g.row')
       .data(sorted_dataset, d => d["location"])
       .join(enter => {
         let rows = enter.append("g").attr("class", "row");
-        rows.attr("transform", (d, i) => `translate(0, ${empSVGMargin.top + i * rowHeight})`);
+        rows.attr("transform", (d, i) => `translate(0, ${empSVGMargin.top + headerHeight + i * rowHeight})`);
 
         // TODO add and configure the text part including their x position
         //   y position should always take into account the translate above
@@ -241,38 +315,24 @@ Within SVG, complex stuff happening
           .attr("y1", 0)
           .attr("y2", 0)
 
+        tableCategories.forEach(cat => {
+          rows.append("text")
+            .attr("class", `tableText ${cat}`)
+            .text(d => {
+              if (tableSpacingDict[cat][3] != null) {
+                return tableSpacingDict[cat][3](d[tableSpacingDict[cat][2]]);
+              }
+              return d[tableSpacingDict[cat][2]]
+            })
+            .attr("x", d => {
+              if (cat == tableCategories[0]) {
+                return tableSpacingDict[cat][0] + textMargin;
+              }
+              return tableSpacingDict[cat][0] + tableSpacingDict[cat][1] - textMargin;
+            })
+            .attr("y", rowHeight / 2);
+        });
 
-        rows.append("text")
-          .attr("class", "tableText location")
-          .text(d => d["location"])
-          .attr("x", locationStart)
-          .attr("y", rowHeight / 2);
-
-        rows.append("text")
-          .attr("class", "tableText p_est")
-          .text(d => d['p_estimate'])
-          .attr("x", estimateStart)
-          .attr("y", rowHeight / 2);
-
-        rows.append("text")
-          .attr("class", "tableText p_est_moe")
-          .text(d => d["p_estimate_moe"])
-          .attr("x", moeStart)
-          .attr("y", rowHeight / 2);
-
-        rows.append("text")
-          .attr("class", "tableText base_pop")
-          .text(d => thousandFormatter(d["base_population"]))
-          .attr("x", populationStart)
-          .attr("y", rowHeight / 2);
-
-        rows.append("text")
-          .attr("class", "tableText sample_size")
-          .text(d => thousandFormatter(d["sample_size"]))
-          .attr("x", sampleStart)
-          .attr("y", rowHeight / 2);
-
-        // TODO: ... append other text inside of the rows
 
         // add the fancy sub-chart
         let subcharts = rows.append("g")
@@ -319,39 +379,6 @@ Within SVG, complex stuff happening
     console.log("updateEmpSvg", i, d);
 
     let empSVG = d3.select(this);
-
-    // add and update whatever stuff we need using a fake data join
-    //  INTUITION: we want the nice enter,update,exit stuff from a data join
-    //   but... we only have one data dictionary here, d
-    //   so, how do we still enable that functionality?
-    //  We make a fake array to trick the data join system for us
-
-    // We will make/update each component one by one
-
-
-    // Now do the same process for all of the other elements you want in the chart
-    // e.g. let darkBlueLine = empSVG.selectAll("rect.withoutBar")
-    //                               .data( [ d ] )
-    //                               .join( ETC... )
-
-    // seperation lines
-
-    // let sepLine = empSVG.selectAll("line.tableSeperator")
-    //   .data([d])
-    //   .join(
-    //     enter => enter.append("line")
-    //       .attr("class", "tableSeperator")
-    //       .attr("x1", 0)
-    //       .attr("x2", empChartWidth)
-    //       .attr("y1", 0)
-    //       .attr("y2", 0)
-    //     ,
-    //     exit => {
-    //       exit.transition()
-    //         .attr("opacity", 0)
-    //         .remove()
-    //     });
-
 
     if (drawWithout) {
       let lightBlueLine = empSVG.selectAll("rect.withoutBar")
@@ -489,7 +516,7 @@ Within SVG, complex stuff happening
     g.append("text")
       .attr("x", mouseOverLabelBoxWidth / 2)
       .attr("y", mouseOverLabelBoxHeight / 2)
-      .attr("font-size", "12px")
+      .attr("font-size", tableFontSize + "px")
       .attr("dominant-baseline", "middle")
       .attr("text-anchor", "middle")
       .text("Rate: " + d.p_estimate + "%")
@@ -503,6 +530,81 @@ Within SVG, complex stuff happening
       .attr("stroke-width", "0px");
 
     empSVG.select(".mouseOverLabel").remove() // find the thing with the class and remove it
+  }
+
+  function addHeader(target) {
+    var headerGroup = target.append("g")
+      .attr("class", "tHeader")
+      .attr("transform", `translate(${0}, ${empSVGMargin.top})`);
+
+    tableGroups.forEach(group => {
+      headerGroup.append("rect")
+        .attr("class", `tableHeaderBox ${group}`)
+        .attr("x", tableGroupPositions[group][0])
+        .attr("width", tableGroupPositions[group][1])
+        .attr("height", headerHeight);
+
+      if (group != tableGroups[0]) {
+        let closeProtrusion = headerGroup.append("rect")
+          .attr("class", `tableHeaderBox closeProtrusion ${group}`)
+          .attr("x", tableGroupPositions[group][0] + tableGroupPositions[group][1] - closeWidth)
+          .attr("y", -closeHeight)
+          .attr("width", closeWidth)
+          .attr("height", closeHeight);
+
+        let closeSquare = headerGroup.append("rect")
+          .attr("class", `closeSquare`)
+          .attr("x", Number(closeProtrusion.attr("x")) + (closeWidth) / 4)
+          .attr("y", -closeInnerBoxHeight)
+          .attr("width", closeWidth / 2)
+          .attr("height", closeInnerBoxHeight);
+
+        headerGroup.append("line")
+          .attr("class", `closeX`)
+          .attr("x1", Number(closeSquare.attr("x")) + xMargin)
+          .attr("x2", Number(closeSquare.attr("x")) + (closeWidth / 2) - xMargin)
+          .attr("y1", -closeInnerBoxHeight + xMargin)
+          .attr("y2", - xMargin)
+          .attr("stroke", "black");
+
+        headerGroup.append("line")
+          .attr("class", `closeX`)
+          .attr("x2", Number(closeSquare.attr("x")) + xMargin)
+          .attr("x1", Number(closeSquare.attr("x")) + (closeWidth / 2) - xMargin)
+          .attr("y1", -closeInnerBoxHeight + xMargin)
+          .attr("y2", -xMargin)
+          .attr("stroke", "black");
+      }
+
+    });
+
+    tableCategories.forEach(cat => {
+      const headerText = headerGroup.append("text")
+        .attr("class", `tHeaderText tableText ${cat}`)
+        .attr("x", tableSpacingDict[cat][0] + (textMargin))
+        .attr("y", (rowHeight / 2) - (1.5 * tableFontSize));
+
+
+      const words = cat.split(" ");
+      if (words.length > 1) {
+        words.forEach((word, index) => {
+          headerText.append("tspan")
+            .attr("x", tableSpacingDict[cat][0] + (tableSpacingDict[cat][1]) - textMargin)
+            .text(word)
+            .attr("dy", 1.5 * tableFontSize)
+        });
+      } else {
+        headerText.text(cat).attr("y", (rowHeight / 2) + 18);
+      }
+
+
+
+    });
+
+
+
+
+    return headerGroup;
   }
   loadEmpData();
 

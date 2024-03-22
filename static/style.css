@@ -153,11 +153,17 @@ td.paper-title {
   text-anchor: start;
 }
 
+.closeProtrusion {
+  cursor: pointer;
+}
+
 .closeSquare {
   fill: #8BAEE8;
+  cursor: pointer;
 }
 
 .closeX {
   stroke: white;
   stroke-width: 3px;
+  cursor: pointer;
 }

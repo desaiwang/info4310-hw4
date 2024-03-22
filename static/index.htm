@@ -1225,7 +1225,7 @@
         .attr("stroke-width", "8px");
 
       let xPos = Number(circle.attr("cx")) + sampleStart + sampleWidth;
-      let yPos = Number(circle.attr("cy")) + rowHeight * circle.attr("rowIndex");
+      let yPos = Number(circle.attr("cy")) + headerHeight + rowHeight * circle.attr("rowIndex");
 
       let g = empSVG.append("g")
         .attr("transform", `translate(${xPos - mouseOverLabelBoxWidth / 2}, ${yPos})`)
@@ -1282,7 +1282,8 @@
             .attr("x", Number(closeProtrusion.attr("x")) + (closeWidth) / 4)
             .attr("y", -closeInnerBoxHeight)
             .attr("width", closeWidth / 2)
-            .attr("height", closeInnerBoxHeight);
+            .attr("height", closeInnerBoxHeight)
+            .on("click", closeGroup);
 
           headerGroup.append("line")
             .attr("class", `closeX`)
@@ -1326,6 +1327,11 @@
 
       });
 
+
+      function closeGroup(event, d) {
+        //TODO CORBIN
+        console.log("hi");
+      }
 
 
 

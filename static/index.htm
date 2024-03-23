@@ -388,7 +388,7 @@
 
 
       //state data (filter based on selected)
-      let statesAll = await d3.csv("./acs_prevalence.csv", d3.autoType);
+      let statesAll = await d3.csv("./acs_prevalence2.csv", d3.autoType);
       let statesData = statesAll.filter(function (row) {
         return (
           row.gender === columnValues.gender
@@ -410,7 +410,7 @@
         d3.select(`select#${d}`)
           .on("change", function () {
             columnValues[d] = Number(d3.select(this).property("value"));
-            //console.log(`${d} changed, logging column values:`, columnValues);
+            console.log(`${d} changed, logging column values:`, columnValues);
 
             updateData();
           });
@@ -669,7 +669,8 @@
             row.hispanic === columnValues.hispanic
           )
         });
-        //console.log(statesData);
+        //TODO: dedup!
+        console.log(statesData);
 
         //console.log("dataDict before", dataDict)
         //refilters the states to be displayed

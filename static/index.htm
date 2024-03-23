@@ -253,6 +253,17 @@
         <button id="selectAllButton" value="selectAll">SELECT ALL</button>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<button
           id="resetButton" value="reset">CLEAR ALL</button>
         <div id="category">
+
+          <label for="region">Map Region:</label>
+          <select id="region" name="region">
+            <option value="0" selected>All Regions</option>
+            <option value="1">Northeast</option>
+            <option value="2">Midwest</option>
+            <option value="3">South</option>
+            <option value="4">West</option>
+          </select>
+
+
           <label for="mapType">Map Type:</label>
           <select id="mapType" name="mapType">
             <option value="0" selected>With or Without Disability</option>
@@ -318,14 +329,6 @@
             <option value="2">Non-Hispanic</option>
           </select>
 
-          <label for="value">Value:</label>
-          <select id="value" name="value">
-            <option value="percentage" selected>Percentage</option>
-            <option value="number">Number</option>
-          </select>
-
-
-
 
         </div>
 
@@ -382,10 +385,16 @@
         race: 0,
         education: 0,
         hispanic: 0,
-        value: 0 //TODO: delete this? I think it's a bit redundant
+        region: 0
       };
 
 
+      let regions = {
+        1: ['Connecticut', 'Maine', 'Massachusetts', 'New Hampshire', 'New Jersey', 'New York', 'Pennsylvania', 'Rhode Island', 'Vermont'],
+        2: ['Illinois', 'Indiana', 'Iowa', 'Kansas', 'Michigan', 'Minnesota', 'Missouri', 'Nebraska', 'North Dakota', 'Ohio', 'South Dakota', 'Wisconsin'],
+        3: ['Alabama', 'Arkansas', 'Delaware', 'District of Columbia', 'Florida', 'Georgia', 'Kentucky', 'Louisiana', 'Maryland', 'Mississippi', 'North Carolina', 'Oklahoma', 'South Carolina', 'Tennessee', 'Texas', 'Virginia', 'West Virginia'],
+        4: ['Alaska', 'Arizona', 'California', 'Colorado', 'Hawaii', 'Idaho', 'Montana', 'Nevada', 'New Mexico', 'Oregon', 'Utah', 'Washington', 'Wyoming']
+      }
 
       //state data (filter based on selected)
       let statesAll = await d3.csv("./acs_prevalence2.csv", d3.autoType);
@@ -404,17 +413,18 @@
 
       //setting up selections to track selections for prevalence 
       //TODO: need to adapt to different datasets
-      let prevalenceColumns = ["mapType", "gender", "disabilityType", "age", "race", "education", "hispanic", "values"];
+      let prevalenceColumns = ["region", "mapType", "gender", "disabilityType", "age", "race", "education", "hispanic"];
       prevalenceColumns.forEach((d) => {
 
         d3.select(`select#${d}`)
           .on("change", function () {
             columnValues[d] = Number(d3.select(this).property("value"));
-            console.log(`${d} changed, logging column values:`, columnValues);
+            //console.log(`${d} changed, logging column values:`, columnValues);
 
             updateData();
           });
       })
+
 
       //these are columns that affect text
       let textColumns = ["gender", "disabilityType", "age", "race", "education", "hispanic"]
@@ -490,8 +500,8 @@
         .attr("note", d => d.id)  // debugging
         .attr("d", render)
         .attr("fill", d => {
-          if (d.name == "Virgin Islands") return "none" //we don't have data for Virgin Islands
-          else return colorScaleState(dataDict[d.name].p_estimate)
+          if (d.name == "Virgin Islands") { return "none" } //we don't have data for Virgin Islands
+          else { return colorScaleState(dataDict[d.name].p_estimate) }
         })
         .attr("opacity", 0.8)
         .on('mouseover', mouseEntersState)
@@ -697,15 +707,27 @@
         colorScaleState = d3.scaleQuantize(d3.extent(all_p_estimates), colors);
 
         statePaths.attr("fill", d => {
-          if (d.name == "Virgin Islands") return "none" //we don't have data for Virgin Islands
-          else return colorScaleState(dataDict[d.name].p_estimate)
+          if (d.name == "Virgin Islands") d.color = "none" //we don't have data for Virgin Islands
+          else if (columnValues.region == 0) {
+            d.color = colorScaleState(dataDict[d.name].p_estimate)
+          }
+          else {
+            if (regions[columnValues.region].includes(d.name)) {
+              d.color = colorScaleState(dataDict[d.name].p_estimate)
+            } else {
+              d.color = "grey"
+            }
+          }
+          return d.color
         })
+          .attr("stroke", "grey");
 
         //dynamically fill description spans
         textColumns.forEach(d => {
           let value = key[d][Number(columnValues[d])];
           d3.select(`span#${d}`).text(value);
         })
+
         d3.select("span#dynamic_p_estimate").text(`${dataDict["the United States"].p_estimate}%`);
 
 

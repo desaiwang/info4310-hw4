@@ -390,6 +390,59 @@
 
 
       let regions = {
+        0: [
+          "Alabama",
+          "Alaska",
+          "Arizona",
+          "Arkansas",
+          "California",
+          "Colorado",
+          "Connecticut",
+          "Delaware",
+          "Florida",
+          "Georgia",
+          "Hawaii",
+          "Idaho",
+          "Illinois",
+          "Indiana",
+          "Iowa",
+          "Kansas",
+          "Kentucky",
+          "Louisiana",
+          "Maine",
+          "Maryland",
+          "Massachusetts",
+          "Michigan",
+          "Minnesota",
+          "Mississippi",
+          "Missouri",
+          "Montana",
+          "Nebraska",
+          "Nevada",
+          "New Hampshire",
+          "New Jersey",
+          "New Mexico",
+          "New York",
+          "North Carolina",
+          "North Dakota",
+          "Ohio",
+          "Oklahoma",
+          "Oregon",
+          "Pennsylvania",
+          "Rhode Island",
+          "South Carolina",
+          "South Dakota",
+          "Tennessee",
+          "Texas",
+          "Utah",
+          "Vermont",
+          "Virginia",
+          "Washington",
+          "West Virginia",
+          "Wisconsin",
+          "Wyoming",
+          "Puerto Rico"
+        ],
         1: ['Connecticut', 'Maine', 'Massachusetts', 'New Hampshire', 'New Jersey', 'New York', 'Pennsylvania', 'Rhode Island', 'Vermont'],
         2: ['Illinois', 'Indiana', 'Iowa', 'Kansas', 'Michigan', 'Minnesota', 'Missouri', 'Nebraska', 'North Dakota', 'Ohio', 'South Dakota', 'Wisconsin'],
         3: ['Alabama', 'Arkansas', 'Delaware', 'District of Columbia', 'Florida', 'Georgia', 'Kentucky', 'Louisiana', 'Maryland', 'Mississippi', 'North Carolina', 'Oklahoma', 'South Carolina', 'Tennessee', 'Texas', 'Virginia', 'West Virginia'],
@@ -452,7 +505,7 @@
       let all_p_estimates = [];
 
       for (const key in dataDict) {
-        if (dataDict.hasOwnProperty(key)) {
+        if (dataDict.hasOwnProperty(key) && regions[columnValues.region].includes(key)) {
           const values = dataDict[key];
           all_p_estimates.push(values.p_estimate);
         }
@@ -528,7 +581,6 @@
         .attr("opacity", 0.8)
         .attr("x", 0)
         .attr("y", 10)
-        .attr("width", 110)
         .attr("height", tooltipHeight);
 
       let txt = tooltip.append("text")
@@ -556,13 +608,20 @@
         let stateID = state_datum.id;
 
         txt.text(state_datum.name);
-        txt2.text(dataDict[state_datum.name].p_estimate + "%");
+
+        //store text2 so it's easier to adjust length
+        let text2 = `${dataDict[state_datum.name].p_estimate}% (${d3.format(",")(dataDict[state_datum.name].n_estimate)})`;
+        txt2.text(text2);
 
         let bounds = render.bounds(state.datum());
         let xPos = (state_datum.name === "Alaska") ? bounds[0][0] : (bounds[0][0] + bounds[1][0]) / 2;
         let yPos = bounds[1][1];
 
-        tooltip.attr("transform", `translate(${xPos},${yPos})`);
+        box.attr("width", text2.length * 8.5);
+        tooltip
+          .attr("transform", `translate(${xPos},${yPos})`)
+
+
 
         var mo = topojson.mesh(us, us.objects.states, function (a, b) { return a.id === stateID || b.id === stateID; });
 
@@ -576,11 +635,6 @@
         tooltip.style("visibility", "hidden");
 
         let state = d3.select(this);
-
-        // Reset old style mouseover stroke
-        // state.attr("stroke","none")
-        //      .attr("stroke-width", 0);
-        // }
 
         // hiding the mouseover mesh
         momesh.attr("d", "");
@@ -679,8 +733,8 @@
             row.hispanic === columnValues.hispanic
           )
         });
-        //TODO: dedup!
-        console.log(statesData);
+
+        //console.log(statesData);
 
         //console.log("dataDict before", dataDict)
         //refilters the states to be displayed
@@ -689,20 +743,16 @@
         });
         //console.log("dataDict after", dataDict)
 
-        //TODO: should we rescale to show more color ranges, or keep for consistency?
-        all_p_estimates = [];
 
-        // reevaluate all p_estimates
+        // reevaluate all p_estimates, should only be states that are in selected region
+        all_p_estimates = [];
         for (const key in dataDict) {
-          if (dataDict.hasOwnProperty(key)) {
+          if (dataDict.hasOwnProperty(key) && regions[columnValues.region].includes(key)) {
             const values = dataDict[key];
-            // Add value2 to the allValue2s array
             all_p_estimates.push(values.p_estimate);
           }
         }
-
-        console.log("usa p est: ", dataDict["the United States"])
-
+        //console.log(all_p_estimates)
 
         colorScaleState = d3.scaleQuantize(d3.extent(all_p_estimates), colors);
 

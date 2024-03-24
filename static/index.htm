@@ -515,7 +515,9 @@
         }
       }
 
-      //console.log("all_p_estimates", all_p_estimates);
+      console.log("all p est", all_p_estimates);
+
+
       //updates text for all disability text for usa (this assumes the first selection is everyone with disability)
       d3.select("span#usa_p_estimate").text(`${dataDict["the United States"].p_estimate}%`);
 
@@ -749,6 +751,10 @@
         });
         //console.log("dataDict after", dataDict)
 
+
+        /******************* 
+        Table Data 
+        *******************/
         let goodData;
         if (plottingPrevalenceTable) {
           let dedupedStatesData = statesData.reduce((accumulator, currentLocation) => {
@@ -759,11 +765,20 @@
             return accumulator;
           }, { tempLocations: [], unique: [] }).unique;
           goodData = dedupedStatesData;
+
         } else {
           goodData = unstackDataset(statesData);
         }
 
+        // no need to plot rows for things out of region. remove them here
+        goodData = goodData.filter(d => {
+          return regions[columnValues.region].includes(d.state);
+        });
         updateTableRows(goodData);
+        /******************* 
+           End Table Data 
+        *******************/
+
         // reevaluate all p_estimates, should only be states that are in selected region
         all_p_estimates = [];
         for (const key in dataDict) {
@@ -889,7 +904,7 @@
   <!-- ==================
         TABLE
     =================== -->
-  <svg id="prevalenceTable" height="2000" width="1200">
+  <svg id="prevalenceTable" height="100" width="1200">
 
   </svg>
   <!-- ==================
@@ -912,10 +927,9 @@
     // Then call updateTableRows
     const empSVG = d3.select("svg#prevalenceTable");
     const empSVGWidth = empSVG.attr("width");
-    const empSVGHeight = empSVG.attr("height");
+    var currentEmpSVGHeight = empSVG.attr("height");
     const empSVGMargin = { top: 40, right: 30, bottom: 50, left: 130 };
     const empChartWidth = empSVGWidth - empSVGMargin.left - empSVGMargin.right;
-    const empChartHeight = empSVGHeight - empSVGMargin.top - empSVGMargin.bottom;
 
     const rowHeight = 30;
 
@@ -1071,6 +1085,11 @@
       // sorted_dataset.forEach(d => {
       //   console.log("This loop: ", d["location"]);
       // });    
+      // get the height of the svg
+      var requiredHeight = (sorted_dataset.length * rowHeight) + headerHeight + closeHeight + empSVGMargin.bottom;
+      empSVG.attr("height", requiredHeight);
+      // currentEmpSVGHeight = empSVG.attr("height");
+
       addHeader(empSVG);
 
       empSVG.selectAll('g.row').remove();

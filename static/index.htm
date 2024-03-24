@@ -939,6 +939,7 @@
     const maxBarLength = 250;
     var currentTableData;
     var subchartStartPos;
+    const subchartMargin = 0.5;
 
     const tableCategories = ["Location", "Estimate (%)", "90% MOEp", "Estimate (number)", "90% MOEn", "Base Population", "Sample Size"];
     const tableGroups = ["Location", "Percent", "Number", "Base Population", "Sample Size"];
@@ -1160,7 +1161,7 @@
 
           let subcharts = rows.append("g")
             .attr("class", "empSVG")
-            .attr("transform", `translate(${subchartStartPos}, 0)`)
+            .attr("transform", `translate(${subchartStartPos + subchartMargin}, 0)`)
           // shift the chart over a bit so its on right side
 
 
@@ -1383,11 +1384,24 @@
         .attr("transform", `translate(${0}, ${empSVGMargin.top})`);
 
       activeTableGroups.forEach(group => {
+        //add group seperators
+
+        headerGroup.append("line")
+          .attr("class", "groupLines")
+          .attr("x1", tableGroupPositions[group][0] + tableGroupPositions[group][1])
+          .attr("x2", tableGroupPositions[group][0] + tableGroupPositions[group][1])
+          .attr("y1", headerHeight)
+          .attr("y2", currentEmpSVGHeight - rowHeight - empSVGMargin.bottom)
+          .attr("stroke-width", 1)
+          .attr("stroke", "black")
+          .raise();
+
         headerGroup.append("rect")
           .attr("class", `tableHeaderBox ${group}`)
           .attr("x", tableGroupPositions[group][0])
           .attr("width", tableGroupPositions[group][1])
           .attr("height", headerHeight);
+
 
 
         var closeButtonGroup = headerGroup.append("g").attr("class", `closeGroup ${group}`).datum(group);

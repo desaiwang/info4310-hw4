@@ -938,6 +938,7 @@
 
     const maxBarLength = 250;
     var currentTableData;
+    var subchartStartPos;
 
     const tableCategories = ["Location", "Estimate (%)", "90% MOEp", "Estimate (number)", "90% MOEn", "Base Population", "Sample Size"];
     const tableGroups = ["Location", "Percent", "Number", "Base Population", "Sample Size"];
@@ -1102,7 +1103,7 @@
     function updateTableRows(sorted_dataset) {
 
       recalculateTablePositions();
-      let subchartStartPos = calculateSubchartStartPosition();
+      subchartStartPos = calculateSubchartStartPosition();
 
       // get the height of the svg
       var requiredHeight = (sorted_dataset.length * rowHeight) + headerHeight + closeHeight + empSVGMargin.bottom;
@@ -1341,7 +1342,9 @@
         .attr("stroke", "black")
         .attr("stroke-width", "8px");
 
-      let xPos = Number(circle.attr("cx")) + sampleStart + sampleWidth;
+
+
+      let xPos = Number(circle.attr("cx")) + subchartStartPos;
       let yPos = Number(circle.attr("cy")) + headerHeight + rowHeight * circle.attr("rowIndex");
 
       let g = empSVG.append("g")

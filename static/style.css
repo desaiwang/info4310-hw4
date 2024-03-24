@@ -167,3 +167,10 @@ td.paper-title {
   stroke-width: 3px;
   cursor: pointer;
 }
+
+.resetText {
+  dominant-baseline: middle;
+  text-anchor: start;
+  fill: #3573D9;
+  cursor: pointer;
+}

@@ -394,6 +394,7 @@
 
       let regions = {
         0: [
+          "the United States",
           "Alabama",
           "Alaska",
           "Arizona",
@@ -515,7 +516,7 @@
         }
       }
 
-      console.log("all p est", all_p_estimates);
+      // console.log("all p est", all_p_estimates);
 
 
       //updates text for all disability text for usa (this assumes the first selection is everyone with disability)
@@ -774,6 +775,8 @@
         goodData = goodData.filter(d => {
           return regions[columnValues.region].includes(d.state);
         });
+
+        currentTableData = [...goodData];
         updateTableRows(goodData);
         /******************* 
            End Table Data 
@@ -933,9 +936,22 @@
 
     const rowHeight = 30;
 
+    const maxBarLength = 250;
+    var currentTableData;
+
     const tableCategories = ["Location", "Estimate (%)", "90% MOEp", "Estimate (number)", "90% MOEn", "Base Population", "Sample Size"];
     const tableGroups = ["Location", "Percent", "Number", "Base Population", "Sample Size"];
 
+    const groupToCategories = {
+      "Location": ["Location"],
+      "Percent": ["Estimate (%)", "90% MOEp"],
+      "Number": ["Estimate (number)", "90% MOEn"],
+      "Base Population": ["Base Population"],
+      "Sample Size": ["Sample Size"]
+    }
+
+    let activeTableGroups = [...tableGroups];
+    let activeTableCategories = [...tableCategories];
 
     const locationStart = 0;
     const locationWidth = 175;
@@ -1005,7 +1021,10 @@
     const percentScale = d3.scaleLinear()
       //.domain(empExtent)
       .domain([0, 100]) // for 0-100% scale vs. empExtent
-      .range([0, empChartWidth - (sampleStart + sampleWidth)]);
+      .range([0, maxBarLength]);
+
+    // console.log(empChartWidth - (sampleStart + sampleWidth));
+
 
 
 
@@ -1081,15 +1100,17 @@
 
 
     function updateTableRows(sorted_dataset) {
-      // console.log(sorted_dataset);
-      // sorted_dataset.forEach(d => {
-      //   console.log("This loop: ", d["location"]);
-      // });    
+
+      recalculateTablePositions();
+      let subchartStartPos = calculateSubchartStartPosition();
+
       // get the height of the svg
       var requiredHeight = (sorted_dataset.length * rowHeight) + headerHeight + closeHeight + empSVGMargin.bottom;
       empSVG.attr("height", requiredHeight);
-      // currentEmpSVGHeight = empSVG.attr("height");
+      currentEmpSVGHeight = empSVG.attr("height");
 
+
+      empSVG.selectAll("g.tHeader").remove();
       addHeader(empSVG);
 
       empSVG.selectAll('g.row').remove();
@@ -1105,19 +1126,26 @@
           rows.append("line")
             .attr("class", "tableSeperator")
             .attr("x1", 0)
-            .attr("x2", empChartWidth + 45)
+            .attr("x2", subchartStartPos + maxBarLength)
             .attr("y1", 0)
             .attr("y2", 0)
 
-          tableCategories.forEach(cat => {
+          activeTableCategories.forEach(cat => {
 
             rows.append("text")
               .attr("class", `tableText ${cat}`)
               .text(d => {
-                if (tableSpacingDict[cat][3] != null) {
-                  return tableSpacingDict[cat][3](d[tableSpacingDict[cat][2]]);
+                let displayText;
+                if (d[tableSpacingDict[cat][2]] == "the United States") {
+                  displayText = "United States";
+                } else {
+                  displayText = d[tableSpacingDict[cat][2]];
                 }
-                return d[tableSpacingDict[cat][2]]
+
+                if (tableSpacingDict[cat][3] != null) {
+                  return tableSpacingDict[cat][3](displayText);
+                }
+                return displayText;
               })
               .attr("x", d => {
                 if (cat == tableCategories[0]) {
@@ -1129,14 +1157,11 @@
           });
 
 
-          // add the fancy sub-chart
           let subcharts = rows.append("g")
             .attr("class", "empSVG")
-            .attr("transform", `translate(${sampleStart + sampleWidth}, 0)`)
+            .attr("transform", `translate(${subchartStartPos}, 0)`)
           // shift the chart over a bit so its on right side
 
-          // but how do we get each of the charts to have the right contents?
-          //  ... and, how do we make sure they update properly
 
           subcharts.each(updateEmpSvg)
 
@@ -1354,22 +1379,26 @@
         .attr("class", "tHeader")
         .attr("transform", `translate(${0}, ${empSVGMargin.top})`);
 
-      tableGroups.forEach(group => {
+      activeTableGroups.forEach(group => {
         headerGroup.append("rect")
           .attr("class", `tableHeaderBox ${group}`)
           .attr("x", tableGroupPositions[group][0])
           .attr("width", tableGroupPositions[group][1])
           .attr("height", headerHeight);
 
+
+        var closeButtonGroup = headerGroup.append("g").attr("class", `closeGroup ${group}`).datum(group);
         if (group != tableGroups[0]) {
-          let closeProtrusion = headerGroup.append("rect")
+          let closeProtrusion = closeButtonGroup.append("rect")
             .attr("class", `tableHeaderBox closeProtrusion ${group}`)
             .attr("x", tableGroupPositions[group][0] + tableGroupPositions[group][1] - closeWidth)
             .attr("y", -closeHeight)
             .attr("width", closeWidth)
-            .attr("height", closeHeight);
+            .attr("height", closeHeight)
+            .on("click", closeGroup);
 
-          let closeSquare = headerGroup.append("rect")
+
+          let closeSquare = closeButtonGroup.append("rect")
             .attr("class", `closeSquare`)
             .attr("x", Number(closeProtrusion.attr("x")) + (closeWidth) / 4)
             .attr("y", -closeInnerBoxHeight)
@@ -1377,26 +1406,38 @@
             .attr("height", closeInnerBoxHeight)
             .on("click", closeGroup);
 
-          headerGroup.append("line")
+          closeButtonGroup.append("line")
             .attr("class", `closeX`)
             .attr("x1", Number(closeSquare.attr("x")) + xMargin)
             .attr("x2", Number(closeSquare.attr("x")) + (closeWidth / 2) - xMargin)
             .attr("y1", -closeInnerBoxHeight + xMargin)
             .attr("y2", - xMargin)
-            .attr("stroke", "black");
+            .attr("stroke", "black")
+            .on("click", closeGroup);
 
-          headerGroup.append("line")
+
+          closeButtonGroup.append("line")
             .attr("class", `closeX`)
             .attr("x2", Number(closeSquare.attr("x")) + xMargin)
             .attr("x1", Number(closeSquare.attr("x")) + (closeWidth / 2) - xMargin)
             .attr("y1", -closeInnerBoxHeight + xMargin)
             .attr("y2", -xMargin)
-            .attr("stroke", "black");
+            .attr("stroke", "black")
+            .on("click", closeGroup);
+
+        } else {
+          //aka this is location
+          closeButtonGroup.append("text")
+            .attr("class", "resetText")
+            .attr("x", 0)
+            .attr("y", -closeHeight + (tableFontSize))
+            .text("RESET TABLE")
+            .on("click", resetTable);
         }
 
       });
 
-      tableCategories.forEach(cat => {
+      activeTableCategories.forEach(cat => {
         const headerText = headerGroup.append("text")
           .attr("class", `tHeaderText tableText ${cat}`)
           .attr("x", tableSpacingDict[cat][0] + (textMargin))
@@ -1419,15 +1460,71 @@
 
       });
 
-
-      function closeGroup(event, d) {
-        //TODO CORBIN
-        console.log("hi");
-      }
-
-
-
       return headerGroup;
+    }
+    function closeGroup(event, d) {
+      if (activeTableGroups.includes(d)) {
+        activeTableGroups.splice(activeTableGroups.indexOf(d), 1);
+      }
+      let catsToRemove = groupToCategories[d];
+      catsToRemove.forEach(c => {
+        if (activeTableCategories.includes(c)) {
+          activeTableCategories.splice(activeTableCategories.indexOf(c), 1);
+        }
+      });
+
+      updateTableRows(currentTableData);
+
+      console.log(activeTableGroups);
+
+    }
+
+    function resetTable(event, d) {
+      console.log("Active before reset stuff", activeTableGroups, activeTableCategories);
+      activeTableCategories = [...tableCategories];
+      activeTableGroups = [...tableGroups];
+      updateTableRows(currentTableData);
+
+      console.log("Active stuff now", activeTableGroups, activeTableCategories);
+    }
+
+    function recalculateTablePositions() {
+      let currentPosition = 0;
+
+      tableGroups.forEach(group => {
+        if (activeTableGroups.includes(group)) {
+          // Calculate the total width of the group based on active categories
+          let groupWidth = 0;
+          const categories = groupToCategories[group];
+          categories.forEach(cat => {
+            if (activeTableCategories.includes(cat)) {
+              groupWidth += tableSpacingDict[cat][1]; // Add the width of each active category
+            }
+          });
+
+          tableGroupPositions[group] = [currentPosition, groupWidth];
+          categories.forEach(cat => {
+            if (activeTableCategories.includes(cat)) {
+              tableSpacingDict[cat][0] = currentPosition;
+              currentPosition += tableSpacingDict[cat][1]; // Move the current position by the width of the category
+            }
+          });
+        }
+      });
+    }
+
+    function calculateSubchartStartPosition() {
+      // Calculate the rightmost edge of the last active group
+      let lastGroupEdge = 0;
+      activeTableGroups.forEach(group => {
+        const groupPosition = tableGroupPositions[group];
+        if (groupPosition) {
+          const groupEdge = groupPosition[0] + groupPosition[1]; // Start + width
+          lastGroupEdge = Math.max(lastGroupEdge, groupEdge);
+        }
+      });
+
+      return lastGroupEdge;
     }
     // loadEmpData();
 

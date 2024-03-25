@@ -218,7 +218,7 @@
       grid-area: map; 
       margin: 40px 150px 0 -50px; 
       min-width: 1200px;
-      min-height: 1000px;
+      min-height: 800px;
       overflow: hidden;
     }
     .brush { grid-area: brush; }
@@ -538,8 +538,11 @@
     <div class="brush"></div>
     <div class="dir3"></div>
     <div class="tableBar">
+    <!--  ==================
+                TABLE
+          =================== -->
+      <svg id="prevalenceTable" height="100" width="1200"></svg>
 
-      
     </div>
     <div class="footer"></div>
   </div>
@@ -1122,12 +1125,7 @@
 
   </script>
 
-  <!-- ==================
-        TABLE
-    =================== -->
-  <svg id="prevalenceTable" height="100" width="1200">
 
-  </svg>
   <!-- ==================
         TABLE SCRIPT
     =================== -->

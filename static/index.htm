@@ -641,21 +641,21 @@
 
       }
       var zoom = d3.zoom()
-        .scaleExtent([1 << 12, 1 << 20])
+        .scaleExtent([2250, 1 << 20])
         .on("zoom", ({ transform }) => zoomed(transform));
 
 
       //centerLocation
       let centerCoordinates = {
         latitude: 41.4925,
-        longitude: -99.9018
+        longitude: -79.9018
       };
 
       svgMap
         .call(zoom)
         .call(zoom.transform, d3.zoomIdentity
           .translate(width / 2, height / 2)
-          .scale(- 1 << 12)
+          .scale(-2250)
           .translate(...projection([centerCoordinates.longitude, centerCoordinates.latitude]))
           .scale(-1)
         )
@@ -664,7 +664,6 @@
 
 
       function zoomed(transform) {
-        // console.log("regular projection", projection([42.36541856, -71.05688332]))
 
         levels.each(function (delta) {
           const tiles = tile.zoomDelta(delta)(transform);
@@ -685,6 +684,8 @@
         projection
           .scale(transform.k / (2 * Math.PI))
           .translate([transform.x, transform.y]);
+
+        console.log(transform.x, transform.y);
 
         render = d3.geoPath(projection);
 

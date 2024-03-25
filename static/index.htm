@@ -107,6 +107,11 @@
       margin: 0 0 15px 60px;
       line-height: 1.3em;
     }
+    #controlfilter{
+      margin-top: 2em;
+      height: 70px;
+      width: 750px;
+    }
 
     .withColor {
       color: #E1195F;
@@ -474,8 +479,6 @@
     }
   </style>
 </head>
-
-
 <body>
 
   <div id="container">
@@ -532,6 +535,7 @@
       <!--  ---------------
               FILTERS 
           --------------- -->
+
       <h3>SEARCH</h3>
       <!-- <button id="selectAllButton" value="selectAll">SELECT ALL</button>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<buttoncid="resetButton" value="reset">CLEAR ALL</button> -->
 
@@ -597,7 +601,7 @@
         </select>
         <span class="focus"></span>
       </div>
-
+      
       <label for="race">RACE</label>
       <div class="select">
         <select id="race" name="race">
@@ -649,9 +653,8 @@
       </h4>
       <!-- MAP -->
       <svg id="svgMap" width="1600" height="800" top="10"></svg>
-
     </div>
-    <div class="brush"></div>
+    <div class="brush" id = "controlfilter"></div>
     <div class="dir3"></div>
     <div class="tableBar">
       <!--  ---------------
@@ -801,7 +804,6 @@
         region: 0
       };
 
-
       //state data (filter based on selected)
       let prevalenceAll = await d3.csv("./acs_prevalence2.csv", d3.autoType);
       let employmentAll = await d3.csv("./acs_employment_rate2.csv", d3.autoType);
@@ -826,7 +828,6 @@
         return true; // Return true only if all filter conditions are met
       });
 
-
       //console.log(`getting ${columnValues.indStat} from datasetDict: `, datasetsDict[columnValues.indStat]);
       //console.log(`trying to test these column values: ${columnsDict[columnValues.indStat]}`)
       //console.log('statesData', statesData);
@@ -834,7 +835,6 @@
       //setting up selections to track changes
       let allColumns = ["region", "mapType", "disabilityType", "gender", "age", "race", "education", "hispanic"];
       allColumns.forEach((d) => {
-
         d3.select(`select#${d}`)
           .on("change", function () {
             columnValues[d] = Number(d3.select(this).property("value"));
@@ -994,7 +994,15 @@
 
       var state_datum = states.features[0]; //use this to store selected SVG element to use for zooming, initialized with first feature
 
+      let selectedValue = "percentage";
+     
       function mouseEntersState() {
+      
+        d3.select("#val").on("change", function() {
+          selectedValue =  d3.select(this).property("value");
+          console.log(selectedValue)
+        });
+      
         // Make tooltip visible
         tooltip.style("visibility", "visible")
 
@@ -1008,7 +1016,7 @@
         //store text2 so it's easier to adjust length
         let text2 = `${dataDict[state_datum.name].p_estimate}% (${d3.format(",")(dataDict[state_datum.name].n_estimate)})`;
         txt2.text(text2);
-
+        }
         let bounds = render.bounds(state.datum());
         let xPos = (state_datum.name === "Alaska") ? bounds[0][0] : (bounds[0][0] + bounds[1][0]) / 2;
         let yPos = bounds[1][1];
@@ -1096,7 +1104,14 @@
         tooltip.attr("transform", `translate(${xPos},${yPos})`);
 
       };
+      var filters = {};
+      function pointPassesFilters(point) {
 
+        let stillPassed = true;
+
+        Object.values(filters).forEach(filterFunc => {
+
+          stillPassed = filterFunc(point) && stillPassed;
 
       const ageOptions = {
         0: [
@@ -1120,7 +1135,6 @@
         2: [
           { value: "2", text: "Ages 21-64" }
         ]
-
       };
 
       // Function to update age options
@@ -1136,7 +1150,12 @@
 
 
       //calls update on filters when selections are changed
-      function updateData() {
+      function updateMapData(data) {
+
+        data = data.filter(d => pointPassesFilters(d));
+        console.log(data)
+        let statesInFilteredData = new Set(data.map(d => d.state));
+        console.log(statesInFilteredData)
 
         let statesData = datasetsDict[columnValues.indStat].filter(function (row) {
           for (let d of columnsDict[columnValues.indStat]) {
@@ -1149,7 +1168,6 @@
           }
           return true; // Return true only if all filter conditions are met
         });
-
         console.log(statesData);
 
         // Initially update options with sample data
@@ -1220,8 +1238,14 @@
         colorScaleState = d3.scaleQuantize(d3.extent(all_p_estimates), colors);
 
         statePaths.attr("fill", d => {
+
           if (d.name == "Virgin Islands") d.color = "none" //we don't have data for Virgin Islands
-          else if (columnValues.region == 0) {
+         
+          else{
+            if (statesInFilteredData.has(d.name)) {
+             d.color = colorScaleState(dataDict[d.name].p_estimate)
+          }
+           else if (columnValues.region == 0) {
             d.color = colorScaleState(dataDict[d.name].p_estimate)
           }
           else {
@@ -1230,6 +1254,7 @@
             } else {
               d.color = "grey"
             }
+          }
           }
           return d.color
         })
@@ -1245,13 +1270,134 @@
           let value = key[d][Number(columnValues[d])];
           d3.select(`span#${d}`).text(value);
         })
-        d3.select("span#dynamic_p_estimate").text(`${dataDict["the United States"].p_estimate}%`);
-
+        d3.select("span#dynamic_p_estimate").text(`${dataDict["the United States"].p_estimate}%`).style("margin-bottom", "2em;");
+        
+        
+      
 
       }
 
-      updateData();
+      // updateMapData();
 
+      
+
+
+
+
+      function makeSlider(container, label, attribute, sliderWidth, sliderHeight) {
+          d3.select("#controlfilter").select("*").remove()
+          console.log(statesData)
+
+            // Get a raw array of values for this property
+            let values = statesData.map(d => d[attribute]);
+            // console.log(values);
+
+            // Find min and max for some scales
+            let minMax = d3.extent(values);
+            console.log(minMax);
+            let xScale = d3.scaleLinear().domain(minMax)
+              .range([10, sliderWidth - 10]); // padding here for ease
+            let xAxis = d3.axisBottom(xScale).tickFormat(d3.format(""));
+
+
+            // Create some HTML elements
+            let wrapper = container.append("div").attr("class", "controls");
+            wrapper.append("div").text(label);
+            let canvas = wrapper.append("svg").attr("width", sliderWidth)
+              .attr("height", sliderHeight + 20)
+              .attr("attribute", attribute);
+            canvas.append("g").attr("transform", `translate(0,${sliderHeight})`)
+              .call(xAxis);
+
+            // Make an area chart
+            let areaLayer = canvas.append("g");
+
+            // Built-in d3 helper function to count up data
+            let numBins = 20;
+
+            // Program a histogram generator to count up data into "bins"
+            let histoGen = d3.histogram().domain(minMax)
+              .thresholds(numBins);
+            let counts = histoGen(values);
+
+            // add dummy object at start of graph
+            counts.unshift({
+              x0: 0,
+              x1: counts[0].x0,
+              length: counts[0].length
+            });
+
+            let yScale = d3.scaleLinear().domain(d3.extent(counts, d => d.length))
+              .range([sliderHeight, 4]);
+
+            // Area generator is like a lineGen, but we give y0 and y1 to fill it in
+            let area = d3.area().x(d => xScale(d.x1))
+              .y0(yScale(0))
+              .y1(d => yScale(d.length))
+              .curve(d3.curveNatural);
+
+            // Adding the path works just like a line (the area generator just makes a filled region)
+            areaLayer.append("path").datum(counts)
+              .attr("class", "area")
+              .attr("fill", "#3A7C98")
+              .attr("d", area);
+
+
+            let filterFunc = d => true;
+            filters[attribute] = filterFunc;
+
+            var brush = d3.brushX().extent([[10, 0],                           // Upper left corner
+            [sliderWidth - 10, sliderHeight]])  // Lower right corner
+              .on("brush end", brushMoved);
+            // NOTE: we still need to *call the brush* towards the end of our code to "paste" it into HTML
+
+            function brushMoved(event) {
+
+              console.log(event.type, event.selection);
+
+              // Everything but clicking on brush area
+              if (event.selection !== null) {
+
+                // Run scales in reverse to get data values for the ends of the brush
+                //  If a scale turns data -> pixels, then scale.invert turns pixels -> data
+                let start = xScale.invert(event.selection[0]);
+                let end = xScale.invert(event.selection[1]);
+                let filteredData = statesAll.filter(d => d[attribute] >= start && d[attribute] <= end);
+
+
+                // Overwrite old filter in our dictionary
+                // This filter now only returns True if the point's value is between start and end
+                let filterFunc = d => d[attribute] >= start && d[attribute] <= end;
+                console.log(filterFunc);
+                filters[attribute] = filterFunc;
+                console.log(filters[attribute]);
+
+                updateMapData(statesData)
+              }
+              // Clicking on brush area to empty it out
+              else {
+                // Selected nothing, let everything pass
+                let filterFunc = d => true;
+                filters[attribute] = filterFunc;
+
+                updateMapData(statesData)
+
+              }
+
+            }
+            canvas.append("g").attr("class", "brush").call(brush);
+    }
+
+
+    function updateData() {
+        updateMapData(statesData);
+
+        let controls = d3.select("#controlfilter");
+        makeSlider(controls, "Employment Rate (Click + Drag to Filter):", "p_estimate", 700, 60);
+      }
+  
+      
+      updateData();
     }
 
     requestMapData();
@@ -1276,6 +1422,7 @@
 
     //key to match numbers to names, used to dynamically populate descriptions
     let key = {
+      
       mapType: {
         0: 'with or without',
         1: 'with',
@@ -1326,7 +1473,7 @@
         0: 'regardless of ethnicity',
         1: 'Hispanic',
         2: 'non-Hispanic'
-      }
+      },
     }
 
 
@@ -2278,7 +2425,6 @@
 
     }
     // loadEmpData();
-
 
 
   </script>

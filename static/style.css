@@ -212,3 +212,7 @@ td.paper-title {
   top: 0px;
   visibility: hidden;
 }
+
+.tableFilterButton {
+  cursor: pointer;
+}

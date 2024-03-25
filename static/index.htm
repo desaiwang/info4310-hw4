@@ -894,6 +894,7 @@
       var data = []; //TODO: update this when data changes, colorScale will also be automatically updated
       let colors = d3.schemeBlues[9];
       let colorScaleState = d3.scaleQuantize(d3.extent(all_p_estimates), colors);
+      prevScale = d3.scaleLinear(d3.extent(all_p_estimates), [10, maxBarLength]);
 
       let statePaths = svgMap.selectAll("path.state").data(states.features)
         .join("path")
@@ -1340,6 +1341,9 @@
 
     const subLegendTextMargin = 15;
 
+    const categorySpacing = 10;
+
+
     const tableSpacingDict = {};
 
     var currentShownBars = ["withBox", "withoutBox", "gapBox"];
@@ -1367,6 +1371,15 @@
       //.domain(empExtent)
       .domain([0, 100]) // for 0-100% scale vs. empExtent
       .range([0, maxBarLength]);
+
+
+    var prevScale;
+
+    var tableSortingState = {
+      category: null,
+      direction: null,
+      active: false
+    }
 
     // console.log(empChartWidth - (sampleStart + sampleWidth));
 
@@ -1445,7 +1458,6 @@
 
 
     function updateTableRows(sorted_dataset) {
-
       recalculateTablePositions();
       subchartStartPos = calculateSubchartStartPosition();
 
@@ -1496,7 +1508,7 @@
                 if (cat == tableCategories[0]) {
                   return tableSpacingDict[cat][0] + textMargin;
                 }
-                return tableSpacingDict[cat][0] + tableSpacingDict[cat][1] - textMargin;
+                return tableSpacingDict[cat][0] + tableSpacingDict[cat][1] - textMargin - categorySpacing;
               })
               .attr("y", rowHeight / 2);
           });
@@ -1517,8 +1529,8 @@
 
             // select and update each of the text elements as necessary
             //  (this is why it's important to add classes in enter)
-            update.select("text.p_est")
-              .text(d => d['p_est']);
+            update.select("text.p_estimate")
+              .text(d => d['p_estimate']);
             // ... append other text inside of the rows
 
             // select and update the fancy sub-chart
@@ -1716,7 +1728,7 @@
               .attr("y", barMargin)
               .attr("width", d => {
                 if (plottingPrevalenceTable) {
-                  return percentScale(d.p_estimate);
+                  return prevScale(d.p_estimate);
                 }
                 return percentScale(d.with);
               })
@@ -1729,7 +1741,7 @@
               update.transition()
                 .attr("width", d => {
                   if (plottingPrevalenceTable) {
-                    return percentScale(d.p_estimate);
+                    return prevScale(d.p_estimate);
                   }
                   return percentScale(d.with);
                 })
@@ -1746,7 +1758,7 @@
               .attr("class", "withEndCircle")
               .attr("cx", d => {
                 if (plottingPrevalenceTable) {
-                  return percentScale(d.p_estimate);
+                  return prevScale(d.p_estimate);
                 }
                 return percentScale(d.with);
               })
@@ -1761,7 +1773,7 @@
               update.transition()
                 .attr("cx", d => {
                   if (plottingPrevalenceTable) {
-                    return percentScale(d.p_estimate);
+                    return prevScale(d.p_estimate);
                   }
                   return percentScale(d.with);
                 })
@@ -1867,8 +1879,8 @@
 
         headerGroup.append("line")
           .attr("class", "groupLines")
-          .attr("x1", tableGroupPositions[group][0] + tableGroupPositions[group][1])
-          .attr("x2", tableGroupPositions[group][0] + tableGroupPositions[group][1])
+          .attr("x1", tableGroupPositions[group][0] + tableGroupPositions[group][1] + categorySpacing / 4)
+          .attr("x2", tableGroupPositions[group][0] + tableGroupPositions[group][1] + categorySpacing / 4)
           .attr("y1", headerHeight)
           .attr("y2", currentEmpSVGHeight - rowHeight - empSVGMargin.bottom)
           .attr("stroke-width", 1)
@@ -1877,8 +1889,8 @@
 
         headerGroup.append("rect")
           .attr("class", `tableHeaderBox ${group}`)
-          .attr("x", tableGroupPositions[group][0])
-          .attr("width", tableGroupPositions[group][1])
+          .attr("x", tableGroupPositions[group][0] - categorySpacing / 2)
+          .attr("width", tableGroupPositions[group][1] + categorySpacing / 2)
           .attr("height", headerHeight);
 
 
@@ -1944,7 +1956,7 @@
         if (words.length > 1) {
           words.forEach((word, index) => {
             headerText.append("tspan")
-              .attr("x", tableSpacingDict[cat][0] + (tableSpacingDict[cat][1]) - textMargin)
+              .attr("x", tableSpacingDict[cat][0] + (tableSpacingDict[cat][1]) - textMargin - categorySpacing)
               .text(word)
               .attr("dy", 1.5 * tableFontSize)
           });
@@ -1952,7 +1964,57 @@
           headerText.text(cat).attr("y", (rowHeight / 2) + 18);
         }
 
+        const downTrianglePoints = [[-5, 0], [5, 0], [0, 10]]
+        const upTrianglePoints = [[-5, 0], [5, 0], [0, -10]];
+        // let areaLabelTriangle = areaLabel.append("polygon")
+        //   .attr("points", trianglePoints.map(point => point.join(",")).join(" "))
+        //   .style("fill", "orangered")
+        // make sorters
+        activeTableCategories.forEach(cat => {
 
+          if (cat != tableCategories[0]) {
+            let filterGroup = headerGroup.append("g");
+
+            let downTriangle = filterGroup.append("polygon")
+              .attr("class", `triangle${cat} tableFilterButton`)
+              .attr("id", "down")
+              .attr("category", `${cat}`)
+              .attr("points", downTrianglePoints.map(point => point.join(",")).join(" "))
+              .attr("transform", `translate(${tableSpacingDict[cat][0] + tableSpacingDict[cat][1] - categorySpacing / 1.5}, ${headerHeight / 2})`)
+              .attr("state", () => {
+                if (tableSortingState.active && tableSortingState.category === cat && tableSortingState.direction === "down") {
+                  return "active";
+                }
+                return "inactive";
+              })
+              .attr("fill", () => {
+                if (tableSortingState.active && tableSortingState.category === cat && tableSortingState.direction === "down") {
+                  return "#3573D9";
+                }
+                return "#8BAEE8";
+              })
+              .on("click", sortTable);
+            let upTriangle = filterGroup.append("polygon")
+              .attr("class", `triangle${cat} tableFilterButton`)
+              .attr("id", "up")
+              .attr("category", `${cat}`)
+              .attr("points", upTrianglePoints.map(point => point.join(",")).join(" "))
+              .attr("transform", `translate(${tableSpacingDict[cat][0] + tableSpacingDict[cat][1] - categorySpacing / 1.5}, ${headerHeight / 2 - 5})`)
+              .attr("state", () => {
+                if (tableSortingState.active && tableSortingState.category === cat && tableSortingState.direction === "up") {
+                  return "active";
+                }
+                return "inactive";
+              })
+              .attr("fill", () => {
+                if (tableSortingState.active && tableSortingState.category === cat && tableSortingState.direction === "up") {
+                  return "#3573D9";
+                }
+                return "#8BAEE8";
+              })
+              .on("click", sortTable);
+          }
+        });
 
       });
 
@@ -1989,38 +2051,47 @@
 
       tableGroups.forEach(group => {
         if (activeTableGroups.includes(group)) {
-          // Calculate the total width of the group based on active categories
+          // Reset groupWidth for each group
           let groupWidth = 0;
           const categories = groupToCategories[group];
-          categories.forEach(cat => {
+
+          categories.forEach((cat, index) => {
             if (activeTableCategories.includes(cat)) {
-              groupWidth += tableSpacingDict[cat][1]; // Add the width of each active category
+              // Start positions for each category now consider the spacing
+              tableSpacingDict[cat][0] = currentPosition;
+              currentPosition += tableSpacingDict[cat][1]; // Move by the width of the category
+
+              // Add spacing after each category except the last one in the group
+              if (index < categories.length - 1) {
+                currentPosition += categorySpacing;
+              }
+
+              // Accumulate groupWidth including spacing between categories
+              groupWidth += tableSpacingDict[cat][1] + (index < categories.length - 1 ? categorySpacing : 0);
             }
           });
 
-          tableGroupPositions[group] = [currentPosition, groupWidth];
-          categories.forEach(cat => {
-            if (activeTableCategories.includes(cat)) {
-              tableSpacingDict[cat][0] = currentPosition;
-              currentPosition += tableSpacingDict[cat][1]; // Move the current position by the width of the category
-            }
-          });
+          // Update group position and width
+          tableGroupPositions[group] = [currentPosition - groupWidth, groupWidth];
+          // If you want space after each group, add it to currentPosition here
+          currentPosition += categorySpacing; // Optional: add space after each group
         }
       });
     }
 
     function calculateSubchartStartPosition() {
-      // Calculate the rightmost edge of the last active group
+      // Assuming lastGroupEdge calculation remains the same
       let lastGroupEdge = 0;
       activeTableGroups.forEach(group => {
         const groupPosition = tableGroupPositions[group];
         if (groupPosition) {
-          const groupEdge = groupPosition[0] + groupPosition[1]; // Start + width
+          const groupEdge = groupPosition[0] + groupPosition[1];
           lastGroupEdge = Math.max(lastGroupEdge, groupEdge);
         }
       });
 
-      return lastGroupEdge;
+      // Include additional spacing if required before starting subcharts
+      return lastGroupEdge + categorySpacing; // Add spacing before subcharts start
     }
 
     function toggleBar(event, d) {
@@ -2034,6 +2105,51 @@
       }
 
       // console.log(currentShownBars);
+    }
+
+    function sortTable(event) {
+      let dataToSort = [...currentTableData];
+      let ascending = false;
+      let clickedButton = d3.select(this);
+      let property = tableSpacingDict[clickedButton.attr("category")][2];
+      let nowSorting = null;
+
+      // Reset all triangles to inactive state except for the clicked one
+      d3.selectAll(".tableFilterButton")
+        .each(function () {
+          if (d3.select(this).attr("id") !== clickedButton.attr("id") || d3.select(this).attr("category") !== clickedButton.attr("category")) {
+            d3.select(this).attr("fill", "#8BAEE8").attr("state", "inactive");
+          }
+        });
+
+      let isActive = clickedButton.attr("state") === "active";
+      if (isActive) {
+        clickedButton.attr("fill", "#8BAEE8").attr("state", "inactive");
+
+        //unsort table??
+        nowSorting = false;
+
+      } else {
+        clickedButton.attr("fill", "#3573D9").attr("state", "active");
+
+        ascending = clickedButton.attr("id") === "up";
+
+
+        dataToSort.sort((a, b) => ascending ? a[property] - b[property] : b[property] - a[property]);
+        nowSorting = true;
+
+        // Log the sorted data or update your table with it
+        console.log(dataToSort);
+      }
+
+      tableSortingState = {
+        category: clickedButton.attr("category"),
+        direction: ascending ? "up" : "down",
+        active: nowSorting
+      }
+
+      updateTableRows(dataToSort);
+
     }
     // loadEmpData();
 

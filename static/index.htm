@@ -122,10 +122,10 @@
       margin: 0 0 1.3em 0;
     }   
     button#toggle {
-      display:block;border: 0;background-color:#5396E8;color:white;width:70px;padding: 7px 0;
+      display:block;border: 0;background-color:#5396E8;color:white;width:70px;padding: 7px 0; font-size: .85em;
     } 
     button#toggleSearch {
-      display:block;border: 0;background-color:#5396E8;color:white;width:70px;padding: 7px 0;
+      display:block;border: 0;background-color:#5396E8;color:white;width:70px;padding: 7px 0; font-size: .85em;
     } 
 
     /* =======
@@ -222,7 +222,7 @@
       overflow: hidden;
     }
     .brush { grid-area: brush; }
-    .tableBar { grid-area: tableBar; }
+    .tableBar { grid-area: tableBar; margin: 30px 150px 0 0; }
     .footer { grid-area: footer; min-height: 300px;}
 
     /* CUSTOM SELECT FORMATTING */
@@ -519,9 +519,9 @@
 
     </div>
     <div class="map">
-    <!--  ---------------
-                MAP 
-          --------------- -->
+      <!--  ---------------
+                 MAP 
+            --------------- -->
       <h3>MAP</h3>
       <h4>EMPLOYMENT RATE: <br>The employment rate for non-institutionalized,
         <span id="gender">male or female</span>,
@@ -538,9 +538,10 @@
     <div class="brush"></div>
     <div class="dir3"></div>
     <div class="tableBar">
-    <!--  ==================
-                TABLE
-          =================== -->
+      <!--  ---------------
+                 TABLE
+            --------------- -->
+      <h3>TABLE</h3>
       <svg id="prevalenceTable" height="100" width="1200"></svg>
 
     </div>
@@ -1126,9 +1127,9 @@
   </script>
 
 
-  <!-- ==================
-        TABLE SCRIPT
-    =================== -->
+  <!--  ==================
+          TABLE SCRIPT
+        ================== -->
   <script>
 
     // --- We are going to make the table

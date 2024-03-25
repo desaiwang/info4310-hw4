@@ -507,12 +507,13 @@
       </div>
     </div>
     <div class="pageTitle">
-      <h1>EMPLOYMENT RATE</h1>
+      <h1 id="pageTitle">EMPLOYMENT RATE</h1>
     </div>
     <div class="dir1"></div>
     <div class="quickStat">
       <h3>QUICK STATS</h3>
       <p class="quickFacts">
+        <!-- TODO: should we also have a poverty gap? but what would we do for prevalence? -->
         In 2022, the national employment rate for people <span class="withHighlight">with</span> disabilities
         was <span class="withColor">45.0%</span> compared to <span class="withoutColor">81.0%</span> for people <span
           class="withoutHighlight">without</span> disabilities, an <span class="gapHighlight">employment gap</span> of
@@ -549,19 +550,9 @@
       <label for="mapType">MAP TYPE</label>
       <div class="select">
         <select id="mapType" name="mapType">
-          <option value="0" selected>With or Without Disability</option>
-          <option value="1">With Disability</option>
+          <option value="0">With or Without Disability</option>
+          <option value="1" selected>With Disability</option>
           <option value="2">Without Disability</option>
-        </select>
-        <span class="focus"></span>
-      </div>
-
-      <label for="gender">GENDER</label>
-      <div class="select">
-        <select id="gender" name="gender">
-          <option value="0" selected>Male or Female</option>
-          <option value="1">Males</option>
-          <option value="2">Females</option>
         </select>
         <span class="focus"></span>
       </div>
@@ -580,14 +571,24 @@
         <span class="focus"></span>
       </div>
 
+      <label for="gender">GENDER</label>
+      <div class="select">
+        <select id="gender" name="gender">
+          <option value="0" selected>Male or Female</option>
+          <option value="1">Males</option>
+          <option value="2">Females</option>
+        </select>
+        <span class="focus"></span>
+      </div>
+
       <label for="age">AGE</label>
       <div class="select">
         <select id="age" name="age">
-          <option value="0" selected>All Ages</option>
+          <option value="0">All Ages</option>
           <option value="5">Ages 4 and under</option>
           <option value="6">Ages 5-15</option>
           <option value="1">Ages 16-20</option>
-          <option value="2">Ages 21-64</option>
+          <option value="2" selected>Ages 21-64</option>
           <option value="3">Ages 16-64</option>
           <option value="4">Ages 18-64</option>
           <option value="7">Ages 65-74</option>
@@ -638,13 +639,13 @@
                  MAP 
             --------------- -->
       <h3>MAP</h3>
-      <h4>EMPLOYMENT RATE: <br>The employment rate for non-institutionalized,
+      <h4 id="headingtext">EMPLOYMENT RATE: <br>The employment rate for non-institutionalized,
         <span id="gender">male or female</span>,
         with <span id="disabilityType">any</span> disability,
         <span id="age">all ages</span>,
         <span id="race">all races</span>,
         <span id="hispanic">regardless of ethnicity</span>,
-        with <span id="education"></span> in the Unites States is <span id="dynamic_p_estimate">13.9%</span> in 2022.
+        with <span id="education"></span> in the Unites States is <span id="dynamic_p_estimate">45%</span> in 2022.
       </h4>
       <!-- MAP -->
       <svg id="svgMap" width="1600" height="800" top="10"></svg>
@@ -720,19 +721,6 @@
 
     const requestMapData = async () => {
 
-      //initialize dict with column values
-      let columnValues = {
-        mapType: 0,
-        gender: 0,
-        disabilityType: 1,
-        age: 0,
-        race: 0,
-        education: 0,
-        hispanic: 0,
-        region: 0
-      };
-
-
       let regions = {
         0: [
           "the United States",
@@ -794,39 +782,101 @@
         4: ['Alaska', 'Arizona', 'California', 'Colorado', 'Hawaii', 'Idaho', 'Montana', 'Nevada', 'New Mexico', 'Oregon', 'Utah', 'Washington', 'Wyoming']
       }
 
-      //state data (filter based on selected)
-      let statesAll = await d3.csv("./acs_prevalence2.csv", d3.autoType);
-      let statesData = statesAll.filter(function (row) {
-        return (
-          row.gender === columnValues.gender
-          &&
-          row.disability_type === columnValues.disabilityType
-          &&
-          row.age === columnValues.age &&
-          row.race === columnValues.race &&
-          row.education === columnValues.education &&
-          row.hispanic === columnValues.hispanic
-        )
-      }); //this is used for filtering
+      //these are columns that affect text
+      let columnsDict = {
+        0: ["disabilityType", "gender", "age", "race", "education", "hispanic"], //prevalence
+        1: ["mapType", "disabilityType", "gender", "age", "race", "education", "hispanic"], //employment rate
+        2: ["mapType", "disabilityType", "age"] //poverty rate
+      }
 
-      // console.log(statesData);
-      //setting up selections to track selections for prevalence 
-      //TODO: need to adapt to different datasets
-      let prevalenceColumns = ["region", "mapType", "gender", "disabilityType", "age", "race", "education", "hispanic"];
-      prevalenceColumns.forEach((d) => {
+      //initialize dict with column values
+      let columnValues = {
+        indStat: 1, //initialize with employment rate
+        mapType: 1, //initialize as "with disability"
+        gender: 0,
+        disabilityType: 1,
+        age: 2, //initialize as 21-64 
+        race: 0,
+        education: 0,
+        hispanic: 0,
+        region: 0
+      };
+
+
+      //state data (filter based on selected)
+      let prevalenceAll = await d3.csv("./acs_prevalence2.csv", d3.autoType);
+      let employmentAll = await d3.csv("./acs_employment_rate2.csv", d3.autoType);
+      let povertyAll = await d3.csv("./acs_poverty2.csv", d3.autoType);
+
+      const datasetsDict = {
+        0: prevalenceAll,
+        1: employmentAll,
+        2: povertyAll
+      };
+      //TODO: also need to change headers accordingly!
+
+      let statesData = datasetsDict[columnValues.indStat].filter(function (row) {
+        for (let d of columnsDict[columnValues.indStat]) {
+          if (row[d] !== columnValues[d]) {
+            //console.log("d: ", d);
+            //console.log("row[d]: ", row[d])
+            //console.log("columnValues[d]: ", columnValues[d])
+            return false; // Exit the loop and filter immediately if a mismatch is found
+          }
+        }
+        return true; // Return true only if all filter conditions are met
+      });
+
+
+      //console.log(`getting ${columnValues.indStat} from datasetDict: `, datasetsDict[columnValues.indStat]);
+      //console.log(`trying to test these column values: ${columnsDict[columnValues.indStat]}`)
+      //console.log('statesData', statesData);
+
+      //setting up selections to track changes
+      let allColumns = ["region", "mapType", "disabilityType", "gender", "age", "race", "education", "hispanic"];
+      allColumns.forEach((d) => {
 
         d3.select(`select#${d}`)
           .on("change", function () {
             columnValues[d] = Number(d3.select(this).property("value"));
-            //console.log(`${d} changed, logging column values:`, columnValues);
+            console.log(`${d} changed, logging column values:`, columnValues);
 
             updateData();
           });
-      })
+      });
 
+      //indstat tracked separately, since age value needs to be reset
+      d3.select(`select#indStat`)
+        .on("change", function () {
+          columnValues.indStat = Number(d3.select(this).property("value"));
+          //console.log(`indStat changed, logging column values:`, columnValues);
 
-      //these are columns that affect text
-      let textColumns = ["gender", "disabilityType", "age", "race", "education", "hispanic"]
+          if (columnValues.indStat === 0) {
+            //prevalence
+            columnValues.age = 0
+
+            d3.select("h1#pageTitle").text("PREVALENCE");
+            //TODO: natalia for hiding selections
+            //d3.select(`label#mapType`).style("display", "none");
+            //d3.select(`select#mapType`).style("display", "none");
+          } else if (columnValues.indStat === 1) {
+            //employment
+            columnValues.age = 2
+            d3.select("h1#pageTitle").text("EMPLOYMENT RATE");
+          } else {
+            //poverty
+            columnValues.age = 2
+            d3.select("h1#pageTitle").text("POVERTY RATE");
+          }
+
+          //console.log("columnValues.age changed to: ", columnValues.age)
+
+          //update quickfacts
+
+          d3.select("p.quickFacts").html(quickFacts[columnValues.indStat]);
+
+          updateData();
+        });
 
 
       //load map data and match up state names to codes
@@ -891,7 +941,6 @@
         .join("g")
         .style("opacity", null); //set to 0.3 to see low resolution files
 
-      var data = []; //TODO: update this when data changes, colorScale will also be automatically updated
       let colors = d3.schemeBlues[9];
       let colorScaleState = d3.scaleQuantize(d3.extent(all_p_estimates), colors);
 
@@ -989,21 +1038,21 @@
 
       }
       var zoom = d3.zoom()
-        .scaleExtent([1 << 12, 1 << 20])
+        .scaleExtent([2250, 1 << 20])
         .on("zoom", ({ transform }) => zoomed(transform));
 
 
       //centerLocation
       let centerCoordinates = {
         latitude: 41.4925,
-        longitude: -99.9018
+        longitude: -79.9018
       };
 
       svgMap
         .call(zoom)
         .call(zoom.transform, d3.zoomIdentity
           .translate(width / 2, height / 2)
-          .scale(- 1 << 12)
+          .scale(-2250)
           .translate(...projection([centerCoordinates.longitude, centerCoordinates.latitude]))
           .scale(-1)
         )
@@ -1012,7 +1061,6 @@
 
 
       function zoomed(transform) {
-        // console.log("regular projection", projection([42.36541856, -71.05688332]))
 
         levels.each(function (delta) {
           const tiles = tile.zoomDelta(delta)(transform);
@@ -1051,40 +1099,69 @@
       };
 
 
-      function pointPassesFilters(point) {
+      const ageOptions = {
+        0: [
+          { value: "0", text: "All Ages" },
+          { value: "5", text: "Ages 4 and under" },
+          { value: "6", text: "Ages 5-15" },
+          { value: "1", text: "Ages 16-20" },
+          { value: "2", text: "Ages 21-64" },
+          { value: "3", text: "Ages 16-64" },
+          { value: "4", text: "Ages 18-64" },
+          { value: "7", text: "Ages 65-74" },
+          { value: "9", text: "Ages 65+" },
+          { value: "8", text: "Ages 75+" }
+        ],
+        1: [
+          { value: "2", text: "Ages 21-64" },
+          { value: "1", text: "Ages 16-20" },
+          { value: "3", text: "Ages 16-64" },
+          { value: "4", text: "Ages 18-64" }
+        ],
+        2: [
+          { value: "2", text: "Ages 21-64" }
+        ]
 
-        let stillPassed = true;
+      };
 
-        Object.values(filters).forEach(filterFunc => {
-
-          stillPassed = filterFunc(point) && stillPassed;
-
-        });
-
-        return stillPassed;
-
+      // Function to update age options
+      function updateOptions(data) {
+        // Bind data to options
+        const options = d3.select("select#age").selectAll("option")
+          .data(data)
+          .join("option")
+          //.classed("custom", true) // Add a class to distinguish custom options
+          .attr("value", d => d.value)
+          .text(d => d.text);
       }
+
 
       //calls update on filters when selections are changed
       function updateData() {
 
-
-        statesData = statesAll.filter(function (row) {
-          return (
-            row.gender === columnValues.gender
-            &&
-            row.disability_type === columnValues.disabilityType
-            &&
-            row.age === columnValues.age &&
-            row.race === columnValues.race &&
-            row.education === columnValues.education &&
-            row.hispanic === columnValues.hispanic
-          )
+        let statesData = datasetsDict[columnValues.indStat].filter(function (row) {
+          for (let d of columnsDict[columnValues.indStat]) {
+            if (row[d] !== columnValues[d]) {
+              //console.log("d: ", d);
+              //console.log("row[d]: ", row[d])
+              //console.log("columnValues[d]: ", columnValues[d])
+              return false; // Exit the loop and filter immediately if a mismatch is found
+            }
+          }
+          return true; // Return true only if all filter conditions are met
         });
 
-        //console.log(statesData);
+        console.log(statesData);
 
+        // Initially update options with sample data
+        updateOptions(ageOptions[columnValues.indStat]);
+        d3.select(`select#age`)
+          .on("change", function () {
+            columnValues["age"] = Number(d3.select(this).property("value"));
+            console.log(`age changed, logging column values:`, columnValues);
 
+            updateData();
+          });
 
         //console.log("dataDict before", dataDict)
         //refilters the states to be displayed
@@ -1157,12 +1234,16 @@
         })
           .attr("stroke", "grey");
 
+        //update subheadings for above map
+
+        d3.select("h4#headingtext").html(headings[columnValues.indStat]);
+
         //dynamically fill description spans
-        textColumns.forEach(d => {
+        columnsDict[columnValues.indStat].forEach(d => {
+
           let value = key[d][Number(columnValues[d])];
           d3.select(`span#${d}`).text(value);
         })
-
         d3.select("span#dynamic_p_estimate").text(`${dataDict["the United States"].p_estimate}%`);
 
 
@@ -1178,8 +1259,27 @@
     // HELPER FUNCTIONS
     // ---------------
 
+    //quickfacts for different datasets
+    let quickFacts = {
+      0: "In 2022, the prevalence of disability was <span class='withColor'>13.4%</span>.",
+      1: "In 2022, the national employment rate for people <span class='withHighlight'>with</span> disabilities was <span class='withColor'>45.0%</span> compared to <span class='withoutColor'>81.0%</span> for people <span class='withoutHighlight'>without</span> disabilities, an <span class='gapHighlight'>employment gap</span> of <span class='gapColor'>36.0%</span>.",
+      2: "In 2022, the national poverty rate for people <span class='withHighlight'>with</span> disabilities was <span class='withColor'>24.7%</span> compared to <span class='withoutColor'>9.6%</span> for people <span class='withoutHighlight'>without</span> disabilities, a <span class='gapHighlight'>poverty gap</span> of <span class='gapColor'>15.1%</span>."
+    }
+
+    //headings for different datasets
+    let headings = {
+      0: "PREVALENCE: <br>The percentage of non-institutionalized, <span id='gender'>male or female</span>, with <span id='disabilityType'>any</span> disability, <span id='age'>all ages</span>, <span id='race'>all races</span>, <span id='hispanic'>regardless of ethnicity</span>, with <span id='education'>all education levels</span> in the Unites States is <span id='dynamic_p_estimate'>13.9%</span> in 2022.",
+      1: "EMPLOYMENT RATE: <br>The employment rate for non-institutionalized,<span id='gender'>male or female</span>, <span id ='MapType'>with</span> <span id='disabilityType'>any</span> disability, <span id='age'>all ages</span>, <span id='race'>all races</span>, <span id='hispanic'>regardless of ethnicity</span>, with <span id='education'>all education levels</span> in the Unites States is <span id='dynamic_p_estimate'>13.9%</span> in 2022.",
+      2: "POVERTY RATE: <br>The percentage of non-institutionalized persons ages 21-64 years, <span id ='MapType'>with</span> <span id='disabilityType'>any</span> disability, in the Unites States who were living below the poverty line is <span id='dynamic_p_estimate'>13.9%</span> in 2022."
+    }
+
     //key to match numbers to names, used to dynamically populate descriptions
     let key = {
+      mapType: {
+        0: 'with or without',
+        1: 'with',
+        2: 'without'
+      },
       gender: {
         0: 'male or female',
         1: 'male',
@@ -1196,15 +1296,15 @@
       },
       age: {
         0: 'all ages',
-        1: 'ages 4 and under',
-        2: 'ages 5-15',
-        3: 'ages 16-20',
-        4: 'ages 21-64',
-        5: 'ages 16-64',
-        6: 'ages 18-64',
+        5: 'ages 4 and under',
+        6: 'ages 5-15',
+        1: 'ages 16-20',
+        2: 'ages 21-64',
+        3: 'ages 16-64',
+        4: 'ages 18-64',
         7: 'ages 65-74',
-        8: 'ages 65+',
-        9: 'ages Ages 75+'
+        9: 'ages 65+',
+        8: 'ages Ages 75+'
       },
       race: {
         0: 'all races',
@@ -1226,23 +1326,6 @@
         1: 'Hispanic',
         2: 'non-Hispanic'
       }
-    }
-
-    //makes sure element shows up within bounds
-    function elementLocation(mouseX, mouseY, elementWidth, elementHeight, boundaryX, xMargin, yMargin) {
-
-      let xPos = mouseX + xMargin;
-      let yPos = mouseY - yMargin - elementHeight;
-
-      if ((xPos + elementWidth) > boundaryX) {
-        xPos = mouseX - xMargin - elementWidth
-      }
-      if (yPos < 0) {
-        yPos = mouseY - yMargin
-      }
-
-      return { x: xPos, y: yPos };
-
     }
 
 

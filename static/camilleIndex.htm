@@ -1,0 +1,216 @@
+<html>
+
+<head>
+  <title>INFO 3300 - September 6</title>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://d3js.org/topojson.v2.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@500;600;700;800;900&family=Roboto:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+
+  <style>
+    /* #empBar {
+      stroke: 1px solid red;
+    } */
+    body {
+      font-family: 'Roboto', Arial, Helvetica, sans-serif;
+    }
+
+    .xGridlines line {
+      stroke-opacity: .2;
+    }
+
+    .yGridlines line {
+      stroke-opacity: .6;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div>
+    <svg id="empBar" height="1200" width="400">
+
+    </svg>
+  </div>
+
+
+  <script id="notes">
+
+    // ----------
+    // DIMENSIONS
+    // ----------
+    // Declare chart dimensions and margins.
+    const empSVG = d3.select("svg#empBar").style("overflow", "visible");
+    const empSVGWidth = empSVG.attr("width");
+    const empSVGHeight = empSVG.attr("height");
+    const empSVGMargin = { top: 40, right: 30, bottom: 50, left: 130 };
+    const empChartWidth = empSVGWidth - empSVGMargin.left - empSVGMargin.right;
+    const empChartHeight = empSVGHeight - empSVGMargin.top - empSVGMargin.bottom;
+
+    let annotations = empSVG.append("g").attr("id", "annotations");
+    let empChartArea = empSVG.append('g')
+      .attr('transform', `translate(${empSVGMargin.left},${empSVGMargin.top})`);
+
+    // loadEmpData
+    const loadEmpData = async function () {
+
+      // ======        
+      //  DATA
+      // ======
+      let empData = await d3.csv("acs_emp03.csv", d3.autoType)
+
+      // ======
+      // SCALES
+      // ======    
+      // Declare the x scale.
+      const empExtent = d3.extent(empData, d => d.p_estimate);
+      const empScale = d3.scaleLinear()
+        //.domain(empExtent)
+        .domain([0, 100]) // for 0-100% scale vs. empExtent
+        .range([0, empChartWidth]);
+
+      // Declare the y scale.
+      const stateScale = d3.scaleBand()
+        .domain(empData.map(d => d.location))
+        //.domain(d3.groupSort(empData, ([d]) => -d.p_estimate, (d) => d.location)) // sort order by p_estimate
+        .range([empChartHeight, 0])
+        .padding([.2]);
+
+      // ======
+      //  AXES
+      // ====== 
+      // ------
+      // X-AXIS
+      // ------
+      let bottomAxis = d3.axisBottom(empScale)
+      let topAxis = d3.axisTop(empScale)
+      let bottomGridlines = d3.axisBottom(empScale)
+        .ticks(6)
+        .tickSize(-empChartHeight - 10)
+        .tickSizeOuter(0)
+        .tickFormat("")
+      // Add x-axis on top of chart.
+      annotations.append('g')
+        .attr('transform', `translate(${empSVGMargin.left},${empSVGMargin.top - 5})`)
+        .call(topAxis)
+        // Add x-axis label
+        .call((g) => g.append("text")
+          .attr("x", empChartWidth)
+          .attr("y", -25)
+          .attr("fill", "currentColor")
+          .attr("text-anchor", "end")
+          .text("Employment Rate (%)"));
+      // Add x-axis to bottom and label.
+      annotations.append('g')
+        .attr('transform', `translate(${empSVGMargin.left},${empChartHeight + empSVGMargin.top + 5})`)
+        .call(bottomAxis)
+        // Add x-axis label
+        .call((g) => g.append("text")
+          .attr("x", empChartWidth)
+          .attr("y", empSVGMargin.bottom - 15)
+          .attr("fill", "currentColor")
+          .attr("text-anchor", "end")
+          .text("Employment Rate (%)"));
+      // Add x-axis (vertical) gridlines.
+      annotations.append("g")
+        .attr("class", "xGridlines")
+        .attr('transform', `translate(${empSVGMargin.left},${empChartHeight + empSVGMargin.top + 5})`)
+        .call(bottomGridlines)
+
+      // ------
+      // Y-AXIS
+      // ------
+      let leftAxis = d3.axisLeft(stateScale)
+        .tickSizeOuter(0)
+        .tickSize(0);
+      let leftGridlines = d3.axisLeft(stateScale)
+        .tickSize(-empChartWidth - 130)
+        .tickSizeOuter(0)
+        .tickFormat("")
+      // Add y-axis.
+      annotations.append("g")
+        .attr("transform", `translate(${empSVGMargin.left - 10},${empSVGMargin.top})`)
+        .style("font-size", "12px")
+        .call(leftAxis)
+        .call((g) => g.select(".domain").remove()); // remove y-axis vertical line
+      // Add y-axis (horizontal) gridlines.
+      annotations.append("g")
+        .attr("class", "yGridlines")
+        .attr('transform', `translate(${empSVGMargin.left - 130},${empSVGMargin.bottom})`)
+        .call(leftGridlines);
+
+      // ======
+      //  BARS
+      // ======
+      // Append bars.     
+      empChartArea.selectAll('rect.bar')
+        .data(empData)
+        .join('rect').attr('class', 'bar')
+        .attr("fill", "#1A73E0")
+        .attr("x", empScale(0))
+        .attr("width", d => empScale(d.p_estimate))
+        .attr("y", d => stateScale(d.location) + 2)
+        .attr("height", "12")
+
+      // Append circles.
+      empChartArea.selectAll("circle.circle1")
+        .data(empData)
+        .join("circle").attr('class', 'circle1')
+        .style("fill", "#00368C")
+        .attr("r", "6")
+        .attr("cx", d => empScale(d.p_estimate))
+        .attr("cy", d => stateScale(d.location) + 8)
+
+        // mouseover
+        .on("mouseover", function (event, d) {
+          let circle = d3.select(this)
+          let parentData = d3.select(this.parentNode).datum() // get data from the parent of the circle which is the g tag
+          circle.attr("stroke", "black")
+            .attr("stroke-width", "5")
+            .style("fill", "white")
+          let xPos = empScale(d.p_estimate) // where the x is
+          let yPos = stateScale(d.location) // where the y is
+
+          // tooltip
+          let g = empChartArea.append("g")
+            .attr("transform", `translate(${xPos}, ${yPos})`)
+            .attr("class", "mouseOverLabel")
+            .style("pointer-events", "none")
+          g.append("rect")
+            .attr("x", -37)
+            .attr("y", -24)
+            .attr("width", 74)
+            .attr("height", 20)
+            .attr("fill", "white")
+            .attr("stroke", "black")
+          g.append("text")
+            .attr("x", -30)
+            .attr("y", -10)
+            .attr("font-size", "12px")
+            .text("Rate: " + d.p_estimate + "%")
+        })
+        // mouseout
+        .on("mouseout", function (event, d) {
+          let circle = d3.select(this)
+          let parentData = d3.select(this.parentNode).datum() // get data from the parent of the circle which is the g tag
+          circle.attr("stroke", "")
+            .attr("stroke-width", "1")
+            .style("fill", "#00368C")
+          empChartArea.select(".mouseOverLabel").remove() // find the thing with the class and remove it
+        });
+
+
+    };
+    loadEmpData();
+
+
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,595 @@
+<html>
+
+<head>
+  <title>INFO 3300 - September 6</title>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://d3js.org/topojson.v2.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@500;600;700;800;900&family=Roboto:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+
+  <style>
+    /* #empBar {
+      stroke: 1px solid red;
+    } */
+    body {
+      font-family: 'Roboto', Arial, Helvetica, sans-serif;
+    }
+
+    .xGridlines line {
+      stroke-opacity: .2;
+    }
+
+    .yGridlines line {
+      stroke-opacity: .6;
+    }
+
+    /* any styles u want to apply to all the text in the table */
+    .tableText {
+      dominant-baseline: middle;
+      text-anchor: end;
+    }
+
+    .tableText.Location {
+      text-anchor: start;
+      fill: #3573D9;
+      font-weight: bold;
+    }
+
+    .withBar {
+      fill: #1B73E0
+    }
+
+    .withoutBar {
+      fill: #A8C7F4
+    }
+
+    .withEndCircle {
+      fill: #00368C
+    }
+
+    .withoutEndCircle {
+      fill: #59A4EF
+    }
+
+    .gapText {
+      fill: #F96C0D
+    }
+
+    .tableSeperator {
+      stroke: gray;
+      stroke-width: 1px;
+    }
+
+    .tableHeaderBox {
+      fill: #E1EAFA;
+    }
+
+    .tableHeaderBox.Location {
+      fill: #3573D9;
+    }
+
+    .tHeader {
+      font-weight: 500;
+      fill: black;
+      text-anchor: end;
+    }
+
+    .tHeaderText.Location {
+      fill: white;
+      text-anchor: start;
+    }
+
+    .closeSquare {
+      fill: #8BAEE8;
+    }
+
+    .closeX {
+      stroke: white;
+      stroke-width: 3px;
+    }
+  </style>
+</head>
+
+</html>
+Resortable list
+but... US always at top (hint: comparator function trick)
+
+Dataset:
+[{location:, p_est:, etc... },
+... ]
+
+Dataset array is re-ordable to sort by different columns
+Mixed text and SVG data in each row
+Within SVG, complex stuff happening
+
+
+
+<svg id="tableR" height="1200" width="1200">
+</svg>
+
+<script>
+
+  // --- We are going to make the table
+  // Create the <svg> where it lives or select it
+  // Make the extra g tags for annotations and lines and labels etc
+  // Call updateTableRows on your data array to fill in each row
+
+  // --- Someone pressed a sorting button
+  // Re-sort the data array based on some criteria
+  //  (e.g. now the lowest p_est is first instead of alphabetical by state)
+  // Call updateTableRows again on the newly sorted dataset
+
+  // -- Someone changed ANYTHING else in the filter panel etc
+  // Just make sure that your data array has the right stuff in it
+  // Then call updateTableRows
+  const empSVG = d3.select("svg#tableR");
+  const empSVGWidth = empSVG.attr("width");
+  const empSVGHeight = empSVG.attr("height");
+  const empSVGMargin = { top: 40, right: 30, bottom: 50, left: 130 };
+  const empChartWidth = empSVGWidth - empSVGMargin.left - empSVGMargin.right;
+  const empChartHeight = empSVGHeight - empSVGMargin.top - empSVGMargin.bottom;
+
+  const rowHeight = 30;
+
+  const tableCategories = ["Location", "Estimate (%)", "90% MOEp", "Estimate (number)", "90% MOEn", "Base Population", "Sample Size"];
+  const tableGroups = ["Location", "Percent", "Number", "Base Population", "Sample Size"];
+
+
+  const locationStart = 0;
+  const locationWidth = 175;
+
+  const pEstimateStart = locationStart + locationWidth;
+  const pEstimateWidth = 80;
+
+  const pMoeStart = pEstimateStart + pEstimateWidth;
+  const pMoeWidth = 80;
+
+  const nEstimateStart = pMoeStart + pMoeWidth;
+  const nEstimateWidth = 100;
+
+  const nMoeStart = nEstimateStart + nEstimateWidth;
+  const nMoeWidth = 80;
+
+  const populationStart = nMoeStart + nMoeWidth;
+  const populationWidth = 120;
+
+  const sampleStart = populationStart + populationWidth;
+  const sampleWidth = 90;
+
+  const thousandFormatter = d3.format(",");
+  const floatFormatter = d3.format(".1f");
+
+  const barMargin = 5;
+  const endCircleRadius = 10;
+
+  const mouseOverLabelBoxHeight = 20;
+  const mouseOverLabelBoxWidth = 75;
+
+  const headerHeight = 50;
+  const tableFontSize = 12;
+  const textMargin = 10;
+
+  const closeHeight = 30;
+  const closeWidth = 40;
+  const closeInnerBoxHeight = 20;
+  const xMargin = 3;
+
+  const tableSpacingDict = {};
+
+  // syntax for this dict, value 0 is start pos, value 1 is width, value 2 is header name, value 3 is formatter for displaying the value
+  tableSpacingDict[tableCategories[0]] = [locationStart, locationWidth, "location", null];
+  tableSpacingDict[tableCategories[1]] = [pEstimateStart, pEstimateWidth, "p_estimate", null];
+  tableSpacingDict[tableCategories[2]] = [pMoeStart, pMoeWidth, "p_estimate_moe", null];
+  tableSpacingDict[tableCategories[3]] = [nEstimateStart, nEstimateWidth, "n_estimate", thousandFormatter];
+  tableSpacingDict[tableCategories[4]] = [nMoeStart, nMoeWidth, "n_estimate_moe", thousandFormatter];
+  tableSpacingDict[tableCategories[5]] = [populationStart, populationWidth, "base_population", thousandFormatter];
+  tableSpacingDict[tableCategories[6]] = [sampleStart, sampleWidth, "sample_size", thousandFormatter];
+
+  const tableGroupPositions = {}
+
+  tableGroupPositions[tableGroups[0]] = [locationStart, locationWidth];
+  tableGroupPositions[tableGroups[1]] = [d3.min([pEstimateStart, pMoeStart]), pEstimateWidth + pMoeWidth];
+  tableGroupPositions[tableGroups[2]] = [d3.min([nEstimateStart, nMoeStart]), nEstimateWidth + nMoeWidth];
+  tableGroupPositions[tableGroups[3]] = [populationStart, populationWidth];
+  tableGroupPositions[tableGroups[4]] = [sampleStart, sampleWidth];
+
+  // console.log(tableSpacingDict["Location"][3] != null);
+
+  const empScale = d3.scaleLinear()
+    //.domain(empExtent)
+    .domain([0, 100]) // for 0-100% scale vs. empExtent
+    .range([0, empChartWidth - (sampleStart + sampleWidth)]);
+
+
+
+  // temp
+  let drawWith = true;
+  let drawWithout = true;
+  const loadEmpData = async function () {
+
+    // ======        
+    //  DATA
+    // ======
+    let empData = await d3.csv("acs_emp03.csv", d3.autoType)
+    let goodData = unstackDataset(empData);
+    console.log(goodData);
+
+    let allWithout = d3.map(goodData, d => {
+      return d["without"];
+    })
+
+
+
+    updateTableRows(goodData);
+  }
+
+  function unstackDataset(stackedCSV) {
+    // takes in the 104 stacked rows from the CSV 
+    // returns 52 unstacked rows that have both "with" and "without" keys 
+    //  for the matching p_estimates
+    // RUN THIS FIRST TO MAKE A GOOD DATASET, THEN SORT AND EVERYTHING ELSE!
+
+    let new_dataset = {};
+
+    stackedCSV.forEach(d => {
+      // check which kind of data it is
+      let label = ""
+      if (d.v2 === 1) {
+        label = "with";
+      }
+      else if (d.v2 === 2) {
+        label = "without";
+      }
+      else {
+        label = "NULL";
+      }
+
+      let location = d.location;
+      if (location in new_dataset) {
+        // update the row with the new value
+        new_dataset[location][label] = d.p_estimate;
+      }
+      else
+        new_dataset[location] = {
+          "location": d.location,
+          "sample_size": d.sample_size,
+          "base_population": d.base_population,
+          "n_estimate": d.n_estimate,
+          "n_estimate_moe": d.n_estimate_moe,
+          "p_estimate": d.p_estimate,
+          "p_estimate_moe": d.p_estimate_moe,
+          "id": d.id
+        }
+      new_dataset[location][label] = d.p_estimate;
+
+    });
+
+    // we need to convert from a dictionary back into a simple array
+    return Object.values(new_dataset);
+
+  }
+
+
+
+  function updateTableRows(sorted_dataset) {
+    // console.log(sorted_dataset);
+    // sorted_dataset.forEach(d => {
+    //   console.log("This loop: ", d["location"]);
+    // });    
+    addHeader(empSVG);
+    empSVG.selectAll('g.row')
+      .data(sorted_dataset, d => d["location"])
+      .join(enter => {
+        let rows = enter.append("g").attr("class", "row");
+        rows.attr("transform", (d, i) => `translate(0, ${empSVGMargin.top + headerHeight + i * rowHeight})`);
+
+        // TODO add and configure the text part including their x position
+        //   y position should always take into account the translate above
+        rows.append("line")
+          .attr("class", "tableSeperator")
+          .attr("x1", 0)
+          .attr("x2", empChartWidth + 45)
+          .attr("y1", 0)
+          .attr("y2", 0)
+
+        tableCategories.forEach(cat => {
+          rows.append("text")
+            .attr("class", `tableText ${cat}`)
+            .text(d => {
+              if (tableSpacingDict[cat][3] != null) {
+                return tableSpacingDict[cat][3](d[tableSpacingDict[cat][2]]);
+              }
+              return d[tableSpacingDict[cat][2]]
+            })
+            .attr("x", d => {
+              if (cat == tableCategories[0]) {
+                return tableSpacingDict[cat][0] + textMargin;
+              }
+              return tableSpacingDict[cat][0] + tableSpacingDict[cat][1] - textMargin;
+            })
+            .attr("y", rowHeight / 2);
+        });
+
+
+        // add the fancy sub-chart
+        let subcharts = rows.append("g")
+          .attr("class", "empSVG")
+          .attr("transform", `translate(${sampleStart + sampleWidth}, 0)`)
+        // shift the chart over a bit so its on right side
+
+        // but how do we get each of the charts to have the right contents?
+        //  ... and, how do we make sure they update properly
+
+        subcharts.each(updateEmpSvg)
+
+      },
+        update => {
+          update.transition() // animate them shuffling around???
+            .attr("transform", (d, i) => `translate(0, ${i * rowHeight})`);
+
+          // select and update each of the text elements as necessary
+          //  (this is why it's important to add classes in enter)
+          update.select("text.p_est")
+            .text(d => d['p_est']);
+          // ... append other text inside of the rows
+
+          // select and update the fancy sub-chart
+          //  (this is why it's important to add classes in enter)
+          let subcharts = update.selectAll("g.empSVG")
+
+          // but how do we get each of the charts to have the right contents?
+          //  ... and, how do we make sure they update properly
+          subcharts.each(updateEmpSvg)
+
+        },
+        exit => {
+          exit.transition()
+            .attr("opacity", 0)
+            .remove()
+        });
+  }
+
+  function updateEmpSvg(d, i) {
+    // expects to get one point of data from your array
+    // e.g. d={'with_est':,'without_est':}
+
+    console.log("updateEmpSvg", i, d);
+
+    let empSVG = d3.select(this);
+
+    if (drawWithout) {
+      let lightBlueLine = empSVG.selectAll("rect.withoutBar")
+        .data([d])
+        .join( // make new bar without animation
+          enter => enter.append("rect")
+            .attr("class", "withoutBar")
+            .attr("x", 0)
+            .attr("y", barMargin)
+            .attr("width", d => empScale(d.without))
+            .attr("height", rowHeight - 2 * barMargin)
+            .on("mouseover", d => { })
+          ,
+          // update bar with moving line animations
+          // for animation, add .call
+          update => update.call(update =>
+            update.transition()
+              .attr("width", d => empScale(d.without))
+          ),
+          exit => {
+            exit.transition()
+              .attr("opacity", 0)
+              .remove()
+          });
+    }
+
+    if (drawWith) {
+      let darkBlueLine = empSVG.selectAll("rect.withBar")
+        .data([d])
+        .join( // make new bar without animation
+          enter => enter.append("rect")
+            .attr("class", "withBar")
+            .attr("x", 0)
+            .attr("y", barMargin)
+            .attr("width", d => empScale(d.with))
+            .attr("height", rowHeight - 2 * barMargin)
+            .on("mouseover", d => { })
+          ,
+          // update bar with moving line animations
+          // for animation, add .call
+          update => update.call(update =>
+            update.transition()
+              .attr("width", d => empScale(d.with))
+          ),
+          exit => {
+            exit.transition()
+              .attr("opacity", 0)
+              .remove()
+          });
+      let darkBlueCircle = empSVG.selectAll("circle.withEndCircle")
+        .data([d])
+        .join(
+          enter => enter.append("circle")
+            .attr("class", "withEndCircle")
+            .attr("cx", d => empScale(d.with))
+            .attr("cy", rowHeight / 2)
+            .attr("r", endCircleRadius)
+            .attr("rowIndex", i)
+            .on("mouseover", circleHover)
+            .on("mouseleave", circleUnhover)
+          ,
+
+          update => update.call(update =>
+            update.transition()
+              .attr("cx", d => empScale(d.with))
+          ),
+          exit => {
+            exit.transition()
+              .attr("opacity", 0)
+              .remove()
+          })
+    }
+
+
+    if (drawWithout) {
+      let lightBlueCircle = empSVG.selectAll("circle.withoutEndCircle")
+        .data([d])
+        .join(
+          enter => enter.append("circle")
+            .attr("class", "withoutEndCircle")
+            .attr("cx", d => empScale(d.without))
+            .attr("cy", rowHeight / 2)
+            .attr("r", endCircleRadius)
+            .attr("rowIndex", i)
+            .on("mouseover", circleHover)
+            .on("mouseleave", circleUnhover)
+          ,
+
+          update => update.call(update =>
+            update.transition()
+              .attr("cx", d => empScale(d.with))
+          ),
+          exit => {
+            exit.transition()
+              .attr("opacity", 0)
+              .remove()
+          })
+
+    }
+
+    let gapText = empSVG.selectAll("text.gapText")
+      .data([d])
+      .join(
+        enter => enter.append("text")
+          .attr("class", "tableText gapText")
+          .attr("x", empChartWidth - (sampleStart + sampleWidth))
+          .attr("y", rowHeight / 2)
+          .text(d => floatFormatter(d.without - d.with) + "%")
+      )
+
+  }
+
+  function circleHover(event, d) {
+    // console.log(event, d);
+    let circle = d3.select(this)
+      .attr("r", endCircleRadius * 1)
+      .style("fill", "white")
+      .attr("stroke", "black")
+      .attr("stroke-width", "8px");
+
+    let xPos = Number(circle.attr("cx")) + sampleStart + sampleWidth;
+    let yPos = Number(circle.attr("cy")) + rowHeight * circle.attr("rowIndex");
+
+    let g = empSVG.append("g")
+      .attr("transform", `translate(${xPos - mouseOverLabelBoxWidth / 2}, ${yPos})`)
+      .attr("class", "mouseOverLabel")
+      .style("pointer-events", "none")
+    g.append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", mouseOverLabelBoxWidth)
+      .attr("height", mouseOverLabelBoxHeight)
+      .attr("fill", "white")
+      .attr("stroke", "black")
+    g.append("text")
+      .attr("x", mouseOverLabelBoxWidth / 2)
+      .attr("y", mouseOverLabelBoxHeight / 2)
+      .attr("font-size", tableFontSize + "px")
+      .attr("dominant-baseline", "middle")
+      .attr("text-anchor", "middle")
+      .text("Rate: " + d.p_estimate + "%")
+  }
+
+  function circleUnhover(event, d) {
+    d3.select(this)
+      .attr("r", endCircleRadius)
+      .style("fill", "")
+      .attr("stroke", "none")
+      .attr("stroke-width", "0px");
+
+    empSVG.select(".mouseOverLabel").remove() // find the thing with the class and remove it
+  }
+
+  function addHeader(target) {
+    var headerGroup = target.append("g")
+      .attr("class", "tHeader")
+      .attr("transform", `translate(${0}, ${empSVGMargin.top})`);
+
+    tableGroups.forEach(group => {
+      headerGroup.append("rect")
+        .attr("class", `tableHeaderBox ${group}`)
+        .attr("x", tableGroupPositions[group][0])
+        .attr("width", tableGroupPositions[group][1])
+        .attr("height", headerHeight);
+
+      if (group != tableGroups[0]) {
+        let closeProtrusion = headerGroup.append("rect")
+          .attr("class", `tableHeaderBox closeProtrusion ${group}`)
+          .attr("x", tableGroupPositions[group][0] + tableGroupPositions[group][1] - closeWidth)
+          .attr("y", -closeHeight)
+          .attr("width", closeWidth)
+          .attr("height", closeHeight);
+
+        let closeSquare = headerGroup.append("rect")
+          .attr("class", `closeSquare`)
+          .attr("x", Number(closeProtrusion.attr("x")) + (closeWidth) / 4)
+          .attr("y", -closeInnerBoxHeight)
+          .attr("width", closeWidth / 2)
+          .attr("height", closeInnerBoxHeight);
+
+        headerGroup.append("line")
+          .attr("class", `closeX`)
+          .attr("x1", Number(closeSquare.attr("x")) + xMargin)
+          .attr("x2", Number(closeSquare.attr("x")) + (closeWidth / 2) - xMargin)
+          .attr("y1", -closeInnerBoxHeight + xMargin)
+          .attr("y2", - xMargin)
+          .attr("stroke", "black");
+
+        headerGroup.append("line")
+          .attr("class", `closeX`)
+          .attr("x2", Number(closeSquare.attr("x")) + xMargin)
+          .attr("x1", Number(closeSquare.attr("x")) + (closeWidth / 2) - xMargin)
+          .attr("y1", -closeInnerBoxHeight + xMargin)
+          .attr("y2", -xMargin)
+          .attr("stroke", "black");
+      }
+
+    });
+
+    tableCategories.forEach(cat => {
+      const headerText = headerGroup.append("text")
+        .attr("class", `tHeaderText tableText ${cat}`)
+        .attr("x", tableSpacingDict[cat][0] + (textMargin))
+        .attr("y", (rowHeight / 2) - (1.5 * tableFontSize));
+
+
+      const words = cat.split(" ");
+      if (words.length > 1) {
+        words.forEach((word, index) => {
+          headerText.append("tspan")
+            .attr("x", tableSpacingDict[cat][0] + (tableSpacingDict[cat][1]) - textMargin)
+            .text(word)
+            .attr("dy", 1.5 * tableFontSize)
+        });
+      } else {
+        headerText.text(cat).attr("y", (rowHeight / 2) + 18);
+      }
+
+
+
+    });
+
+
+
+
+    return headerGroup;
+  }
+  loadEmpData();
+
+
+
+</script>

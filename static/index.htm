@@ -2,6 +2,8 @@
 
 <head>
   <title>INFO 4310 - HW4</title>
+  <link href="./style.css" rel="stylesheet" type="text/css">
+  <link rel="icon" href="favicon3.svg">
   <!-- <link href="./style.css" rel="stylesheet" type="text/css"> -->
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -15,54 +17,74 @@
     rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
-
   <style>
     body {
       font-family: 'Barlow', 'Helvetica', sans-serif;
       font-weight: 400;
-      margin: 0 0 0 100px;
+      margin: 0;
       padding: 0;
-      min-width: 1400px;
-      /* overflow-x: scroll;
+      /* min-width: 1300px;
+      max-width: 1400px;
+      overflow-x: scroll;
       overflow-y: hidden;
       overscroll-behavior-x: none; */
     }
 
-    h1 {
-      font-weight: 600;
-      font-size: 3em;
-      margin: 20px 0 0 0;
+    title {
+      display: block;
+      font-weight: 400;
+      font-size: 1.65em;
       padding: 0;
-      color: black;
+      margin: 0;
+      color: #1059C9;
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 2.75em;
+      margin: 0;
+      padding: 0;
+      color: #1059C9;
     }
 
     h2 {
       font-weight: 700;
-      font-size: 2em;
+      font-size: 1em;
       margin: 0;
-      padding: 0 0 5px 0;
-      color: #3A7C98;
-      /* border-bottom: 1px solid #777; */
+      padding: 20px 0 0 0;
+      color: black;
     }
 
     h3 {
+      font-size: 1em;
       font-weight: 700;
-      font-size: 1.05em;
+      padding: 0 0 10px 0;
+      margin: 0 0 20px 0;
+      color: #1059C9;
+      border-bottom: 1px solid #1059C9;
+      border-bottom-style: dotted;
+    }
+
+    h4 {
+      font-weight: 600;
+      font-size: 1.5em;
+      padding: 0 0 25px 0;
       margin: 0;
-      padding: 0px 0 15px 0;
-      color: #3A7C98;
+      color: black;
     }
 
-    h3.withRule {
-      border-top: 1px solid #ccc;
-      padding-top: 12px;
-      margin-top: 15px;
+    a {
+      color: #1059C9;
+      text-decoration: underline;
+      text-decoration-style: dashed;
+      text-underline-offset: 4px;
     }
 
-    h3#best {
-      font-weight: 800;
-      font-size: 1.15em;
-      color: #d81289;
+    a:hover {
+      color: #1059C9;
+      text-decoration: underline;
+      text-decoration-style: solid;
+      text-underline-offset: 4px;
     }
 
     p {
@@ -71,296 +93,614 @@
       line-height: 1.3em;
     }
 
-    p#tagline {
-      font-size: 1.1em;
-      color: #3A7C98;
-      margin: 0;
-      padding: 0 0 35 0;
-    }
-
-    /* BUTTONS */
-    button {
-      font-family: 'Barlow', 'Helvetica', sans-serif;
-      background-color: #ffffff;
-      border: 2px solid #777;
-      color: #777;
-      border-radius: 20px;
-      margin: 0 7px 10px 0;
-      padding: 6px 10px 8px 10px;
-      font-size: 1em;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    /* button[value="cafes"]::before {
-      content: "#";
-      color: gray;
-    }
-    .clicked[value="cafes"]::before {
-      content: url("logo.png");
-      content: "#";
-      color: purple;
-    }     */
-
-    .clicked {
-      background-color: #e3d2fd;
-      border: 2px solid #7339D0;
-      color: #7339D0;
-    }
-
-    button:hover {
-      text-decoration: underline dotted;
-      text-underline-offset: 3px;
-    }
-
-    .clicked:hover {
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-
-    #distance button {
-      width: 80px;
-    }
-
-    #category button {
-      width: 125px;
-    }
-
-    #category {
-      display: flex;
-      flex-direction: column;
-    }
-
-    #category select {
-      width: 200px;
-      height: 2em;
-    }
-
-    #category label {
-      margin-top: .5em;
-      margin-bottom: 0.1em;
-    }
-
-    button#selectAllButton,
-    button#resetButton {
-      margin: 0 0 12px 0;
-      padding: 0;
-      border: 0;
-      font-size: .95em;
+    .quickFacts {
+      width: 1000px;
       font-weight: 500;
-      color: #3A7C98;
+      font-size: 2.4em;
+      /* margin: 0; */
+      margin: 0 0 20px 0;
+      padding: 0;
+      color: black;
     }
 
-    #selectAllButton:hover,
-    #resetButton:hover {
-      background-color: white;
+    ul.quickFacts {
+      margin: 0 0 15px 60px;
+      line-height: 1.3em;
+    }
+
+    .withColor {
+      color: #E1195F;
+      font-weight: 800;
+    }
+
+    .withoutColor {
+      color: #1059C9;
+      font-weight: 800;
+    }
+
+    .gapColor {
+      color: #F96706;
+      font-weight: 800;
+    }
+
+    .gapHighlight,
+    .withHighlight,
+    .withoutHighlight {
+      text-decoration: underline;
+      text-underline-offset: 5px;
+    }
+
+    .withHighlight {
+      text-decoration-color: #E1195F;
+    }
+
+    .withoutHighlight {
+      text-decoration-color: #1059C9;
+    }
+
+    .gapHighlight {
+      text-decoration-color: #F96706;
+    }
+
+    p.mapTitle {
+      font-weight: 500;
+      font-size: 1.3em;
+      margin: 0 0 1.3em 0;
+    }
+
+    button#toggle {
+      display: block;
       border: 0;
-      border-radius: 0;
-      text-decoration: underline dotted;
-      text-underline-offset: 3px;
+      background-color: #5396E8;
+      color: white;
+      width: 70px;
+      padding: 7px 0;
+      font-size: .8em;
     }
 
-    /* CONTAINERS */
-    .flex-container {
+    button#toggleSearch {
+      display: block;
+      border: 0;
+      background-color: #5396E8;
+      color: white;
+      width: 70px;
+      padding: 7px 0;
+      font-size: .8em;
+    }
+
+    /* =======
+         GRID 
+       ======= */
+    /* MAIN CONTAINER */
+    #container {
+      display: grid;
+      min-width: 100vw;
+      height: 100vh;
+      grid-template-columns: 70px 320px 1fr;
+      grid-template-rows: auto auto 245px auto .5fr 1fr 1fr;
+      gap: 0 50px;
+      grid-auto-flow: row;
+      grid-template-areas:
+        "masthead masthead masthead"
+        "pageTitle pageTitle pageTitle"
+        "dir1 quickStat quickStat"
+        "dir2 filters map"
+        "dir2 filters brush"
+        "dir3 tableBar tableBar"
+        ". footer footer";
+      transition: 1s;
+    }
+
+    /* child of #container: MASTHEAD CONTAINER */
+    .masthead {
+      display: grid;
+      grid-template-columns: 75px 300px 1fr;
+      grid-template-rows: 100px;
+      gap: 0px 20px;
+      height: 100px;
+      grid-template-areas: "logo siteName indStat";
+      grid-area: masthead;
+      align-items: center;
+      position: sticky;
+      /* keeps masthead stuck to top of screen */
+      z-index: 1000;
+      top: 0;
+      padding: 0 0 0 120px;
+      background-color: white;
+    }
+
+    /* children of masthead */
+    .logo {
+      grid-area: logo;
+      padding: 0;
+      text-align: left;
+    }
+
+    .siteName {
+      grid-area: siteName;
+    }
+
+    .indStat {
+      grid-area: indStat;
+    }
+
+    /* LEFT COLUMN (possibly for directions) */
+    .dir0 {
+      grid-area: dir0;
+      background-color: white;
+    }
+
+    .dir1 {
+      grid-area: dir1;
+      background-color: #1059C9;
+    }
+
+    .dir2 {
+      grid-area: dir2;
+    }
+
+    .dir3 {
+      grid-area: dir3;
+    }
+
+    /* full row for PAGE TITLE */
+    .pageTitle {
+      grid-area: pageTitle;
+      position: sticky;
+      z-index: 999;
+      top: 100px;
+      background-color: white;
+      height: 100px;
+      padding: 10px 0 0 120px;
+    }
+
+    .quickStat {
+      grid-area: quickStat;
+      /* padding: 20px 0 40px 0;  */
+      background-color: white;
+      min-height: 0;
+      margin: 0 150px 0 0;
+      overflow: hidden;
+    }
+
+    /* setting for collapsed state of quick stats triggered by "CLOSE STATS" button" */
+    #container.collapsedQuickStats {
+      grid-template-rows: auto auto 0 auto .5fr 1fr 1fr;
+      padding: 0;
+      margin: 0;
+    }
+
+    .filters {
+      grid-area: filters;
+      margin: 143px 50px 0 0;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    /* setting for collapsed state of search filters triggered by "CLOSE SEARCH" button" */
+    #container.collapsedFilters {
+      grid-template-columns: 70px 0 1fr;
+      padding: 0;
+      margin: 0;
+    }
+
+    .map {
+      grid-area: map;
+      margin: 40px 150px 0 -50px;
+      min-width: 1200px;
+      min-height: 800px;
+      overflow: hidden;
+    }
+
+    .brush {
+      grid-area: brush;
+    }
+
+    .tableBar {
+      grid-area: tableBar;
+      margin: 30px 150px 0 0;
+    }
+
+    .footer {
+      grid-area: footer;
+      min-height: 300px;
+    }
+
+    /* CUSTOM SELECT FORMATTING */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    select {
+      appearance: none;
+      background-color: transparent;
+      border: none;
+      padding: 0 1em 0 0;
+      margin: 0;
+      width: 100%;
+      font-family: inherit;
+      font-size: inherit;
+      cursor: inherit;
+      line-height: inherit;
+      z-index: 1;
+      outline: none;
+    }
+
+    select::-ms-expand {
+      display: none;
+    }
+
+    /* Filter selects */
+    .select {
+      display: grid;
+      grid-template-areas: "select";
+      align-items: center;
+      position: relative;
+      border: 1px solid #1059C9;
+      border-radius: 1em;
+      padding: .5em .75em;
+      margin: 0;
+      font-size: rem;
+      /* text-shadow: 2px 2px; */
+      cursor: pointer;
+      line-height: 1.3;
+      color: black;
+      background-image: linear-gradient(to top, #ddd, #fff 50%);
+    }
+
+    /* GRID for the INDIVIDUAL STATISTIC in masthead */
+    .indStatGrid {
+      display: grid;
+      grid-template-columns: 70px auto;
+      grid-template-rows: auto;
+      gap: 0 20px;
+      grid-template-areas: "indStatLabel indStatSelect";
+      grid-area: indStatGrid;
+      align-items: center;
+    }
+
+    .indStatLabel {
+      grid-area: indStatLabel;
+      padding: 2px 0 0 0;
+    }
+
+    .indStatSelect {
+      grid-area: indStatSelect;
+      padding: 2px 0 0 0;
+    }
+
+    /* INDIVIDUAL STATISTIC select */
+    .selectIndStat {
+      display: grid;
+      grid-template-areas: "select";
+      align-items: center;
+      position: relative;
+      border: 1px solid #E1195F;
+      border-radius: 1em;
+      padding: .5em .75em .5em .75em;
+      margin: 0;
+      font-size: 1rem;
+      cursor: pointer;
+      line-height: 1.3;
+      color: black;
+      background-image: linear-gradient(to top, #ddd, #fff 50%);
+      width: 300px;
+    }
+
+    .select select,
+    .select::after,
+    .selectIndStat select,
+    .selectIndStat::after {
+      grid-area: select;
+    }
+
+    /* style triangle */
+    .select::after,
+    .selectIndStat::after {
+      content: "";
+      justify-self: end;
+      width: 0.8em;
+      height: 0.5em;
+      background-color: #5396E8;
+      clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+    }
+
+    .selectIndStat::after {
+      content: "";
+      justify-self: end;
+      width: 0.8em;
+      height: 0.5em;
+      background-color: #E1195F;
+      clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+    }
+
+    .select:hover,
+    .selectIndStat:hover {
+      border: 1px solid #E1195F;
+    }
+
+    .select:hover::after,
+    .selectIndStat:hover::after {
+      background-color: #E1195F;
+      clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+      transform: rotate(-.5turn);
+      transition-duration: .5s;
+    }
+
+    select:focus+.focus {
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      right: -1px;
+      bottom: -1px;
+      border: 2px solid #E1195F;
+      border-radius: inherit;
+    }
+
+    label {
+      display: block;
+      font-size: 1em;
+      font-weight: 700;
+      margin: 5px .75em;
+    }
+
+    .indStatLabel label {
+      font-weight: 500;
       margin: 0;
       padding: 0;
-      display: flex;
-      height: 100vh;
-      flex-wrap: nowrap;
     }
 
-    div.filterColumn {
-      margin: 0;
-      padding: 10px 35px 10px 0;
-      min-width: 300px;
-      max-width: 300px;
+    .select+label {
+      margin-top: 1rem;
     }
 
 
-    div.mapColumn {
-      margin: 0;
-      padding: 10px 35px 10px 0;
+    #content {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: 1s;
+      overflow: hidden;
     }
 
-    div.filterButtonContainer {
-      height: calc(100vh - 170px);
-      /* overflow-y: scroll; */
+    #content .inside {
+      min-height: 0;
     }
 
-    div.restaurant-list-info {
-      max-width: 400px;
-      min-width: 300px;
-      margin: 0;
-      padding: 145px 20px 0 0;
-    }
-
-    .restaurant-list {
-      height: calc(100vh - 240px);
-      margin: 0;
-      padding: 5px 35px 10px 10px;
-      overflow-y: scroll;
-    }
-
-    .restaurant-list a {
-      text-decoration: none !important;
-      color: inherit;
-    }
-
-    .restaurant-item {
-      margin-bottom: 10px;
-    }
-
-    div.mapColumn {
-      overflow-x: scroll;
-      overflow-y: hidden;
-    }
-
-    .tick line {
-      visibility: hidden;
-    }
-
-    .tick text {
-      font-size: 16px
-    }
-
-    .domain {
-      visibility: hidden;
-
+    #content.expanded {
+      background: red;
+      grid-template-rows: 1fr;
     }
   </style>
-
 </head>
 
+
 <body>
-  <div>
-    <h2>EMPLOYMENT RATE</h2>
-    <h1 style="margin-bottom: 1.25em;">In 2022, the employment rate for the disabled population in the United States is
-      <span id=usa_p_estimate style="color: #3A7C98">13.9%</span>.
-    </h1>
-  </div>
 
-  <div class="flex-container">
+  <div id="container">
+    <div class="dir0"></div>
+    <div class="masthead">
+      <div class="logo"><img src="logo.svg" height="75px"></div>
+      <div class="siteName">
+        <title>Disability Statistics</title>
+      </div>
+      <div class="indStat">
 
-    <!--  ---------------
-              FILTERS 
-          --------------- -->
-    <div class="filterColumn">
-      <h10>FILTERS</h10>
+        <!-- Grid containing label and menu to pick individual statistic -->
+        <div class="indStatGrid">
+          <div class="indStatLabel"><label for="indStat">STATISTIC:</label></div>
+          <div class="indStatSelect">
+            <!-- Select Menu -->
+            <div class="selectIndStat">
+              <select id="indStat" name="indStat">
+                <option value="0">PREVALENCE</option>
+                <option value="1" selected>EMPLOYMENT RATE</option>
+                <option value="2">POVERTY</option>
+              </select>
+              <span class="focus"></span>
+            </div>
 
-      <div class="filterButtonContainer">
-        <!-- CATEGORY FILTER-->
-        <h3 class="withRule">POPULATION CHARACTERISTICS</h3>
-        <button id="selectAllButton" value="selectAll">SELECT ALL</button>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<button
-          id="resetButton" value="reset">CLEAR ALL</button>
-        <div id="category">
-
-          <label for="region">Map Region:</label>
-          <select id="region" name="region">
-            <option value="0" selected>All Regions</option>
-            <option value="1">Northeast</option>
-            <option value="2">Midwest</option>
-            <option value="3">South</option>
-            <option value="4">West</option>
-          </select>
-
-
-          <label for="mapType">Map Type:</label>
-          <select id="mapType" name="mapType">
-            <option value="0" selected>With or Without Disability</option>
-            <option value="1">With Disability</option>
-            <option value="2">Without Disability</option>
-          </select>
-
-          <label for="gender">Gender:</label>
-          <select id="gender" name="gender">
-            <option value="0" selected>Male or Female</option>
-            <option value="1">Males</option>
-            <option value="2">Females</option>
-          </select>
-
-          <label for="disabilityType">Disability Type:</label>
-          <select id="disabilityType" name="disabilityType">
-            <option value="1" selected>Any Disability</option>
-            <option value="2">Visual Disability</option>
-            <option value="3">Hearing Disability</option>
-            <option value="4">Ambulatory Disability</option>
-            <option value="5">Cognitive Disability</option>
-            <option value="6">Self-Care Disability</option>
-            <option value="7">Independent Living Disability</option>
-          </select>
-
-          <label for="age">Age:</label>
-          <select id="age" name="age">
-            <option value="0" selected>All Ages</option>
-            <option value="5">Ages 4 and under</option>
-            <option value="6">Ages 5-15</option>
-            <option value="1">Ages 16-20</option>
-            <option value="2">Ages 21-64</option>
-            <option value="3">Ages 16-64</option>
-            <option value="4">Ages 18-64</option>
-            <option value="7">Ages 65-74</option>
-            <option value="9">Ages 65+</option>
-            <option value="8">Ages 75+</option>
-          </select>
-
-          <label for="race">Race:</label>
-          <select id="race" name="race">
-            <option value="0" selected>All races</option>
-            <option value="1">White</option>
-            <option value="2">Black/African American</option>
-            <option value="3">Native American or Alaska Native</option>
-            <option value="4">Asian</option>
-            <option value="5">Some other race(s)</option>
-          </select>
-
-          <label for="education">Education:</label>
-          <select id="education" name="education">
-            <option value="0" selected>All education levels</option>
-            <option value="1">Less than a high school education</option>
-            <option value="2">A high school diploma or equivalent</option>
-            <option value="3">Some college/associates degree</option>
-            <option value="4">A BA degree or higher</option>
-          </select>
-
-          <label for="hispanic">Hispanic:</label>
-          <select id="hispanic" name="hispanic">
-            <option value="0" selected>Regardless of ethnicity</option>
-            <option value="1">Hispanic</option>
-            <option value="2">Non-Hispanic</option>
-          </select>
-
-
+          </div>
         </div>
 
       </div>
     </div>
+    <div class="pageTitle">
+      <h1>EMPLOYMENT RATE</h1>
+    </div>
+    <div class="dir1"></div>
+    <div class="quickStat">
+      <h3>QUICK STATS</h3>
+      <p class="quickFacts">
+        In 2022, the national employment rate for people <span class="withHighlight">with</span> disabilities
+        was <span class="withColor">45.0%</span> compared to <span class="withoutColor">81.0%</span> for people <span
+          class="withoutHighlight">without</span> disabilities, an <span class="gapHighlight">employment gap</span> of
+        <span class="gapColor">36.0%</span>.
+      </p>
+      2022 AMERICAN COMMUNITY SURVEY
+      <!-- &nbsp;&nbsp;|&nbsp;&nbsp;<a href="">EMPLOYMENT RATE DEFINITION</a> -->
+    </div>
+    <div class="dir2">
+      <button id="toggle">CLOSE STATS</button>
 
+      <button id="toggleSearch" style="margin-top: 125px;">CLOSE SEARCH</button>
 
-    <!--  ---------------
-                MAP 
+    </div>
+    <div class="filters">
+      <!--  ---------------
+              FILTERS 
           --------------- -->
-    <div class="mapColumn">
-      <h10>MAPS</h10>
-      <h3 class="withRule">EMPLOYMENT RATE ESTIMATE (2022)</h3>
-      <h3 style="color: black">The employment rate for non-institutionalized,
+      <h3>SEARCH</h3>
+      <!-- <button id="selectAllButton" value="selectAll">SELECT ALL</button>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<buttoncid="resetButton" value="reset">CLEAR ALL</button> -->
+
+      <label for="region">REGION</label>
+      <div class="select">
+        <select id="region" name="region">
+          <option value="0" selected>All Regions</option>
+          <option value="1">Northeast</option>
+          <option value="2">Midwest</option>
+          <option value="3">South</option>
+          <option value="4">West</option>
+        </select>
+        <span class="focus"></span>
+      </div>
+
+      <label for="mapType">MAP TYPE</label>
+      <div class="select">
+        <select id="mapType" name="mapType">
+          <option value="0" selected>With or Without Disability</option>
+          <option value="1">With Disability</option>
+          <option value="2">Without Disability</option>
+        </select>
+        <span class="focus"></span>
+      </div>
+
+      <label for="gender">GENDER</label>
+      <div class="select">
+        <select id="gender" name="gender">
+          <option value="0" selected>Male or Female</option>
+          <option value="1">Males</option>
+          <option value="2">Females</option>
+        </select>
+        <span class="focus"></span>
+      </div>
+
+      <label for="disabilityType">DISABILITY TYPE</label>
+      <div class="select">
+        <select id="disabilityType" name="disabilityType">
+          <option value="1" selected>Any Disability</option>
+          <option value="2">Visual Disability</option>
+          <option value="3">Hearing Disability</option>
+          <option value="4">Ambulatory Disability</option>
+          <option value="5">Cognitive Disability</option>
+          <option value="6">Self-Care Disability</option>
+          <option value="7">Independent Living Disability</option>
+        </select>
+        <span class="focus"></span>
+      </div>
+
+      <label for="age">AGE</label>
+      <div class="select">
+        <select id="age" name="age">
+          <option value="0" selected>All Ages</option>
+          <option value="5">Ages 4 and under</option>
+          <option value="6">Ages 5-15</option>
+          <option value="1">Ages 16-20</option>
+          <option value="2">Ages 21-64</option>
+          <option value="3">Ages 16-64</option>
+          <option value="4">Ages 18-64</option>
+          <option value="7">Ages 65-74</option>
+          <option value="9">Ages 65+</option>
+          <option value="8">Ages 75+</option>
+        </select>
+        <span class="focus"></span>
+      </div>
+
+      <label for="race">RACE</label>
+      <div class="select">
+        <select id="race" name="race">
+          <option value="0" selected>All races</option>
+          <option value="1">White</option>
+          <option value="2">Black/African American</option>
+          <option value="3">Native American or Alaska Native</option>
+          <option value="4">Asian</option>
+          <option value="5">Some other race(s)</option>
+        </select>
+        <span class="focus"></span>
+      </div>
+
+      <label for="education">EDUCATION</label>
+      <div class="select">
+        <select id="education" name="education">
+          <option value="0" selected>All education levels</option>
+          <option value="1">Less than a high school education</option>
+          <option value="2">A high school diploma or equivalent</option>
+          <option value="3">Some college/associates degree</option>
+          <option value="4">A BA degree or higher</option>
+        </select>
+        <span class="focus"></span>
+      </div>
+
+      <label for="hispanic">HISPANIC</label>
+      <div class="select">
+        <select id="hispanic" name="hispanic">
+          <option value="0" selected>Regardless of ethnicity</option>
+          <option value="1">Hispanic</option>
+          <option value="2">Non-Hispanic</option>
+        </select>
+        <span class="focus"></span>
+      </div>
+
+    </div>
+    <div class="map">
+      <!--  ---------------
+                 MAP 
+            --------------- -->
+      <h3>MAP</h3>
+      <h4>EMPLOYMENT RATE: <br>The employment rate for non-institutionalized,
         <span id="gender">male or female</span>,
         with <span id="disabilityType">any</span> disability,
         <span id="age">all ages</span>,
         <span id="race">all races</span>,
         <span id="hispanic">regardless of ethnicity</span>,
         with <span id="education"></span> in the Unites States is <span id="dynamic_p_estimate">13.9%</span> in 2022.
-      </h3>
-      <div id="restaurant-hover" class="restaurant-hover"></div>
-      <svg id="svgMap" width="1000" height="700" top="10">
-      </svg>
-    </div>
+      </h4>
+      <!-- MAP -->
+      <svg id="svgMap" width="1600" height="800" top="10"></svg>
 
+    </div>
+    <div class="brush"></div>
+    <div class="dir3"></div>
+    <div class="tableBar">
+      <!--  ---------------
+                 TABLE
+            --------------- -->
+      <h3>TABLE</h3>
+      <svg id="prevalenceTable" height="100" width="1200"></svg>
+      <input type="checkbox" class="legendBox" id="withBox" name="withCheckbox">
+      <input type="checkbox" class="legendBox" id="withoutBox" name="withoutCheckbox">
+      <input type="checkbox" class="legendBox" id="gapBox" name="gapCheckbox">
+
+
+    </div>
+    <div class="footer"></div>
   </div>
 
+  <!--  =======================
+        SHOW/HIDE FILTER SCRIPT
+        ======================= -->
+  <script id="toggleScript">
+    // toggle view of quick stats
+    toggle.onclick = () => {
+      container.classList.toggle("collapsedQuickStats");
+      // Check if the button text is "CLOSE STATS"
+      if (toggle.textContent === "CLOSE STATS") {
+        // If so, change it to "OPEN STATS"
+        toggle.textContent = "OPEN STATS";
+      } else {
+        // Otherwise, change it back to "CLOSE"
+        toggle.textContent = "CLOSE STATS";
+      }
+    };
 
-  <!-- ==================
-        MAP SCRIPT
-    =================== -->
+    // toggle view of search filters
+    toggleSearch.onclick = () => {
+      container.classList.toggle("collapsedFilters");
+      // Check if the button text is "CLOSE SEARCH"
+      if (toggleSearch.textContent === "CLOSE SEARCH") {
+        // If so, change it to "OPEN SEARCH"
+        toggleSearch.textContent = "OPEN SEARCH";
+      } else {
+        // Otherwise, change it back to "CLOSE SEARCH"
+        toggleSearch.textContent = "CLOSE SEARCH";
+      }
+    };
+  </script>
+
+  <!--  =======================
+               MAP SCRIPT
+        ======================= -->
   <script id="map">
     const svgMap = d3.select("#svgMap");
     const width = svgMap.attr("width");
@@ -373,6 +713,10 @@
     //set up colors 
     const selectedColor = "#7339D0";
     const greyedoutColor = "#A5A0AC";
+
+    //TODO actually switch this when we swap table type
+    let plottingPrevalenceTable = true;
+
 
     const requestMapData = async () => {
 
@@ -391,6 +735,7 @@
 
       let regions = {
         0: [
+          "the United States",
           "Alabama",
           "Alaska",
           "Arizona",
@@ -464,6 +809,7 @@
         )
       }); //this is used for filtering
 
+      // console.log(statesData);
       //setting up selections to track selections for prevalence 
       //TODO: need to adapt to different datasets
       let prevalenceColumns = ["region", "mapType", "gender", "disabilityType", "age", "race", "education", "hispanic"];
@@ -511,7 +857,9 @@
         }
       }
 
-      //console.log("all_p_estimates", all_p_estimates);
+      // console.log("all p est", all_p_estimates);
+
+
       //updates text for all disability text for usa (this assumes the first selection is everyone with disability)
       d3.select("span#usa_p_estimate").text(`${dataDict["the United States"].p_estimate}%`);
 
@@ -546,6 +894,7 @@
       var data = []; //TODO: update this when data changes, colorScale will also be automatically updated
       let colors = d3.schemeBlues[9];
       let colorScaleState = d3.scaleQuantize(d3.extent(all_p_estimates), colors);
+      prevScale = d3.scaleLinear(d3.extent(all_p_estimates), [10, maxBarLength]);
 
       let statePaths = svgMap.selectAll("path.state").data(states.features)
         .join("path")
@@ -737,6 +1086,8 @@
 
         //console.log(statesData);
 
+
+
         //console.log("dataDict before", dataDict)
         //refilters the states to be displayed
         statesData.forEach(d => {
@@ -744,6 +1095,35 @@
         });
         //console.log("dataDict after", dataDict)
 
+
+        /******************* 
+        Table Data 
+        *******************/
+        let goodData;
+        if (plottingPrevalenceTable) {
+          let dedupedStatesData = statesData.reduce((accumulator, currentLocation) => {
+            if (!accumulator.tempLocations.includes(currentLocation.state)) {
+              accumulator.tempLocations.push(currentLocation.state); // Add id to tempIds to track uniqueness
+              accumulator.unique.push(currentLocation); // Add the current item to the unique list
+            }
+            return accumulator;
+          }, { tempLocations: [], unique: [] }).unique;
+          goodData = dedupedStatesData;
+
+        } else {
+          goodData = unstackDataset(statesData);
+        }
+
+        // no need to plot rows for things out of region. remove them here
+        goodData = goodData.filter(d => {
+          return regions[columnValues.region].includes(d.state);
+        });
+
+        currentTableData = [...goodData];
+        updateTableRows(goodData);
+        /******************* 
+           End Table Data 
+        *******************/
 
         // reevaluate all p_estimates, should only be states that are in selected region
         all_p_estimates = [];
@@ -753,7 +1133,9 @@
             all_p_estimates.push(values.p_estimate);
           }
         }
-        //console.log(all_p_estimates)
+
+        // console.log("usa p est: ", dataDict["the United States"])
+
 
         colorScaleState = d3.scaleQuantize(d3.extent(all_p_estimates), colors);
 
@@ -860,6 +1242,917 @@
       return { x: xPos, y: yPos };
 
     }
+
+
+
+  </script>
+
+
+  <!--  ==================
+          TABLE SCRIPT
+        ================== -->
+  <script>
+
+    // --- We are going to make the table
+    // Create the <svg> where it lives or select it
+    // Make the extra g tags for annotations and lines and labels etc
+    // Call updateTableRows on your data array to fill in each row
+
+    // --- Someone pressed a sorting button
+    // Re-sort the data array based on some criteria
+    //  (e.g. now the lowest p_est is first instead of alphabetical by state)
+    // Call updateTableRows again on the newly sorted dataset
+
+    // -- Someone changed ANYTHING else in the filter panel etc
+    // Just make sure that your data array has the right stuff in it
+    // Then call updateTableRows
+    const empSVG = d3.select("svg#prevalenceTable");
+    const empSVGWidth = empSVG.attr("width");
+    var currentEmpSVGHeight = empSVG.attr("height");
+    const empSVGMargin = { top: 40, right: 30, bottom: 50, left: 130 };
+    const empChartWidth = empSVGWidth - empSVGMargin.left - empSVGMargin.right;
+
+    const rowHeight = 30;
+
+    const maxBarLength = 250;
+    var currentTableData;
+    var subchartStartPos;
+    const subchartMargin = 0.5;
+
+    const tableCategories = ["Location", "Estimate (%)", "90% MOEp", "Estimate (number)", "90% MOEn", "Base Population", "Sample Size"];
+    const tableGroups = ["Location", "Percent", "Number", "Base Population", "Sample Size"];
+
+    const groupToCategories = {
+      "Location": ["Location"],
+      "Percent": ["Estimate (%)", "90% MOEp"],
+      "Number": ["Estimate (number)", "90% MOEn"],
+      "Base Population": ["Base Population"],
+      "Sample Size": ["Sample Size"]
+    }
+
+    let activeTableGroups = [...tableGroups];
+    let activeTableCategories = [...tableCategories];
+
+    const locationStart = 0;
+    const locationWidth = 175;
+
+    const pEstimateStart = locationStart + locationWidth;
+    const pEstimateWidth = 80;
+
+    const pMoeStart = pEstimateStart + pEstimateWidth;
+    const pMoeWidth = 80;
+
+    const nEstimateStart = pMoeStart + pMoeWidth;
+    const nEstimateWidth = 100;
+
+    const nMoeStart = nEstimateStart + nEstimateWidth;
+    const nMoeWidth = 80;
+
+    const populationStart = nMoeStart + nMoeWidth;
+    const populationWidth = 120;
+
+    const sampleStart = populationStart + populationWidth;
+    const sampleWidth = 90;
+
+    const thousandFormatter = d3.format(",");
+    const floatFormatter = d3.format(".1f");
+
+    function customFormatter(value) {
+      const formattedVal = d3.format(",")(value);
+      return `±${formattedVal}`;
+    }
+
+    const barMargin = 5;
+    const endCircleRadius = 10;
+
+    const mouseOverLabelBoxHeight = 20;
+    const mouseOverLabelBoxWidth = 75;
+
+    const headerHeight = 50;
+    const tableFontSize = 12;
+    const textMargin = 10;
+
+    const closeHeight = 30;
+    const closeWidth = 40;
+    const closeInnerBoxHeight = 20;
+    const xMargin = 3;
+
+    const subLegendLeftAdjustment = 50;
+    const subLegendYMargin = 15;
+
+    const subLegendTextMargin = 15;
+
+    const categorySpacing = 10;
+
+
+    const tableSpacingDict = {};
+
+    var currentShownBars = ["withBox", "withoutBox", "gapBox"];
+
+    // syntax for this dict, value 0 is start pos, value 1 is width, value 2 is header name, value 3 is formatter for displaying the value
+    tableSpacingDict[tableCategories[0]] = [locationStart, locationWidth, "state", null];
+    tableSpacingDict[tableCategories[1]] = [pEstimateStart, pEstimateWidth, "p_estimate", null];
+    tableSpacingDict[tableCategories[2]] = [pMoeStart, pMoeWidth, "p_estimate_moe", customFormatter];
+    tableSpacingDict[tableCategories[3]] = [nEstimateStart, nEstimateWidth, "n_estimate", thousandFormatter];
+    tableSpacingDict[tableCategories[4]] = [nMoeStart, nMoeWidth, "n_estimate_moe", customFormatter];
+    tableSpacingDict[tableCategories[5]] = [populationStart, populationWidth, "base_population", thousandFormatter];
+    tableSpacingDict[tableCategories[6]] = [sampleStart, sampleWidth, "sample_size", thousandFormatter];
+
+    const tableGroupPositions = {}
+
+    tableGroupPositions[tableGroups[0]] = [locationStart, locationWidth];
+    tableGroupPositions[tableGroups[1]] = [d3.min([pEstimateStart, pMoeStart]), pEstimateWidth + pMoeWidth];
+    tableGroupPositions[tableGroups[2]] = [d3.min([nEstimateStart, nMoeStart]), nEstimateWidth + nMoeWidth];
+    tableGroupPositions[tableGroups[3]] = [populationStart, populationWidth];
+    tableGroupPositions[tableGroups[4]] = [sampleStart, sampleWidth];
+
+    // console.log(tableSpacingDict["Location"][3] != null);
+
+    const percentScale = d3.scaleLinear()
+      //.domain(empExtent)
+      .domain([0, 100]) // for 0-100% scale vs. empExtent
+      .range([0, maxBarLength]);
+
+
+    var prevScale;
+
+    var tableSortingState = {
+      category: null,
+      direction: null,
+      active: false
+    }
+
+    // console.log(empChartWidth - (sampleStart + sampleWidth));
+
+
+
+
+
+    // temp
+    let drawWith = true;
+    let drawWithout = true;
+    let drawGap = true;
+    // const loadEmpData = async function () {
+
+    //   // ======        
+    //   //  DATA
+    //   // ======
+    //   let empData = await d3.csv("acs_emp03.csv", d3.autoType)
+    //   let goodData = unstackDataset(empData);
+    //   console.log(goodData);
+
+    //   let allWithout = d3.map(goodData, d => {
+    //     return d["without"];
+    //   })
+
+
+
+    //   updateTableRows(goodData);
+    // }
+
+    function unstackDataset(stackedCSV) {
+      // takes in the 104 stacked rows from the CSV 
+      // returns 52 unstacked rows that have both "with" and "without" keys 
+      //  for the matching p_estimates
+      // RUN THIS FIRST TO MAKE A GOOD DATASET, THEN SORT AND EVERYTHING ELSE!
+
+      let new_dataset = {};
+
+      stackedCSV.forEach(d => {
+        // check which kind of data it is
+        let label = ""
+        if (d.disability_type === 1) {
+          label = "with";
+        }
+        else if (d.v2 === 2) {
+          label = "without";
+        }
+        else {
+          label = "NULL";
+        }
+
+        let location = d.location;
+        if (location in new_dataset) {
+          // update the row with the new value
+          new_dataset[location][label] = d.p_estimate;
+        }
+        else
+          new_dataset[location] = {
+            "location": d.location,
+            "sample_size": d.sample_size,
+            "base_population": d.base_population,
+            "n_estimate": d.n_estimate,
+            "n_estimate_moe": d.n_estimate_moe,
+            "p_estimate": d.p_estimate,
+            "p_estimate_moe": d.p_estimate_moe,
+            "id": d.id
+          }
+        new_dataset[location][label] = d.p_estimate;
+
+      });
+
+      // we need to convert from a dictionary back into a simple array
+      return Object.values(new_dataset);
+
+    }
+
+
+
+    function updateTableRows(sorted_dataset) {
+      recalculateTablePositions();
+      subchartStartPos = calculateSubchartStartPosition();
+
+      // get the height of the svg
+      var requiredHeight = (sorted_dataset.length * rowHeight) + headerHeight + closeHeight + empSVGMargin.bottom;
+      empSVG.attr("height", requiredHeight);
+      currentEmpSVGHeight = empSVG.attr("height");
+
+
+      empSVG.selectAll("g.tHeader").remove();
+      addHeader(empSVG);
+
+      empSVG.selectAll('g.row').remove();
+
+      empSVG.selectAll('g.row')
+        .data(sorted_dataset, d => d["state"])
+        .join(enter => {
+          let rows = enter.append("g").attr("class", "row");
+          rows.attr("transform", (d, i) => `translate(0, ${empSVGMargin.top + headerHeight + i * rowHeight})`);
+
+          // TODO add and configure the text part including their x position
+          //   y position should always take into account the translate above
+          rows.append("line")
+            .attr("class", "tableSeperator")
+            .attr("x1", 0)
+            .attr("x2", subchartStartPos + maxBarLength)
+            .attr("y1", 0)
+            .attr("y2", 0)
+
+          activeTableCategories.forEach(cat => {
+
+            rows.append("text")
+              .attr("class", `tableText ${cat}`)
+              .text(d => {
+                let displayText;
+                if (d[tableSpacingDict[cat][2]] == "the United States") {
+                  displayText = "United States";
+                } else {
+                  displayText = d[tableSpacingDict[cat][2]];
+                }
+
+                if (tableSpacingDict[cat][3] != null) {
+                  return tableSpacingDict[cat][3](displayText);
+                }
+                return displayText;
+              })
+              .attr("x", d => {
+                if (cat == tableCategories[0]) {
+                  return tableSpacingDict[cat][0] + textMargin;
+                }
+                return tableSpacingDict[cat][0] + tableSpacingDict[cat][1] - textMargin - categorySpacing;
+              })
+              .attr("y", rowHeight / 2);
+          });
+
+
+          let subcharts = rows.append("g")
+            .attr("class", "empSVG")
+            .attr("transform", `translate(${subchartStartPos + subchartMargin}, 0)`)
+          // shift the chart over a bit so its on right side
+
+
+          subcharts.each(updateEmpSvg)
+
+        },
+          update => {
+            update.transition() // animate them shuffling around???
+              .attr("transform", (d, i) => `translate(0, ${i * rowHeight})`);
+
+            // select and update each of the text elements as necessary
+            //  (this is why it's important to add classes in enter)
+            update.select("text.p_estimate")
+              .text(d => d['p_estimate']);
+            // ... append other text inside of the rows
+
+            // select and update the fancy sub-chart
+            //  (this is why it's important to add classes in enter)
+            let subcharts = update.selectAll("g.empSVG")
+
+            // but how do we get each of the charts to have the right contents?
+            //  ... and, how do we make sure they update properly
+            subcharts.each(updateEmpSvg)
+
+          },
+          exit => {
+            exit.transition()
+              .attr("opacity", 0)
+              .remove()
+          });
+    }
+
+    function updateEmpSvg(d, i) {
+      // expects to get one point of data from your array
+      // e.g. d={'with_est':,'without_est':}
+
+      // console.log("updateEmpSvg", i, d);
+
+      let empSVG = d3.select(this);
+      if (i == 0) {
+        let subLegendG = empSVG.append("g")
+          .attr("class", "subchartLegend")
+          .attr("transform", `translate(${subLegendLeftAdjustment}, ${-headerHeight - closeHeight - (barMargin)})`);
+
+        let legendLine = subLegendG.append("line")
+          .attr("class", "subchartLegend")
+          .attr("x1", 0)
+          .attr("x2", 0)
+          .attr("y2", headerHeight + closeHeight)
+          .attr("stroke-width", 1)
+          .attr("stroke", "black");
+
+        let firstBar = subLegendG.append("rect")
+          .attr("class", "withBarHeader")
+          .attr("x", .5)
+          .attr("width", percentScale(10))
+          .attr("height", rowHeight - 2 * barMargin);
+
+        let firstBarCircle = subLegendG.append("circle")
+          .attr("class", "withEndCircleHeader")
+          .attr("cx", percentScale(10))
+
+          .attr("r", endCircleRadius);
+
+        let firstBarText = subLegendG.append("text")
+          .attr("x", percentScale(10) + subLegendTextMargin)
+          .attr("class", "headerLegendText");
+
+
+
+        let secondBar = subLegendG.append("rect")
+          .attr("class", "withoutBarHeader")
+          .attr("x", .5)
+          .attr("width", percentScale(25))
+          .attr("height", rowHeight - 2 * barMargin);
+
+        let secondBarCircle = subLegendG.append("circle")
+          .attr("cx", percentScale(25))
+          .attr("r", endCircleRadius);
+
+
+        let secondBarText = subLegendG.append("text")
+          .attr("x", percentScale(25) + subLegendTextMargin)
+          .attr("class", "headerLegendText");
+
+        if (plottingPrevalenceTable) {
+          legendLine
+            .attr("y1", rowHeight - barMargin);
+          firstBar
+            .attr("y", rowHeight);
+          firstBarCircle
+            .attr("cy", 1.5 * rowHeight - barMargin);
+
+          firstBarText
+            .attr("y", 1.5 * rowHeight - barMargin)
+            .text("any disability");
+
+          secondBar
+            .attr("y", rowHeight * 2 - barMargin)
+          secondBarCircle
+            .attr("cy", rowHeight * 2.5 - 2 * barMargin)
+            .attr("fill", "#00368C");
+          secondBarText
+            .attr("y", rowHeight * 2.5 - 2 * barMargin)
+            .text("specific disabilities");
+        } else {
+          legendLine
+            .attr("y1", 0);
+
+          //first bar
+          firstBar
+            .attr("x", .5)
+            .attr("y", barMargin);
+          firstBarCircle
+            .attr("cy", rowHeight / 2);
+
+          firstBarText
+            .attr("y", rowHeight / 2)
+            .text("with disability");
+          //2nd bar
+          secondBar
+            .attr("y", rowHeight);
+
+          secondBarCircle
+            .attr("cy", 2 * barMargin + rowHeight);
+          secondBarText
+            .attr("y", rowHeight + (rowHeight / 2) - barMargin)
+            .text("without disability")
+
+
+          //not  prev so have gaps
+          subLegendG.append("rect")
+            .attr("class", "gapBarHeader")
+            .attr("x", percentScale(10))
+            .attr("width", percentScale(15))
+            .attr("y", (rowHeight * 2) - barMargin)
+            .attr("height", rowHeight - 2 * barMargin);
+
+          subLegendG.append("circle")
+            .attr("class", "gapCirclesHeader")
+            .attr("cx", percentScale(10))
+            .attr("cy", rowHeight * 2 + barMargin)
+            .attr("r", endCircleRadius);
+          subLegendG.append("circle")
+            .attr("class", "gapCirclesHeader")
+            .attr("cx", percentScale(25))
+            .attr("cy", rowHeight * 2 + barMargin)
+            .attr("r", endCircleRadius);
+
+          subLegendG.append("text")
+            .attr("class", "headerLegendText")
+            .attr("x", percentScale(25) + subLegendTextMargin)
+            .attr("y", 2 * rowHeight + (rowHeight / 2) - 2 * barMargin)
+            .text("employment gap");
+
+          secondBarCircle.attr("fill", "#59A4EF");
+
+          let checkBoxes = d3.selectAll("input.legendBox").each((d, i, nodes) => {
+            // let currentBox = d3.select(this);
+            // console.log(currentBox.node());
+            // checkBox.attr("x",)
+            let currentBox = d3.select(nodes[i]);
+
+            currentBox
+              .style("left", subchartStartPos + subLegendLeftAdjustment / 2)
+              .style("top", 6.5 +
+                i * (rowHeight - barMargin))
+              .style("visibility", "visible")
+              .property("checked", true)
+              .on("change", toggleBar);
+
+          });
+
+        }
+      }
+
+      if (drawWithout && !plottingPrevalenceTable) {
+        let lightBlueLine = empSVG.selectAll("rect.withoutBar")
+          .data([d])
+          .join( // make new bar without animation
+            enter => enter.append("rect")
+              .attr("class", "withoutBar")
+              .attr("x", 0)
+              .attr("y", barMargin)
+              .attr("width", d => percentScale(d.without))
+              .attr("height", rowHeight - 2 * barMargin)
+              .on("mouseover", d => { })
+            ,
+            // update bar with moving line animations
+            // for animation, add .call
+            update => update.call(update =>
+              update.transition()
+                .attr("width", d => percentScale(d.without))
+            ),
+            exit => {
+              exit.transition()
+                .attr("opacity", 0)
+                .remove()
+            });
+      }
+
+      if (drawWith) {
+        let darkBlueLine = empSVG.selectAll("rect.withBar")
+          .data([d])
+          .join( // make new bar without animation
+            enter => enter.append("rect")
+              .attr("class", "withBar")
+              .attr("x", 0)
+              .attr("y", barMargin)
+              .attr("width", d => {
+                if (plottingPrevalenceTable) {
+                  return prevScale(d.p_estimate);
+                }
+                return percentScale(d.with);
+              })
+              .attr("height", rowHeight - 2 * barMargin)
+              .on("mouseover", d => { })
+            ,
+            // update bar with moving line animations
+            // for animation, add .call
+            update => update.call(update =>
+              update.transition()
+                .attr("width", d => {
+                  if (plottingPrevalenceTable) {
+                    return prevScale(d.p_estimate);
+                  }
+                  return percentScale(d.with);
+                })
+            ),
+            exit => {
+              exit.transition()
+                .attr("opacity", 0)
+                .remove()
+            });
+        let darkBlueCircle = empSVG.selectAll("circle.withEndCircle")
+          .data([d])
+          .join(
+            enter => enter.append("circle")
+              .attr("class", "withEndCircle")
+              .attr("cx", d => {
+                if (plottingPrevalenceTable) {
+                  return prevScale(d.p_estimate);
+                }
+                return percentScale(d.with);
+              })
+              .attr("cy", rowHeight / 2)
+              .attr("r", endCircleRadius)
+              .attr("rowIndex", i)
+              .on("mouseover", circleHover)
+              .on("mouseleave", circleUnhover)
+            ,
+
+            update => update.call(update =>
+              update.transition()
+                .attr("cx", d => {
+                  if (plottingPrevalenceTable) {
+                    return prevScale(d.p_estimate);
+                  }
+                  return percentScale(d.with);
+                })
+            ),
+            exit => {
+              exit.transition()
+                .attr("opacity", 0)
+                .remove()
+            })
+      }
+
+
+      if (drawWithout && !plottingPrevalenceTable) {
+        let lightBlueCircle = empSVG.selectAll("circle.withoutEndCircle")
+          .data([d])
+          .join(
+            enter => enter.append("circle")
+              .attr("class", "withoutEndCircle")
+              .attr("cx", d => percentScale(d.without))
+              .attr("cy", rowHeight / 2)
+              .attr("r", endCircleRadius)
+              .attr("rowIndex", i)
+              .on("mouseover", circleHover)
+              .on("mouseleave", circleUnhover)
+            ,
+
+            update => update.call(update =>
+              update.transition()
+                .attr("cx", d => percentScale(d.without))
+            ),
+            exit => {
+              exit.transition()
+                .attr("opacity", 0)
+                .remove()
+            })
+
+      }
+      if (drawGap && !plottingPrevalenceTable) {
+
+        let gapText = empSVG.selectAll("text.gapText")
+          .data([d])
+          .join(
+            enter => enter.append("text")
+              .attr("class", "tableText gapText")
+              .attr("x", empChartWidth - (sampleStart + sampleWidth))
+              .attr("y", rowHeight / 2)
+              .text(d => floatFormatter(d.without - d.with) + "%")
+          );
+      }
+
+    }
+
+    function circleHover(event, d) {
+      // console.log(event, d);
+      let circle = d3.select(this)
+        .attr("r", endCircleRadius * 1)
+        .style("fill", "white")
+        .attr("stroke", "black")
+        .attr("stroke-width", "8px");
+
+
+
+      let xPos = Number(circle.attr("cx")) + subchartStartPos;
+      let yPos = Number(circle.attr("cy")) + headerHeight + rowHeight * circle.attr("rowIndex");
+
+      let g = empSVG.append("g")
+        .attr("transform", `translate(${xPos - mouseOverLabelBoxWidth / 2}, ${yPos})`)
+        .attr("class", "mouseOverLabel")
+        .style("pointer-events", "none")
+      g.append("rect")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", mouseOverLabelBoxWidth)
+        .attr("height", mouseOverLabelBoxHeight)
+        .attr("fill", "white")
+        .attr("stroke", "black")
+      g.append("text")
+        .attr("x", mouseOverLabelBoxWidth / 2)
+        .attr("y", mouseOverLabelBoxHeight / 2)
+        .attr("font-size", tableFontSize + "px")
+        .attr("dominant-baseline", "middle")
+        .attr("text-anchor", "middle")
+        .text("Rate: " + d.p_estimate + "%")
+    }
+
+    function circleUnhover(event, d) {
+      d3.select(this)
+        .attr("r", endCircleRadius)
+        .style("fill", "")
+        .attr("stroke", "none")
+        .attr("stroke-width", "0px");
+
+      empSVG.select(".mouseOverLabel").remove() // find the thing with the class and remove it
+    }
+
+    function addHeader(target) {
+      var headerGroup = target.append("g")
+        .attr("class", "tHeader")
+        .attr("transform", `translate(${0}, ${empSVGMargin.top})`);
+
+      activeTableGroups.forEach(group => {
+        //add group seperators
+
+        headerGroup.append("line")
+          .attr("class", "groupLines")
+          .attr("x1", tableGroupPositions[group][0] + tableGroupPositions[group][1] + categorySpacing / 4)
+          .attr("x2", tableGroupPositions[group][0] + tableGroupPositions[group][1] + categorySpacing / 4)
+          .attr("y1", headerHeight)
+          .attr("y2", currentEmpSVGHeight - rowHeight - empSVGMargin.bottom)
+          .attr("stroke-width", 1)
+          .attr("stroke", "black")
+          .raise();
+
+        headerGroup.append("rect")
+          .attr("class", `tableHeaderBox ${group}`)
+          .attr("x", tableGroupPositions[group][0] - categorySpacing / 2)
+          .attr("width", tableGroupPositions[group][1] + categorySpacing / 2)
+          .attr("height", headerHeight);
+
+
+
+        var closeButtonGroup = headerGroup.append("g").attr("class", `closeGroup ${group}`).datum(group);
+        if (group != tableGroups[0]) {
+          let closeProtrusion = closeButtonGroup.append("rect")
+            .attr("class", `tableHeaderBox closeProtrusion ${group}`)
+            .attr("x", tableGroupPositions[group][0] + tableGroupPositions[group][1] - closeWidth)
+            .attr("y", -closeHeight)
+            .attr("width", closeWidth)
+            .attr("height", closeHeight)
+            .on("click", closeGroup);
+
+
+          let closeSquare = closeButtonGroup.append("rect")
+            .attr("class", `closeSquare`)
+            .attr("x", Number(closeProtrusion.attr("x")) + (closeWidth) / 4)
+            .attr("y", -closeInnerBoxHeight)
+            .attr("width", closeWidth / 2)
+            .attr("height", closeInnerBoxHeight)
+            .on("click", closeGroup);
+
+          closeButtonGroup.append("line")
+            .attr("class", `closeX`)
+            .attr("x1", Number(closeSquare.attr("x")) + xMargin)
+            .attr("x2", Number(closeSquare.attr("x")) + (closeWidth / 2) - xMargin)
+            .attr("y1", -closeInnerBoxHeight + xMargin)
+            .attr("y2", - xMargin)
+            .attr("stroke", "black")
+            .on("click", closeGroup);
+
+
+          closeButtonGroup.append("line")
+            .attr("class", `closeX`)
+            .attr("x2", Number(closeSquare.attr("x")) + xMargin)
+            .attr("x1", Number(closeSquare.attr("x")) + (closeWidth / 2) - xMargin)
+            .attr("y1", -closeInnerBoxHeight + xMargin)
+            .attr("y2", -xMargin)
+            .attr("stroke", "black")
+            .on("click", closeGroup);
+
+        } else {
+          //aka this is location
+          closeButtonGroup.append("text")
+            .attr("class", "resetText")
+            .attr("x", 0)
+            .attr("y", -closeHeight + (tableFontSize))
+            .text("RESET TABLE")
+            .on("click", resetTable);
+        }
+
+      });
+
+      activeTableCategories.forEach(cat => {
+        const headerText = headerGroup.append("text")
+          .attr("class", `tHeaderText tableText ${cat}`)
+          .attr("x", tableSpacingDict[cat][0] + (textMargin))
+          .attr("y", (rowHeight / 2) - (1.5 * tableFontSize));
+
+
+        const words = cat.split(" ");
+        if (words.length > 1) {
+          words.forEach((word, index) => {
+            headerText.append("tspan")
+              .attr("x", tableSpacingDict[cat][0] + (tableSpacingDict[cat][1]) - textMargin - categorySpacing)
+              .text(word)
+              .attr("dy", 1.5 * tableFontSize)
+          });
+        } else {
+          headerText.text(cat).attr("y", (rowHeight / 2) + 18);
+        }
+
+        const downTrianglePoints = [[-5, 0], [5, 0], [0, 10]]
+        const upTrianglePoints = [[-5, 0], [5, 0], [0, -10]];
+        // let areaLabelTriangle = areaLabel.append("polygon")
+        //   .attr("points", trianglePoints.map(point => point.join(",")).join(" "))
+        //   .style("fill", "orangered")
+        // make sorters
+        activeTableCategories.forEach(cat => {
+
+          if (cat != tableCategories[0]) {
+            let filterGroup = headerGroup.append("g");
+
+            let downTriangle = filterGroup.append("polygon")
+              .attr("class", `triangle${cat} tableFilterButton`)
+              .attr("id", "down")
+              .attr("category", `${cat}`)
+              .attr("points", downTrianglePoints.map(point => point.join(",")).join(" "))
+              .attr("transform", `translate(${tableSpacingDict[cat][0] + tableSpacingDict[cat][1] - categorySpacing / 1.5}, ${headerHeight / 2})`)
+              .attr("state", () => {
+                if (tableSortingState.active && tableSortingState.category === cat && tableSortingState.direction === "down") {
+                  return "active";
+                }
+                return "inactive";
+              })
+              .attr("fill", () => {
+                if (tableSortingState.active && tableSortingState.category === cat && tableSortingState.direction === "down") {
+                  return "#3573D9";
+                }
+                return "#8BAEE8";
+              })
+              .on("click", sortTable);
+            let upTriangle = filterGroup.append("polygon")
+              .attr("class", `triangle${cat} tableFilterButton`)
+              .attr("id", "up")
+              .attr("category", `${cat}`)
+              .attr("points", upTrianglePoints.map(point => point.join(",")).join(" "))
+              .attr("transform", `translate(${tableSpacingDict[cat][0] + tableSpacingDict[cat][1] - categorySpacing / 1.5}, ${headerHeight / 2 - 5})`)
+              .attr("state", () => {
+                if (tableSortingState.active && tableSortingState.category === cat && tableSortingState.direction === "up") {
+                  return "active";
+                }
+                return "inactive";
+              })
+              .attr("fill", () => {
+                if (tableSortingState.active && tableSortingState.category === cat && tableSortingState.direction === "up") {
+                  return "#3573D9";
+                }
+                return "#8BAEE8";
+              })
+              .on("click", sortTable);
+          }
+        });
+
+      });
+
+      return headerGroup;
+    }
+    function closeGroup(event, d) {
+      if (activeTableGroups.includes(d)) {
+        activeTableGroups.splice(activeTableGroups.indexOf(d), 1);
+      }
+      let catsToRemove = groupToCategories[d];
+      catsToRemove.forEach(c => {
+        if (activeTableCategories.includes(c)) {
+          activeTableCategories.splice(activeTableCategories.indexOf(c), 1);
+        }
+      });
+
+      updateTableRows(currentTableData);
+
+      console.log(activeTableGroups);
+
+    }
+
+    function resetTable(event, d) {
+      console.log("Active before reset stuff", activeTableGroups, activeTableCategories);
+      activeTableCategories = [...tableCategories];
+      activeTableGroups = [...tableGroups];
+      updateTableRows(currentTableData);
+
+      console.log("Active stuff now", activeTableGroups, activeTableCategories);
+    }
+
+    function recalculateTablePositions() {
+      let currentPosition = 0;
+
+      tableGroups.forEach(group => {
+        if (activeTableGroups.includes(group)) {
+          // Reset groupWidth for each group
+          let groupWidth = 0;
+          const categories = groupToCategories[group];
+
+          categories.forEach((cat, index) => {
+            if (activeTableCategories.includes(cat)) {
+              // Start positions for each category now consider the spacing
+              tableSpacingDict[cat][0] = currentPosition;
+              currentPosition += tableSpacingDict[cat][1]; // Move by the width of the category
+
+              // Add spacing after each category except the last one in the group
+              if (index < categories.length - 1) {
+                currentPosition += categorySpacing;
+              }
+
+              // Accumulate groupWidth including spacing between categories
+              groupWidth += tableSpacingDict[cat][1] + (index < categories.length - 1 ? categorySpacing : 0);
+            }
+          });
+
+          // Update group position and width
+          tableGroupPositions[group] = [currentPosition - groupWidth, groupWidth];
+          // If you want space after each group, add it to currentPosition here
+          currentPosition += categorySpacing; // Optional: add space after each group
+        }
+      });
+    }
+
+    function calculateSubchartStartPosition() {
+      // Assuming lastGroupEdge calculation remains the same
+      let lastGroupEdge = 0;
+      activeTableGroups.forEach(group => {
+        const groupPosition = tableGroupPositions[group];
+        if (groupPosition) {
+          const groupEdge = groupPosition[0] + groupPosition[1];
+          lastGroupEdge = Math.max(lastGroupEdge, groupEdge);
+        }
+      });
+
+      // Include additional spacing if required before starting subcharts
+      return lastGroupEdge + categorySpacing; // Add spacing before subcharts start
+    }
+
+    function toggleBar(event, d) {
+      let barToChange = event.target.id;
+      if (event.target.checked) {
+        currentShownBars.push(barToChange);
+      } else {
+        if (currentShownBars.includes(barToChange)) {
+          currentShownBars.splice(currentShownBars.indexOf(barToChange), 1);
+        }
+      }
+
+      // console.log(currentShownBars);
+    }
+
+    function sortTable(event) {
+      let dataToSort = [...currentTableData];
+      let ascending = false;
+      let clickedButton = d3.select(this);
+      let property = tableSpacingDict[clickedButton.attr("category")][2];
+      let nowSorting = null;
+
+      // Reset all triangles to inactive state except for the clicked one
+      d3.selectAll(".tableFilterButton")
+        .each(function () {
+          if (d3.select(this).attr("id") !== clickedButton.attr("id") || d3.select(this).attr("category") !== clickedButton.attr("category")) {
+            d3.select(this).attr("fill", "#8BAEE8").attr("state", "inactive");
+          }
+        });
+
+      let isActive = clickedButton.attr("state") === "active";
+      if (isActive) {
+        clickedButton.attr("fill", "#8BAEE8").attr("state", "inactive");
+
+        //unsort table??
+        nowSorting = false;
+
+      } else {
+        clickedButton.attr("fill", "#3573D9").attr("state", "active");
+
+        ascending = clickedButton.attr("id") === "up";
+
+
+        dataToSort.sort((a, b) => ascending ? a[property] - b[property] : b[property] - a[property]);
+        nowSorting = true;
+
+        // Log the sorted data or update your table with it
+        console.log(dataToSort);
+      }
+
+      tableSortingState = {
+        category: clickedButton.attr("category"),
+        direction: ascending ? "up" : "down",
+        active: nowSorting
+      }
+
+      updateTableRows(dataToSort);
+
+    }
+    // loadEmpData();
 
 
 

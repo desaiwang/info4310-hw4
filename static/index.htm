@@ -907,9 +907,17 @@
   <!-- ==================
         TABLE
     =================== -->
-  <svg id="prevalenceTable" height="100" width="1200">
 
-  </svg>
+  <div id="tableContainer" style="position: relative;">
+    <svg id="prevalenceTable" height="100" width="1200">
+
+    </svg>
+    <input type="checkbox" class="legendBox" id="withBox" name="withCheckbox">
+    <input type="checkbox" class="legendBox" id="withoutBox" name="withoutCheckbox">
+    <input type="checkbox" class="legendBox" id="gapBox" name="gapCheckbox">
+
+  </div>
+
   <!-- ==================
         TABLE SCRIPT
     =================== -->
@@ -999,7 +1007,14 @@
     const closeInnerBoxHeight = 20;
     const xMargin = 3;
 
+    const subLegendLeftAdjustment = 50;
+    const subLegendYMargin = 15;
+
+    const subLegendTextMargin = 15;
+
     const tableSpacingDict = {};
+
+    var currentShownBars = ["withBox", "withoutBox", "gapBox"];
 
     // syntax for this dict, value 0 is start pos, value 1 is width, value 2 is header name, value 3 is formatter for displaying the value
     tableSpacingDict[tableCategories[0]] = [locationStart, locationWidth, "state", null];
@@ -1201,6 +1216,142 @@
       // console.log("updateEmpSvg", i, d);
 
       let empSVG = d3.select(this);
+      if (i == 0) {
+        let subLegendG = empSVG.append("g")
+          .attr("class", "subchartLegend")
+          .attr("transform", `translate(${subLegendLeftAdjustment}, ${-headerHeight - closeHeight - (barMargin)})`);
+
+        let legendLine = subLegendG.append("line")
+          .attr("class", "subchartLegend")
+          .attr("x1", 0)
+          .attr("x2", 0)
+          .attr("y2", headerHeight + closeHeight)
+          .attr("stroke-width", 1)
+          .attr("stroke", "black");
+
+        let firstBar = subLegendG.append("rect")
+          .attr("class", "withBarHeader")
+          .attr("x", .5)
+          .attr("width", percentScale(10))
+          .attr("height", rowHeight - 2 * barMargin);
+
+        let firstBarCircle = subLegendG.append("circle")
+          .attr("class", "withEndCircleHeader")
+          .attr("cx", percentScale(10))
+
+          .attr("r", endCircleRadius);
+
+        let firstBarText = subLegendG.append("text")
+          .attr("x", percentScale(10) + subLegendTextMargin)
+          .attr("class", "headerLegendText");
+
+
+
+        let secondBar = subLegendG.append("rect")
+          .attr("class", "withoutBarHeader")
+          .attr("x", .5)
+          .attr("width", percentScale(25))
+          .attr("height", rowHeight - 2 * barMargin);
+
+        let secondBarCircle = subLegendG.append("circle")
+          .attr("cx", percentScale(25))
+          .attr("r", endCircleRadius);
+
+
+        let secondBarText = subLegendG.append("text")
+          .attr("x", percentScale(25) + subLegendTextMargin)
+          .attr("class", "headerLegendText");
+
+        if (plottingPrevalenceTable) {
+          legendLine
+            .attr("y1", rowHeight - barMargin);
+          firstBar
+            .attr("y", rowHeight);
+          firstBarCircle
+            .attr("cy", 1.5 * rowHeight - barMargin);
+
+          firstBarText
+            .attr("y", 1.5 * rowHeight - barMargin)
+            .text("any disability");
+
+          secondBar
+            .attr("y", rowHeight * 2 - barMargin)
+          secondBarCircle
+            .attr("cy", rowHeight * 2.5 - 2 * barMargin)
+            .attr("fill", "#00368C");
+          secondBarText
+            .attr("y", rowHeight * 2.5 - 2 * barMargin)
+            .text("specific disabilities");
+        } else {
+          legendLine
+            .attr("y1", 0);
+
+          //first bar
+          firstBar
+            .attr("x", .5)
+            .attr("y", barMargin);
+          firstBarCircle
+            .attr("cy", rowHeight / 2);
+
+          firstBarText
+            .attr("y", rowHeight / 2)
+            .text("with disability");
+          //2nd bar
+          secondBar
+            .attr("y", rowHeight);
+
+          secondBarCircle
+            .attr("cy", 2 * barMargin + rowHeight);
+          secondBarText
+            .attr("y", rowHeight + (rowHeight / 2) - barMargin)
+            .text("without disability")
+
+
+          //not  prev so have gaps
+          subLegendG.append("rect")
+            .attr("class", "gapBarHeader")
+            .attr("x", percentScale(10))
+            .attr("width", percentScale(15))
+            .attr("y", (rowHeight * 2) - barMargin)
+            .attr("height", rowHeight - 2 * barMargin);
+
+          subLegendG.append("circle")
+            .attr("class", "gapCirclesHeader")
+            .attr("cx", percentScale(10))
+            .attr("cy", rowHeight * 2 + barMargin)
+            .attr("r", endCircleRadius);
+          subLegendG.append("circle")
+            .attr("class", "gapCirclesHeader")
+            .attr("cx", percentScale(25))
+            .attr("cy", rowHeight * 2 + barMargin)
+            .attr("r", endCircleRadius);
+
+          subLegendG.append("text")
+            .attr("class", "headerLegendText")
+            .attr("x", percentScale(25) + subLegendTextMargin)
+            .attr("y", 2 * rowHeight + (rowHeight / 2) - 2 * barMargin)
+            .text("employment gap");
+
+          secondBarCircle.attr("fill", "#59A4EF");
+
+          let checkBoxes = d3.selectAll("input.legendBox").each((d, i, nodes) => {
+            // let currentBox = d3.select(this);
+            // console.log(currentBox.node());
+            // checkBox.attr("x",)
+            let currentBox = d3.select(nodes[i]);
+
+            currentBox
+              .style("left", subchartStartPos + subLegendLeftAdjustment / 2)
+              .style("top", 6.5 +
+                i * (rowHeight - barMargin))
+              .style("visibility", "visible")
+              .property("checked", true)
+              .on("change", toggleBar);
+
+          });
+
+        }
+      }
 
       if (drawWithout && !plottingPrevalenceTable) {
         let lightBlueLine = empSVG.selectAll("rect.withoutBar")
@@ -1542,6 +1693,19 @@
       });
 
       return lastGroupEdge;
+    }
+
+    function toggleBar(event, d) {
+      let barToChange = event.target.id;
+      if (event.target.checked) {
+        currentShownBars.push(barToChange);
+      } else {
+        if (currentShownBars.includes(barToChange)) {
+          currentShownBars.splice(currentShownBars.indexOf(barToChange), 1);
+        }
+      }
+
+      // console.log(currentShownBars);
     }
     // loadEmpData();
 

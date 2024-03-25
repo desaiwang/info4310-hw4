@@ -117,11 +117,27 @@ td.paper-title {
   fill: #A8C7F4
 }
 
+.withBarHeader {
+  fill: #1B73E0
+}
+
+.withoutBarHeader {
+  fill: #A8C7F4
+}
+
 .withEndCircle {
   fill: #00368C
 }
 
 .withoutEndCircle {
+  fill: #59A4EF
+}
+
+.withEndCircleHeader {
+  fill: #00368C
+}
+
+.withoutEndCircleHeader {
   fill: #59A4EF
 }
 
@@ -173,4 +189,26 @@ td.paper-title {
   text-anchor: start;
   fill: #3573D9;
   cursor: pointer;
+}
+
+.gapBarHeader {
+  fill: #E87431;
+}
+
+.gapCirclesHeader {
+  fill: white;
+  stroke: #E87431;
+  stroke-width: 5px;
+}
+
+.headerLegendText {
+  text-anchor: start;
+  dominant-baseline: middle;
+}
+
+.legendBox {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  visibility: hidden;
 }

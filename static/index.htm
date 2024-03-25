@@ -1133,6 +1133,7 @@
 
         prevScale = d3.scaleLinear(d3.extent(all_p_estimates), [10, maxBarLength]);
         currentTableData = [...goodData];
+        sortedTableData = [...currentTableData];
         updateTableRows(goodData);
 
         // console.log("usa p est: ", dataDict["the United States"])
@@ -1277,6 +1278,8 @@
 
     const maxBarLength = 250;
     var currentTableData;
+    let sortedTableData;
+
     var subchartStartPos;
     const subchartMargin = 7;
 
@@ -2049,16 +2052,18 @@
         }
       });
 
-      updateTableRows(currentTableData);
-
-      console.log(activeTableGroups);
-
+      updateTableRows(sortedTableData);
     }
 
     function resetTable(event, d) {
       console.log("Active before reset stuff", activeTableGroups, activeTableCategories);
       activeTableCategories = [...tableCategories];
       activeTableGroups = [...tableGroups];
+      tableSortingState = {
+        category: null,
+        direction: null,
+        active: false
+      }
       updateTableRows(currentTableData);
 
       console.log("Active stuff now", activeTableGroups, activeTableCategories);
@@ -2166,7 +2171,9 @@
         active: nowSorting
       }
 
-      updateTableRows(dataToSort);
+      sortedTableData = [...dataToSort];
+
+      updateTableRows(sortedTableData);
 
     }
     // loadEmpData();

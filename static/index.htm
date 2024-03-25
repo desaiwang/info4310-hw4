@@ -1500,7 +1500,11 @@
                 } else {
                   displayText = d[tableSpacingDict[cat][2]];
                 }
+                if (displayText == "-9") {
+                  displayText = "0";
+                }
 
+                //uses formatter specified in table dict (poorly named ik) if it exists
                 if (tableSpacingDict[cat][3] != null) {
                   return tableSpacingDict[cat][3](displayText);
                 }
@@ -1852,13 +1856,25 @@
         .attr("height", mouseOverLabelBoxHeight)
         .attr("fill", "white")
         .attr("stroke", "black")
+
+      let estimateToShow = d.p_estimate;
+      let displayNA = false;
+      if (Number(estimateToShow) == -9) {
+        displayNA = true;
+      }
+
       g.append("text")
         .attr("x", mouseOverLabelBoxWidth / 2)
         .attr("y", mouseOverLabelBoxHeight / 2)
         .attr("font-size", tableFontSize + "px")
         .attr("dominant-baseline", "middle")
         .attr("text-anchor", "middle")
-        .text("Rate: " + d.p_estimate + "%")
+        .text(() => {
+          if (displayNA) {
+            return "No Data";
+          }
+          return "Rate: " + d.p_estimate + "%"
+        })
     }
 
     function circleUnhover(event, d) {

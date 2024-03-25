@@ -3,6 +3,7 @@
 <head>
   <title>INFO 4310 - HW4</title>
   <link href="./style.css" rel="stylesheet" type="text/css">
+  <!-- <link href="./style.css" rel="stylesheet" type="text/css"> -->
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://d3js.org/topojson.v3.min.js"></script>
@@ -19,241 +20,406 @@
     body {
       font-family: 'Barlow', 'Helvetica', sans-serif;
       font-weight: 400;
-      margin: 0 0 0 100px;
+      margin: 0;
       padding: 0;
-      min-width: 1400px;
-      /* overflow-x: scroll;
+      /* min-width: 1300px;
+      max-width: 1400px;
+      overflow-x: scroll;
       overflow-y: hidden;
       overscroll-behavior-x: none; */
     }
-
-    h1 {
-      font-weight: 600;
-      font-size: 3em;
-      margin: 20px 0 0 0;
+    title {
+      display: block;
+      font-weight: 400;
+      font-size: 1.65em;
       padding: 0;
-      color: black;
+      margin: 0;
+      color: #1059C9;
     }
-
+    h1 {
+      font-weight: 700;
+      font-size: 2.75em;
+      margin: 0;
+      padding: 0;
+      color: #1059C9;
+    }
     h2 {
       font-weight: 700;
-      font-size: 2em;
+      font-size: 1em;
       margin: 0;
-      padding: 0 0 5px 0;
-      color: #3A7C98;
-      /* border-bottom: 1px solid #777; */
-    }
-
+      padding: 20px 0 0 0;
+      color: black;
+    }    
     h3 {
+      font-size: 1em;
       font-weight: 700;
-      font-size: 1.05em;
+      padding: 0 0 10px 0;
+      margin: 0 0 20px 0;
+      color: #1059C9;
+      border-bottom: 1px solid #1059C9;
+      border-bottom-style: dotted;
+    }   
+    h4 {
+      font-weight: 600;
+      font-size: 1.5em;
+      padding: 0 0 25px 0;
       margin: 0;
-      padding: 0px 0 15px 0;
-      color: #3A7C98;
+      color: black;
     }
-
-    h3.withRule {
-      border-top: 1px solid #ccc;
-      padding-top: 12px;
-      margin-top: 15px;
+    a {
+      color: #1059C9;
+      text-decoration: underline;
+      text-decoration-style: dashed;
+      text-underline-offset: 4px;
     }
-
-    h3#best {
-      font-weight: 800;
-      font-size: 1.15em;
-      color: #d81289;
+    a:hover {
+      color: #1059C9;
+      text-decoration: underline;
+      text-decoration-style: solid;
+      text-underline-offset: 4px;
     }
-
     p {
       margin: 0;
       padding: 3px 0;
       line-height: 1.3em;
     }
-
-    p#tagline {
-      font-size: 1.1em;
-      color: #3A7C98;
-      margin: 0;
-      padding: 0 0 35 0;
-    }
-
-    /* BUTTONS */
-    button {
-      font-family: 'Barlow', 'Helvetica', sans-serif;
-      background-color: #ffffff;
-      border: 2px solid #777;
-      color: #777;
-      border-radius: 20px;
-      margin: 0 7px 10px 0;
-      padding: 6px 10px 8px 10px;
-      font-size: 1em;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    /* button[value="cafes"]::before {
-      content: "#";
-      color: gray;
-    }
-    .clicked[value="cafes"]::before {
-      content: url("logo.png");
-      content: "#";
-      color: purple;
-    }     */
-
-    .clicked {
-      background-color: #e3d2fd;
-      border: 2px solid #7339D0;
-      color: #7339D0;
-    }
-
-    button:hover {
-      text-decoration: underline dotted;
-      text-underline-offset: 3px;
-    }
-
-    .clicked:hover {
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-
-    #distance button {
-      width: 80px;
-    }
-
-    #category button {
-      width: 125px;
-    }
-
-    #category {
-      display: flex;
-      flex-direction: column;
-    }
-
-    #category select {
-      width: 200px;
-      height: 2em;
-    }
-
-    #category label {
-      margin-top: .5em;
-      margin-bottom: 0.1em;
-    }
-
-    button#selectAllButton,
-    button#resetButton {
-      margin: 0 0 12px 0;
-      padding: 0;
-      border: 0;
-      font-size: .95em;
+    .quickFacts {
+      width: 1000px;
       font-weight: 500;
-      color: #3A7C98;
+      font-size: 2.4em;
+      /* margin: 0; */
+      margin: 0 0 20px 0;
+      padding: 0;
+      color: black;
+    } 
+    ul.quickFacts {
+      margin: 0 0 15px 60px;
+      line-height: 1.3em;
+    }
+    .withColor {
+      color: #E1195F;
+      font-weight: 800;
+    }
+    .withoutColor {
+      color: #1059C9;
+      font-weight: 800;
+    }   
+    .gapColor {
+      color: #F96706;
+      font-weight: 800;
+    }
+    .gapHighlight, .withHighlight, .withoutHighlight {
+      text-decoration: underline;
+      text-underline-offset: 5px;
+    }  
+    .withHighlight { text-decoration-color: #E1195F; }  
+    .withoutHighlight { text-decoration-color: #1059C9; }  
+    .gapHighlight { text-decoration-color: #F96706; }  
+    p.mapTitle {
+      font-weight: 500;
+      font-size: 1.3em;
+      margin: 0 0 1.3em 0;
+    }   
+    button#toggle {
+      display:block;border: 0;background-color:#5396E8;color:white;width:70px;padding: 7px 0;
+    } 
+    button#toggleSearch {
+      display:block;border: 0;background-color:#5396E8;color:white;width:70px;padding: 7px 0;
+    } 
+
+    /* =======
+         GRID 
+       ======= */
+    /* MAIN CONTAINER */
+    #container {  
+    display: grid;
+    min-width: 100vw;
+    height: 100vh;
+    grid-template-columns: 70px 320px 1fr;
+    grid-template-rows: auto auto 245px auto .5fr 1fr 1fr;
+    gap: 0 50px;
+    grid-auto-flow: row;
+    grid-template-areas:
+      "masthead masthead masthead"
+      "pageTitle pageTitle pageTitle"
+      "dir1 quickStat quickStat"
+      "dir2 filters map"
+      "dir2 filters brush"
+      "dir3 tableBar tableBar"
+      ". footer footer"; 
+      transition: 1s;   
     }
 
-    #selectAllButton:hover,
-    #resetButton:hover {
+    /* child of #container: MASTHEAD CONTAINER */
+    .masthead {
+      display: grid; 
+      grid-template-columns: 75px 300px 1fr; 
+      grid-template-rows: 100px; 
+      gap: 0px 20px; 
+      height: 100px;
+      grid-template-areas: "logo siteName indStat"; 
+      grid-area: masthead; 
+      align-items: center;
+      position: sticky; /* keeps masthead stuck to top of screen */
+      z-index: 1000;
+      top: 0; 
+      padding: 0 0 0 120px;
+      background-color: white;  
+      }
+        /* children of masthead */
+        .logo { grid-area: logo; padding: 0; text-align: left;}
+        .siteName { grid-area: siteName; }
+        .indStat { grid-area: indStat; } 
+
+    /* LEFT COLUMN (possibly for directions) */
+    .dir0 { grid-area: dir0; background-color: white; } 
+    .dir1 { grid-area: dir1; background-color: #1059C9; }
+    .dir2 { grid-area: dir2; }
+    .dir3 { grid-area: dir3; }  
+
+    /* full row for PAGE TITLE */
+    .pageTitle { 
+      grid-area: pageTitle; 
+      position: sticky; 
+      z-index: 999;
+      top: 100px; 
       background-color: white;
-      border: 0;
-      border-radius: 0;
-      text-decoration: underline dotted;
-      text-underline-offset: 3px;
+      height: 100px;
+      padding: 10px 0 0 120px;  
     }
+    .quickStat { 
+      grid-area: quickStat; 
+      /* padding: 20px 0 40px 0;  */
+      background-color: white;
+      min-height: 0;
+      margin: 0 150px 0 0;
+      overflow: hidden;      
+    }
+    /* setting for collapsed state of quick stats triggered by "CLOSE STATS" button" */
+    #container.collapsedQuickStats {
+      grid-template-rows: auto auto 0 auto .5fr 1fr 1fr;
+      padding: 0;
+      margin: 0;
+    }  
+    .filters { 
+      grid-area: filters; 
+      margin: 105px 50px 0 0; 
+      min-width: 0;
+      overflow: hidden;       
+    }
+    /* setting for collapsed state of search filters triggered by "CLOSE SEARCH" button" */
+    #container.collapsedFilters {
+      grid-template-columns: 70px 0 1fr;
+      padding: 0;
+      margin: 0;
+    }
+    .map { 
+      grid-area: map; 
+      margin: 40px 150px 0 -50px; 
+      min-width: 1200px;
+      min-height: 1000px;
+      overflow: hidden;
+    }
+    .brush { grid-area: brush; }
+    .tableBar { grid-area: tableBar; }
+    .footer { grid-area: footer; min-height: 300px;}
 
-    /* CONTAINERS */
-    .flex-container {
+    /* CUSTOM SELECT FORMATTING */
+    *, *::before, *::after {
+    box-sizing: border-box;
+    }
+    select {
+      appearance: none;
+      background-color: transparent;
+      border: none;
+      padding: 0 1em 0 0;
+      margin: 0;
+      width: 100%;
+      font-family: inherit;
+      font-size: inherit;
+      cursor: inherit;
+      line-height: inherit;
+      z-index: 1;
+      outline: none;
+    }
+    select::-ms-expand {
+      display: none;
+    }
+    /* Filter selects */
+    .select {
+      display: grid;
+      grid-template-areas: "select";
+      align-items: center;
+      position: relative;
+      border: 1px solid #1059C9;
+      border-radius: 1em;
+      padding: .5em .75em;
+      margin: 0;
+      font-size: rem;
+      /* text-shadow: 2px 2px; */
+      cursor: pointer;
+      line-height: 1.3;
+      color: black;
+      background-image: linear-gradient(to top, #ddd, #fff 50%);
+    }
+    /* GRID for the INDIVIDUAL STATISTIC in masthead */
+    .indStatGrid {
+      display: grid; 
+      grid-template-columns: 70px auto; 
+      grid-template-rows: auto; 
+      gap: 0 20px; 
+      grid-template-areas: "indStatLabel indStatSelect"; 
+      grid-area: indStatGrid; 
+      align-items: center;
+    }
+    .indStatLabel { grid-area: indStatLabel; padding: 2px 0 0 0; }
+    .indStatSelect { grid-area: indStatSelect; padding: 2px 0 0 0; }
+
+    /* INDIVIDUAL STATISTIC select */
+    .selectIndStat {
+      display: grid;
+      grid-template-areas: "select";
+      align-items: center;
+      position: relative;
+      border: 1px solid #E1195F;
+      border-radius: 1em;
+      padding: .5em .75em .5em .75em;
+      margin: 0;
+      font-size: 1rem;
+      cursor: pointer;
+      line-height: 1.3;
+      color: black;
+      background-image: linear-gradient(to top, #ddd, #fff 50%);
+      width: 300px;
+    }
+    .select select, .select::after, .selectIndStat select, .selectIndStat::after {
+      grid-area: select;
+    }
+    /* style triangle */
+    .select::after, .selectIndStat::after {
+      content: "";
+      justify-self: end;
+      width: 0.8em;
+      height: 0.5em;
+      background-color: #5396E8;
+      clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+    }
+    .selectIndStat::after {
+      content: "";
+      justify-self: end;
+      width: 0.8em;
+      height: 0.5em;
+      background-color: #E1195F;
+      clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+    }
+    .select:hover, .selectIndStat:hover {
+      border: 1px solid #E1195F;
+    }
+    .select:hover::after, .selectIndStat:hover::after {
+      background-color: #E1195F;
+      clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+      transform: rotate(-.5turn);
+      transition-duration: .5s;
+    }    
+    select:focus + .focus {
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      right: -1px;
+      bottom: -1px;
+      border: 2px solid #E1195F;
+      border-radius: inherit;
+    } 
+    label {
+      display: block;
+      font-size: 1em;
+      font-weight: 700;      
+      margin: 5px .75em;
+    }
+    .indStatLabel label {
+      font-weight: 500;
       margin: 0;
       padding: 0;
-      display: flex;
-      height: 100vh;
-      flex-wrap: nowrap;
+    }
+    .select + label {
+      margin-top: 1rem;
+    }
+ 
+
+    #content {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: 1s;
+      overflow: hidden;
+    }
+    #content .inside {
+      min-height: 0;
+    }
+    #content.expanded {
+      background: red;
+      grid-template-rows: 1fr;
     }
 
-    div.filterColumn {
-      margin: 0;
-      padding: 10px 35px 10px 0;
-      min-width: 300px;
-      max-width: 300px;
-    }
-
-
-    div.mapColumn {
-      margin: 0;
-      padding: 10px 35px 10px 0;
-    }
-
-    div.filterButtonContainer {
-      height: calc(100vh - 170px);
-      /* overflow-y: scroll; */
-    }
-
-    div.restaurant-list-info {
-      max-width: 400px;
-      min-width: 300px;
-      margin: 0;
-      padding: 145px 20px 0 0;
-    }
-
-    .restaurant-list {
-      height: calc(100vh - 240px);
-      margin: 0;
-      padding: 5px 35px 10px 10px;
-      overflow-y: scroll;
-    }
-
-    .restaurant-list a {
-      text-decoration: none !important;
-      color: inherit;
-    }
-
-    .restaurant-item {
-      margin-bottom: 10px;
-    }
-
-    div.mapColumn {
-      overflow-x: scroll;
-      overflow-y: hidden;
-    }
-
-    .tick line {
-      visibility: hidden;
-    }
-
-    .tick text {
-      font-size: 16px
-    }
-
-    .domain {
-      visibility: hidden;
-
-    }
   </style>
-
 </head>
 
+
 <body>
-  <div>
-    <h2>EMPLOYMENT RATE</h2>
-    <h1 style="margin-bottom: 1.25em;">In 2022, the employment rate for the disabled population in the United States is
-      <span id=usa_p_estimate style="color: #3A7C98">13.9%</span>.
-    </h1>
-  </div>
 
-  <div class="flex-container">
+  <div id="container">
+    <div class="dir0"></div>
+    <div class="masthead">
+      <div class="logo"><img src="logo.svg" height="75px"></div>
+      <div class="siteName"><title>Disability Statistics</title></div>
+      <div class="indStat">
 
-    <!--  ---------------
+        <!-- Grid containing label and menu to pick individual statistic -->
+        <div class="indStatGrid">
+          <div class="indStatLabel"><label for="indStat">STATISTIC:</label></div>
+          <div class="indStatSelect">
+            <!-- Select Menu -->
+            <div class="selectIndStat">
+              <select id="indStat" name="indStat">
+                <option value="0">PREVALENCE</option>
+                <option value="1" selected>EMPLOYMENT RATE</option>
+                <option value="2">POVERTY</option>
+              </select>
+              <span class="focus"></span>        
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="pageTitle">      
+      <h1>EMPLOYMENT RATE</h1>
+    </div>
+    <div class="dir1"></div>
+    <div class="quickStat">
+        <h3>QUICK STATS</h3>
+        <p class="quickFacts">
+          In 2022, the national employment rate for people <span class="withHighlight">with</span> disabilities
+          was <span class="withColor">45.0%</span> compared to <span class="withoutColor">81.0%</span> for people <span class="withoutHighlight">without</span> disabilities, an <span class="gapHighlight">employment gap</span> of <span class="gapColor">36.0%</span>.
+        </p>
+        2022 AMERICAN COMMUNITY SURVEY
+        <!-- &nbsp;&nbsp;|&nbsp;&nbsp;<a href="">EMPLOYMENT RATE DEFINITION</a> -->
+    </div>
+    <div class="dir2">     
+      <button id="toggle">CLOSE STATS</button>
+      <br>
+      <button id="toggleSearch">CLOSE SEARCH</button>
+
+    </div>
+    <div class="filters">
+      <!--  ---------------
               FILTERS 
           --------------- -->
-    <div class="filterColumn">
-      <h10>FILTERS</h10>
+      <h3>SEARCH</h3>
+      <!-- <button id="selectAllButton" value="selectAll">SELECT ALL</button>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<buttoncid="resetButton" value="reset">CLEAR ALL</button> -->
 
-      <div class="filterButtonContainer">
-        <!-- CATEGORY FILTER-->
-        <h3 class="withRule">POPULATION CHARACTERISTICS</h3>
-        <button id="selectAllButton" value="selectAll">SELECT ALL</button>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<button
-          id="resetButton" value="reset">CLEAR ALL</button>
-        <div id="category">
-
-          <label for="region">Map Region:</label>
+        <label for="region">REGION</label>
+        <div class="select">
           <select id="region" name="region">
             <option value="0" selected>All Regions</option>
             <option value="1">Northeast</option>
@@ -261,23 +427,31 @@
             <option value="3">South</option>
             <option value="4">West</option>
           </select>
+          <span class="focus"></span>        
+        </div>
 
-
-          <label for="mapType">Map Type:</label>
+        <label for="mapType">MAP TYPE</label>
+        <div class="select">
           <select id="mapType" name="mapType">
             <option value="0" selected>With or Without Disability</option>
             <option value="1">With Disability</option>
             <option value="2">Without Disability</option>
           </select>
+          <span class="focus"></span>        
+        </div>            
 
-          <label for="gender">Gender:</label>
+        <label for="gender">GENDER</label>
+        <div class="select">
           <select id="gender" name="gender">
             <option value="0" selected>Male or Female</option>
             <option value="1">Males</option>
             <option value="2">Females</option>
           </select>
+          <span class="focus"></span>        
+        </div>
 
-          <label for="disabilityType">Disability Type:</label>
+        <label for="disabilityType">DISABILITY TYPE</label>
+        <div class="select">
           <select id="disabilityType" name="disabilityType">
             <option value="1" selected>Any Disability</option>
             <option value="2">Visual Disability</option>
@@ -287,8 +461,11 @@
             <option value="6">Self-Care Disability</option>
             <option value="7">Independent Living Disability</option>
           </select>
+          <span class="focus"></span>        
+        </div>            
 
-          <label for="age">Age:</label>
+        <label for="age">AGE</label>
+        <div class="select">
           <select id="age" name="age">
             <option value="0" selected>All Ages</option>
             <option value="5">Ages 4 and under</option>
@@ -301,8 +478,11 @@
             <option value="9">Ages 65+</option>
             <option value="8">Ages 75+</option>
           </select>
+          <span class="focus"></span>        
+        </div>            
 
-          <label for="race">Race:</label>
+        <label for="race">RACE</label>
+        <div class="select">
           <select id="race" name="race">
             <option value="0" selected>All races</option>
             <option value="1">White</option>
@@ -311,8 +491,11 @@
             <option value="4">Asian</option>
             <option value="5">Some other race(s)</option>
           </select>
+          <span class="focus"></span>        
+        </div>            
 
-          <label for="education">Education:</label>
+        <label for="education">EDUCATION</label>
+        <div class="select">
           <select id="education" name="education">
             <option value="0" selected>All education levels</option>
             <option value="1">Less than a high school education</option>
@@ -320,47 +503,81 @@
             <option value="3">Some college/associates degree</option>
             <option value="4">A BA degree or higher</option>
           </select>
+          <span class="focus"></span>        
+        </div>            
 
-          <label for="hispanic">Hispanic:</label>
+        <label for="hispanic">HISPANIC</label>
+        <div class="select">
           <select id="hispanic" name="hispanic">
             <option value="0" selected>Regardless of ethnicity</option>
             <option value="1">Hispanic</option>
             <option value="2">Non-Hispanic</option>
           </select>
-
-
+          <span class="focus"></span>        
         </div>
 
-      </div>
     </div>
-
-
+    <div class="map">
     <!--  ---------------
                 MAP 
           --------------- -->
-    <div class="mapColumn">
-      <h10>MAPS</h10>
-      <h3 class="withRule">EMPLOYMENT RATE ESTIMATE (2022)</h3>
-      <h3 style="color: black">The employment rate for non-institutionalized,
+      <h3>MAP</h3>
+      <h4>EMPLOYMENT RATE: <br>The employment rate for non-institutionalized,
         <span id="gender">male or female</span>,
         with <span id="disabilityType">any</span> disability,
         <span id="age">all ages</span>,
         <span id="race">all races</span>,
         <span id="hispanic">regardless of ethnicity</span>,
         with <span id="education"></span> in the Unites States is <span id="dynamic_p_estimate">13.9%</span> in 2022.
-      </h3>
-      <div id="restaurant-hover" class="restaurant-hover"></div>
-      <svg id="svgMap" width="1000" height="700" top="10">
-      </svg>
-    </div>
+      </h4>
+      <!-- MAP -->
+      <svg id="svgMap" width="1600" height="800" top="10"></svg>
 
+    </div>
+    <div class="brush"></div>
+    <div class="dir3"></div>
+    <div class="tableBar">
+
+      
+    </div>
+    <div class="footer"></div>
   </div>
 
+  <!--  =======================
+        SHOW/HIDE FILTER SCRIPT
+        ======================= -->
+  <script id="toggleScript">
+    // toggle view of quick stats
+    toggle.onclick = () => {
+    container.classList.toggle("collapsedQuickStats");
+    // Check if the button text is "CLOSE STATS"
+    if (toggle.textContent === "CLOSE STATS") {
+        // If so, change it to "OPEN STATS"
+        toggle.textContent = "OPEN STATS";
+    } else {
+        // Otherwise, change it back to "CLOSE"
+        toggle.textContent = "CLOSE STATS";
+    }
+  };
 
-  <!-- ==================
-        MAP SCRIPT
-    =================== -->
-  <script id="map">
+  // toggle view of search filters
+  toggleSearch.onclick = () => {
+  container.classList.toggle("collapsedFilters");
+  // Check if the button text is "CLOSE SEARCH"
+  if (toggleSearch.textContent === "CLOSE SEARCH") {
+      // If so, change it to "OPEN SEARCH"
+      toggleSearch.textContent = "OPEN SEARCH";
+  } else {
+      // Otherwise, change it back to "CLOSE SEARCH"
+      toggleSearch.textContent = "CLOSE SEARCH";
+  }
+  };
+  </script>
+
+  <!--  =======================
+               MAP SCRIPT
+        ======================= -->
+        <script id="map">
     const svgMap = d3.select("#svgMap");
     const width = svgMap.attr("width");
     const height = svgMap.attr("height");

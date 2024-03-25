@@ -1698,25 +1698,40 @@
           .attr("class", "headerLegendText");
 
         if (plottingPrevalenceTable) {
+          // This commented code is if we have the ability to drop down for specific disability info
+          // legendLine
+          //   .attr("y1", rowHeight - barMargin);
+          // firstBar
+          //   .attr("y", rowHeight);
+          // firstBarCircle
+          //   .attr("cy", 1.5 * rowHeight - barMargin);
+
+          // firstBarText
+          //   .attr("y", 1.5 * rowHeight - barMargin)
+          //   .text("any disability");
+
+          // secondBar
+          //   .attr("y", rowHeight * 2 - barMargin)
+          // secondBarCircle
+          //   .attr("cy", rowHeight * 2.5 - 2 * barMargin)
+          //   .attr("fill", "#00368C");
+          // secondBarText
+          //   .attr("y", rowHeight * 2.5 - 2 * barMargin)
+          //   .text("specific disabilities");
           legendLine
-            .attr("y1", rowHeight - barMargin);
+            .attr("y1", rowHeight * 1.5);
           firstBar
-            .attr("y", rowHeight);
+            .attr("y", 1.5 * rowHeight + barMargin);
           firstBarCircle
-            .attr("cy", 1.5 * rowHeight - barMargin);
+            .attr("cy", 1.5 * rowHeight + barMargin + endCircleRadius);
 
           firstBarText
-            .attr("y", 1.5 * rowHeight - barMargin)
+            .attr("y", 1.5 * rowHeight + barMargin + endCircleRadius)
             .text("any disability");
 
-          secondBar
-            .attr("y", rowHeight * 2 - barMargin)
-          secondBarCircle
-            .attr("cy", rowHeight * 2.5 - 2 * barMargin)
-            .attr("fill", "#00368C");
-          secondBarText
-            .attr("y", rowHeight * 2.5 - 2 * barMargin)
-            .text("specific disabilities");
+          secondBar.remove();
+          secondBarCircle.remove();
+          secondBarText.remove();
         } else {
           legendLine
             .attr("y1", 0);

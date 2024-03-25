@@ -235,7 +235,6 @@
   </style>
 
 </head>
-
 <body>
   <div>
     <h2>EMPLOYMENT RATE</h2>
@@ -260,9 +259,9 @@
         <div id="category">
           <label for="mapType">Map Type:</label>
           <select id="mapType" name="mapType">
-            <option value="0" selected>With or Without Disability</option>
-            <option value="1">With Disability</option>
-            <option value="2">Without Disability</option>
+            <option value="0" selected>Employment Rate</option>
+            <option value="1">Prevalence</option>
+            <option value="2">Poverty</option>
           </select>
 
           <label for="gender">Gender:</label>
@@ -328,9 +327,6 @@
             <option value="percentage" selected>Percentage</option>
             <option value="number">Number</option>
           </select>
-
-
-
 
         </div>
 
@@ -877,6 +873,11 @@
 
     //key to match numbers to names, used to dynamically populate descriptions
     let key = {
+      mapType:{
+        0: "employ",
+        1: "prev",
+        2: "poverty"
+      },
       gender: {
         0: 'male or female',
         1: 'male',
@@ -941,113 +942,6 @@
       return { x: xPos, y: yPos };
 
     }
-
-
-    //Function to create Scrubber filter:
-
-
-  // function makeSlider(container, statesAll, filters, updateData, label, attribute, sliderWidth, sliderHeight) {
-  //       d3.select("#controlfilter").select("*").remove()
-  //       console.log(statesAll)
-
-  //         // Get a raw array of values for this property
-  //         let values = statesAll.map(d => d[attribute]);
-  //         // console.log(values);
-
-  //         // Find min and max for some scales
-  //         let minMax = d3.extent(values);
-  //         console.log(minMax);
-  //         let xScale = d3.scaleLinear().domain(minMax)
-  //           .range([10, sliderWidth - 10]); // padding here for ease
-  //         let xAxis = d3.axisBottom(xScale).tickFormat(d3.format(""));
-
-
-  //         // Create some HTML elements
-  //         let wrapper = container.append("div").attr("class", "controls");
-  //         wrapper.append("div").text(label);
-  //         let canvas = wrapper.append("svg").attr("width", sliderWidth)
-  //           .attr("height", sliderHeight + 20)
-  //           .attr("attribute", attribute);
-  //         canvas.append("g").attr("transform", `translate(0,${sliderHeight})`)
-  //           .call(xAxis);
-
-  //         // Make an area chart
-  //         let areaLayer = canvas.append("g");
-
-  //         // Built-in d3 helper function to count up data
-  //         let numBins = 20;
-
-  //         // Program a histogram generator to count up data into "bins"
-  //         let histoGen = d3.histogram().domain(minMax)
-  //           .thresholds(numBins);
-  //         let counts = histoGen(values);
-
-  //         // add dummy object at start of graph
-  //         counts.unshift({
-  //           x0: 0,
-  //           x1: counts[0].x0,
-  //           length: counts[0].length
-  //         });
-
-  //         let yScale = d3.scaleLinear().domain(d3.extent(counts, d => d.length))
-  //           .range([sliderHeight, 4]);
-
-  //         // Area generator is like a lineGen, but we give y0 and y1 to fill it in
-  //         let area = d3.area().x(d => xScale(d.x1))
-  //           .y0(yScale(0))
-  //           .y1(d => yScale(d.length))
-  //           .curve(d3.curveNatural);
-
-  //         // Adding the path works just like a line (the area generator just makes a filled region)
-  //         areaLayer.append("path").datum(counts)
-  //           .attr("class", "area")
-  //           .attr("fill", "#3A7C98")
-  //           .attr("d", area);
-
-
-  //         let filterFunc = d => true;
-  //         filters[attribute] = filterFunc;
-
-  //         var brush = d3.brushX().extent([[10, 0],                           // Upper left corner
-  //         [sliderWidth - 10, sliderHeight]])  // Lower right corner
-  //           .on("brush end", brushMoved);
-  //         // NOTE: we still need to *call the brush* towards the end of our code to "paste" it into HTML
-
-  //         function brushMoved(event) {
-
-  //           console.log(event.type, event.selection);
-
-  //           // Everything but clicking on brush area
-  //           if (event.selection !== null) {
-
-  //             // Run scales in reverse to get data values for the ends of the brush
-  //             //  If a scale turns data -> pixels, then scale.invert turns pixels -> data
-  //             let start = xScale.invert(event.selection[0]);
-  //             let end = xScale.invert(event.selection[1]);
-
-  //             // Overwrite old filter in our dictionary
-  //             // This filter now only returns True if the point's value is between start and end
-  //             let filterFunc = d => d[attribute] >= start && d[attribute] <= end;
-  //             console.log(filterFunc);
-  //             filters[attribute] = filterFunc;
-  //             console.log(filters[attribute]);
-
-  //             updateData(statesAll)
-  //           }
-  //           // Clicking on brush area to empty it out
-  //           else {
-  //             // Selected nothing, let everything pass
-  //             let filterFunc = d => true;
-  //             filters[attribute] = filterFunc;
-
-  //             updateData(statesAll)
-
-  //           }
-
-  //         }
-  //         canvas.append("g").attr("class", "brush").call(brush);
-  //   }
-   
 
 
   </script>

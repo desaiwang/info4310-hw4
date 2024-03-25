@@ -507,12 +507,13 @@
       </div>
     </div>
     <div class="pageTitle">
-      <h1>EMPLOYMENT RATE</h1>
+      <h1 id="pageTitle">EMPLOYMENT RATE</h1>
     </div>
     <div class="dir1"></div>
     <div class="quickStat">
       <h3>QUICK STATS</h3>
       <p class="quickFacts">
+        <!-- TODO: should we also have a poverty gap? but what would we do for prevalence? -->
         In 2022, the national employment rate for people <span class="withHighlight">with</span> disabilities
         was <span class="withColor">45.0%</span> compared to <span class="withoutColor">81.0%</span> for people <span
           class="withoutHighlight">without</span> disabilities, an <span class="gapHighlight">employment gap</span> of
@@ -549,8 +550,8 @@
       <label for="mapType">MAP TYPE</label>
       <div class="select">
         <select id="mapType" name="mapType">
-          <option value="0" selected>With or Without Disability</option>
-          <option value="1">With Disability</option>
+          <option value="0">With or Without Disability</option>
+          <option value="1" selected>With Disability</option>
           <option value="2">Without Disability</option>
         </select>
         <span class="focus"></span>
@@ -638,13 +639,13 @@
                  MAP 
             --------------- -->
       <h3>MAP</h3>
-      <h4>EMPLOYMENT RATE: <br>The employment rate for non-institutionalized,
+      <h4 id="headingtext">EMPLOYMENT RATE: <br>The employment rate for non-institutionalized,
         <span id="gender">male or female</span>,
         with <span id="disabilityType">any</span> disability,
         <span id="age">all ages</span>,
         <span id="race">all races</span>,
         <span id="hispanic">regardless of ethnicity</span>,
-        with <span id="education"></span> in the Unites States is <span id="dynamic_p_estimate">13.9%</span> in 2022.
+        with <span id="education"></span> in the Unites States is <span id="dynamic_p_estimate">45%</span> in 2022.
       </h4>
       <!-- MAP -->
       <svg id="svgMap" width="1600" height="800" top="10"></svg>
@@ -790,11 +791,11 @@
 
       //initialize dict with column values
       let columnValues = {
-        indStat: 2,
-        mapType: 0,
+        indStat: 1, //initialize with employment rate
+        mapType: 1, //initialize as "with disability"
         gender: 0,
         disabilityType: 1,
-        age: 2,
+        age: 2, //initialize as 21-64 
         race: 0,
         education: 0,
         hispanic: 0,
@@ -831,8 +832,7 @@
       //console.log(`trying to test these column values: ${columnsDict[columnValues.indStat]}`)
       //console.log('statesData', statesData);
 
-      //setting up selections to track selections for prevalence 
-      //TODO: need to adapt to different datasets
+      //setting up selections to track changes
       let allColumns = ["region", "mapType", "disabilityType", "gender", "age", "race", "education", "hispanic"];
       allColumns.forEach((d) => {
 
@@ -849,23 +849,31 @@
       d3.select(`select#indStat`)
         .on("change", function () {
           columnValues.indStat = Number(d3.select(this).property("value"));
-          console.log(`indStat changed, logging column values:`, columnValues);
+          //console.log(`indStat changed, logging column values:`, columnValues);
 
-          if (columnValues.indStat === 0) {//prevalence
+          if (columnValues.indStat === 0) {
+            //prevalence
             columnValues.age = 0
 
-
+            d3.select("h1#pageTitle").text("PREVALENCE");
             //TODO: natalia for hiding selections
             //d3.select(`label#mapType`).style("display", "none");
             //d3.select(`select#mapType`).style("display", "none");
-          } else if (columnValues.indStat === 1) {//employment
-            columnValues.age = 1
-
-          } else {//poverty
+          } else if (columnValues.indStat === 1) {
+            //employment
             columnValues.age = 2
+            d3.select("h1#pageTitle").text("EMPLOYMENT RATE");
+          } else {
+            //poverty
+            columnValues.age = 2
+            d3.select("h1#pageTitle").text("POVERTY RATE");
           }
 
-          console.log("columnValues.age changed to: ", columnValues.age)
+          //console.log("columnValues.age changed to: ", columnValues.age)
+
+          //update quickfacts
+
+          d3.select("p.quickFacts").html(quickFacts[columnValues.indStat]);
 
           updateData();
         });
@@ -933,7 +941,6 @@
         .join("g")
         .style("opacity", null); //set to 0.3 to see low resolution files
 
-      var data = []; //TODO: update this when data changes, colorScale will also be automatically updated
       let colors = d3.schemeBlues[9];
       let colorScaleState = d3.scaleQuantize(d3.extent(all_p_estimates), colors);
       prevScale = d3.scaleLinear(d3.extent(all_p_estimates), [10, maxBarLength]);
@@ -1076,8 +1083,6 @@
           .scale(transform.k / (2 * Math.PI))
           .translate([transform.x, transform.y]);
 
-        console.log(transform.x, transform.y);
-
         render = d3.geoPath(projection);
 
         //update state outlines
@@ -1109,8 +1114,8 @@
           { value: "8", text: "Ages 75+" }
         ],
         1: [
-          { value: "1", text: "Ages 16-20" },
           { value: "2", text: "Ages 21-64" },
+          { value: "1", text: "Ages 16-20" },
           { value: "3", text: "Ages 16-64" },
           { value: "4", text: "Ages 18-64" }
         ],
@@ -1226,13 +1231,16 @@
         })
           .attr("stroke", "grey");
 
+        //update subheadings for above map
+
+        d3.select("h4#headingtext").html(headings[columnValues.indStat]);
+
         //dynamically fill description spans
-        //TODO: update with  changing dataset!
-        columnsDict[0].forEach(d => {
+        columnsDict[columnValues.indStat].forEach(d => {
+
           let value = key[d][Number(columnValues[d])];
           d3.select(`span#${d}`).text(value);
         })
-
         d3.select("span#dynamic_p_estimate").text(`${dataDict["the United States"].p_estimate}%`);
 
 
@@ -1248,8 +1256,27 @@
     // HELPER FUNCTIONS
     // ---------------
 
+    //quickfacts for different datasets
+    let quickFacts = {
+      0: "In 2022, the prevalence of disability was <span class='withColor'>13.4%</span>.",
+      1: "In 2022, the national employment rate for people <span class='withHighlight'>with</span> disabilities was <span class='withColor'>45.0%</span> compared to <span class='withoutColor'>81.0%</span> for people <span class='withoutHighlight'>without</span> disabilities, an <span class='gapHighlight'>employment gap</span> of <span class='gapColor'>36.0%</span>.",
+      2: "In 2022, the national poverty rate for people <span class='withHighlight'>with</span> disabilities was <span class='withColor'>24.7%</span> compared to <span class='withoutColor'>9.6%</span> for people <span class='withoutHighlight'>without</span> disabilities, a <span class='gapHighlight'>poverty gap</span> of <span class='gapColor'>15.1%</span>."
+    }
+
+    //headings for different datasets
+    let headings = {
+      0: "PREVALENCE: <br>The percentage of non-institutionalized, <span id='gender'>male or female</span>, with <span id='disabilityType'>any</span> disability, <span id='age'>all ages</span>, <span id='race'>all races</span>, <span id='hispanic'>regardless of ethnicity</span>, with <span id='education'>all education levels</span> in the Unites States is <span id='dynamic_p_estimate'>13.9%</span> in 2022.",
+      1: "EMPLOYMENT RATE: <br>The employment rate for non-institutionalized,<span id='gender'>male or female</span>, <span id ='MapType'>with</span> <span id='disabilityType'>any</span> disability, <span id='age'>all ages</span>, <span id='race'>all races</span>, <span id='hispanic'>regardless of ethnicity</span>, with <span id='education'>all education levels</span> in the Unites States is <span id='dynamic_p_estimate'>13.9%</span> in 2022.",
+      2: "POVERTY RATE: <br>The percentage of non-institutionalized persons ages 21-64 years, <span id ='MapType'>with</span> <span id='disabilityType'>any</span> disability, in the Unites States who were living below the poverty line is <span id='dynamic_p_estimate'>13.9%</span> in 2022."
+    }
+
     //key to match numbers to names, used to dynamically populate descriptions
     let key = {
+      mapType: {
+        0: 'with or without',
+        1: 'with',
+        2: 'without'
+      },
       gender: {
         0: 'male or female',
         1: 'male',
@@ -1266,15 +1293,15 @@
       },
       age: {
         0: 'all ages',
-        1: 'ages 4 and under',
-        2: 'ages 5-15',
-        3: 'ages 16-20',
-        4: 'ages 21-64',
-        5: 'ages 16-64',
-        6: 'ages 18-64',
+        5: 'ages 4 and under',
+        6: 'ages 5-15',
+        1: 'ages 16-20',
+        2: 'ages 21-64',
+        3: 'ages 16-64',
+        4: 'ages 18-64',
         7: 'ages 65-74',
-        8: 'ages 65+',
-        9: 'ages Ages 75+'
+        9: 'ages 65+',
+        8: 'ages Ages 75+'
       },
       race: {
         0: 'all races',

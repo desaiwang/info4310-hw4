@@ -715,7 +715,6 @@
     const selectedColor = "#7339D0";
     const greyedoutColor = "#A5A0AC";
 
-    //TODO actually switch this when we swap table type
     let plottingPrevalenceTable = true;
 
 
@@ -1174,6 +1173,7 @@
         /******************* 
         Table Data 
         *******************/
+        // plottingPrevalenceTable = columnValues.indStat === 0;
         let goodData;
         if (plottingPrevalenceTable) {
           let dedupedStatesData = statesData.reduce((accumulator, currentLocation) => {
@@ -1187,6 +1187,7 @@
 
         } else {
           goodData = unstackDataset(statesData);
+          console.log(goodData);
         }
 
         // no need to plot rows for things out of region. remove them here
@@ -1508,24 +1509,24 @@
       stackedCSV.forEach(d => {
         // check which kind of data it is
         let label = ""
-        if (d.disability_type === 1) {
+        if (d.disabilityType === 1) {
           label = "with";
         }
-        else if (d.v2 === 2) {
+        else if (d.disabilityType === 2) {
           label = "without";
         }
         else {
           label = "NULL";
         }
 
-        let location = d.location;
-        if (location in new_dataset) {
+        let state = d.state;
+        if (state in new_dataset) {
           // update the row with the new value
-          new_dataset[location][label] = d.p_estimate;
+          new_dataset[state][label] = d.p_estimate;
         }
         else
-          new_dataset[location] = {
-            "location": d.location,
+          new_dataset[state] = {
+            "state": d.state,
             "sample_size": d.sample_size,
             "base_population": d.base_population,
             "n_estimate": d.n_estimate,
@@ -1534,7 +1535,9 @@
             "p_estimate_moe": d.p_estimate_moe,
             "id": d.id
           }
-        new_dataset[location][label] = d.p_estimate;
+
+        console.log(state, new_dataset[state], new_dataset);
+        new_dataset[state][label] = d.p_estimate;
 
       });
 

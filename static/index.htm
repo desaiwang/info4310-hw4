@@ -894,7 +894,6 @@
       var data = []; //TODO: update this when data changes, colorScale will also be automatically updated
       let colors = d3.schemeBlues[9];
       let colorScaleState = d3.scaleQuantize(d3.extent(all_p_estimates), colors);
-      prevScale = d3.scaleLinear(d3.extent(all_p_estimates), [10, maxBarLength]);
 
       let statePaths = svgMap.selectAll("path.state").data(states.features)
         .join("path")
@@ -1118,8 +1117,7 @@
           return regions[columnValues.region].includes(d.state);
         });
 
-        currentTableData = [...goodData];
-        updateTableRows(goodData);
+
         /******************* 
            End Table Data 
         *******************/
@@ -1132,6 +1130,10 @@
             all_p_estimates.push(values.p_estimate);
           }
         }
+
+        prevScale = d3.scaleLinear(d3.extent(all_p_estimates), [10, maxBarLength]);
+        currentTableData = [...goodData];
+        updateTableRows(goodData);
 
         // console.log("usa p est: ", dataDict["the United States"])
 
@@ -1276,7 +1278,7 @@
     const maxBarLength = 250;
     var currentTableData;
     var subchartStartPos;
-    const subchartMargin = 0.5;
+    const subchartMargin = 7;
 
     const tableCategories = ["Location", "Estimate (%)", "90% MOEp", "Estimate (number)", "90% MOEn", "Base Population", "Sample Size"];
     const tableGroups = ["Location", "Percent", "Number", "Base Population", "Sample Size"];
@@ -1516,7 +1518,7 @@
 
           let subcharts = rows.append("g")
             .attr("class", "empSVG")
-            .attr("transform", `translate(${subchartStartPos + subchartMargin}, 0)`)
+            .attr("transform", `translate(${subchartStartPos - subchartMargin}, 0)`)
           // shift the chart over a bit so its on right side
 
 

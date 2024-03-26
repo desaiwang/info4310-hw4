@@ -1286,6 +1286,7 @@
         colorScaleState = d3.scaleQuantize(d3.extent(all_p_estimates), colors);
 
         statePaths.attr("fill", d => {
+            console.log(d);
             if (d.name == "Virgin Islands") {
               d.color = "none" //we don't have data for Virgin Islands
             } 
@@ -1312,74 +1313,6 @@
             })
             
   
-        //   .attr("stroke", "grey");
-          //  statePaths.attr("fill", d => {
-          //   if (d.name == "Virgin Islands") d.color = "none" //we don't ha
-          //   else if (columnValues.region == 0) {
-          //   d.color = colorScaleState (dataDict [d.name].p_estimate)}
-          //   else  {
-          //     if (regions [columnValues.region].includes (d.name) && statesInFilteredData.has(d.name) ) {
-          //     d.color = colorScaleState(dataDict [d.name].p_estimate)
-          //     } 
-          //     else {
-          //     d.color = "grey"
-          //     }
-          //   }
-
-          //       return d.color
-          // })
-
-      
-
-
-
-
-
-
-
-          // statePaths.attr("fill", d => {
-          //       if (d.name == "Virgin Islands") d.color = "none"; //we don't ha
-          //       else if (statesInFilteredData.has(d.name)){
-          //         d.color = colorScaleState(dataDict[d.name].p_estimate);
-          //       }
-          //       else{
-          //       // else if (columnValues.region == 0) {
-          //       //   d.color = colorScaleState(dataDict[d.name].p_estimate);
-          //       // } else {
-          //       //   if (regions[columnValues.region].includes(d.name) && statesInFilteredData.has(d.name)) {
-          //       //     d.color = colorScaleState(dataDict[d.name].p_estimate);
-          //       //   } else {
-          //           d.color = "grey";
-          //         }
-                
-          //       return d.color;
-          //     })
-
-
-
-
-
-
-          //   else if (statesInFilteredData.has(d.name)){
-          //     d.color = colorScaleState (dataDict [d.name].p_estimate)
-          //   }
-          //   else{
-          //     d.color = "grey"
-          //   }
-          //   return d.color
-
-          //  })
-          //   else if (columnValues.region == 0) {
-          //   d.color = colorScaleState (dataDict [d.name].p_estimate)}
-          //   else {
-          //   if (regions [columnValues.region].includes (d.name) ) {
-          //   d.color = colorScaleState(dataDict [d.name].p_estimate)
-          //   } else {
-          //   d.color = "grey"
-          //   }
-          //   }     
-          //       return d.color
-          // })
       .attr("stroke", "grey");
 
 
@@ -1403,30 +1336,12 @@
          // updateMapData();
 
       
-        function makeSlider(container, label, attribute, sliderWidth, sliderHeight) {
-          let selectedValue = 4;
-          let sliderdata;
-
-          const selectElement = document.getElementById('indStat');
-        
-          selectedValue = selectElement.value;
-          console.log(selectedValue)
-
-
-          if (columnValues.indStat === 0 ){
-            sliderdata = employmentAll;
-          }
-          else if (columnValues.indStat === 1){
-            sliderdata = prevalenceAll;
-          }
-          else if (olumnValues.indStat === 1){
-            sliderdata = povertyAll;
-          }
-
+        function makeSlider(sliderdata, container, label, attribute, sliderWidth, sliderHeight) {
+      
         
           d3.select("#controlfilter").select("*").remove()
-          console.log(statesData)
-          console.log(employmentAll)
+          console.log(sliderdata);
+        
 
           // Get a raw array of values for this property
           let values = statesData.map(d => d[attribute]);
@@ -1532,7 +1447,17 @@
         function updateData() {
             updateMapData(statesData);
             let controls = d3.select("#controlfilter");
-            makeSlider(controls, "Employment Rate (Click + Drag to Filter):", "p_estimate", 700, 60);
+            let sliderdata;
+                  if (columnValues.indStat === 0) {
+                    sliderdata = statesData;
+                  } else if (columnValues.indStat === 1) {
+                    sliderdata = statesData;
+                  } else if (columnValues.indStat === 2) {
+                    sliderdata = statesData;
+                  }
+
+
+            makeSlider(sliderdata,controls, "Employment Rate (Click + Drag to Filter):", "p_estimate", 700, 60);
           }
   
   

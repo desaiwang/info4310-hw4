@@ -97,3 +97,122 @@ td.paper-title {
 .narrow-list {
   margin: 0 120px 0 20px;
 }
+
+.tableText {
+  dominant-baseline: middle;
+  text-anchor: end;
+}
+
+.tableText.Location {
+  text-anchor: start;
+  fill: #3573D9;
+  font-weight: bold;
+}
+
+.withBar {
+  fill: #1B73E0
+}
+
+.withoutBar {
+  fill: #A8C7F4
+}
+
+.withBarHeader {
+  fill: #1B73E0
+}
+
+.withoutBarHeader {
+  fill: #A8C7F4
+}
+
+.withEndCircle {
+  fill: #00368C
+}
+
+.withoutEndCircle {
+  fill: #59A4EF
+}
+
+.withEndCircleHeader {
+  fill: #00368C
+}
+
+.withoutEndCircleHeader {
+  fill: #59A4EF
+}
+
+.gapText {
+  fill: #F96C0D
+}
+
+.tableSeperator {
+  stroke: gray;
+  stroke-width: 1px;
+}
+
+.tableHeaderBox {
+  fill: #E1EAFA;
+}
+
+.tableHeaderBox.Location {
+  fill: #3573D9;
+}
+
+.tHeader {
+  font-weight: 500;
+  fill: black;
+  text-anchor: end;
+}
+
+.tHeaderText.Location {
+  fill: white;
+  text-anchor: start;
+}
+
+.closeProtrusion {
+  cursor: pointer;
+}
+
+.closeSquare {
+  fill: #8BAEE8;
+  cursor: pointer;
+}
+
+.closeX {
+  stroke: white;
+  stroke-width: 3px;
+  cursor: pointer;
+}
+
+.resetText {
+  dominant-baseline: middle;
+  text-anchor: start;
+  fill: #3573D9;
+  cursor: pointer;
+}
+
+.gapBarHeader {
+  fill: #E87431;
+}
+
+.gapCirclesHeader {
+  fill: white;
+  stroke: #E87431;
+  stroke-width: 5px;
+}
+
+.headerLegendText {
+  text-anchor: start;
+  dominant-baseline: middle;
+}
+
+.legendBox {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  visibility: hidden;
+}
+
+.tableFilterButton {
+  cursor: pointer;
+}

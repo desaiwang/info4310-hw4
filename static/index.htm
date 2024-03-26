@@ -550,15 +550,16 @@
         </select>
         <span class="focus"></span>
       </div>
-
-      <label for="mapType">MAP TYPE</label>
-      <div class="select">
-        <select id="mapType" name="mapType">
-          <option value="0">With or Without Disability</option>
-          <option value="1" selected>With Disability</option>
-          <option value="2">Without Disability</option>
-        </select>
-        <span class="focus"></span>
+      <div id = "mapTypeAll">
+        <label for="mapType">MAP TYPE</label>
+        <div class="select">
+          <select id="mapType" name="mapType">
+            <option value="0">With or Without Disability</option>
+            <option value="1" selected>With Disability</option>
+            <option value="2">Without Disability</option>
+          </select>
+          <span class="focus"></span>
+        </div>
       </div>
 
       <label for="disabilityType">DISABILITY TYPE</label>
@@ -575,6 +576,7 @@
         <span class="focus"></span>
       </div>
 
+      <div id = "genderAll">
       <label for="gender">GENDER</label>
       <div class="select">
         <select id="gender" name="gender">
@@ -584,6 +586,7 @@
         </select>
         <span class="focus"></span>
       </div>
+    </div>
 
       <label for="age">AGE</label>
       <div class="select">
@@ -602,6 +605,7 @@
         <span class="focus"></span>
       </div>
       
+      <div id = "raceAll">
       <label for="race">RACE</label>
       <div class="select">
         <select id="race" name="race">
@@ -614,7 +618,9 @@
         </select>
         <span class="focus"></span>
       </div>
+    </div>
 
+      <div id = "edAll">
       <label for="education">EDUCATION</label>
       <div class="select">
         <select id="education" name="education">
@@ -626,7 +632,8 @@
         </select>
         <span class="focus"></span>
       </div>
-
+    </div>
+      <div id = "hispAll">
       <label for="hispanic">HISPANIC</label>
       <div class="select">
         <select id="hispanic" name="hispanic">
@@ -636,6 +643,7 @@
         </select>
         <span class="focus"></span>
       </div>
+    </div>
 
     </div>
     <div class="map">
@@ -855,6 +863,17 @@
             columnValues.age = 0
 
             d3.select("h1#pageTitle").text("PREVALENCE");
+            d3.select(`label#mapType`).style("display", "none");
+            d3.select(`select#mapType`).style("display", "none");
+            d3.select(`#mapTypeAll`).style("display", "none");
+            d3.select(`#genderAll`).style("display", "block");
+            d3.select(`#raceAll`).style("display", "block");
+            d3.select(`#edAll`).style("display", "block");
+            d3.select(`#hispAll`).style("display", "block");
+
+
+
+
             //TODO: natalia for hiding selections
             //d3.select(`label#mapType`).style("display", "none");
             //d3.select(`select#mapType`).style("display", "none");
@@ -862,10 +881,31 @@
             //employment
             columnValues.age = 2
             d3.select("h1#pageTitle").text("EMPLOYMENT RATE");
+            d3.select(`label#mapType`).style("display", "block");
+            d3.select(`select#mapType`).style("display", "block");
+            d3.select(`#mapTypeAll`).style("display", "block");
+            d3.select(`#genderAll`).style("display", "block");
+            d3.select(`#raceAll`).style("display", "block");
+            d3.select(`#edAll`).style("display", "block");
+            d3.select(`#hispAll`).style("display", "block");
+
+
+
+
+
           } else {
             //poverty
             columnValues.age = 2
             d3.select("h1#pageTitle").text("POVERTY RATE");
+            d3.select(`label#mapType`).style("display", "block");
+            d3.select(`select#mapType`).style("display", "block");
+            d3.select(`#mapTypeAll`).style("display", "block");
+            d3.select(`#genderAll`).style("display", "none");
+            d3.select(`#raceAll`).style("display", "none");
+            d3.select(`#edAll`).style("display", "none");
+            d3.select(`#hispAll`).style("display", "none");
+
+
           }
 
           //console.log("columnValues.age changed to: ", columnValues.age)
@@ -1016,7 +1056,7 @@
         //store text2 so it's easier to adjust length
         let text2 = `${dataDict[state_datum.name].p_estimate}% (${d3.format(",")(dataDict[state_datum.name].n_estimate)})`;
         txt2.text(text2);
-        }
+    
         let bounds = render.bounds(state.datum());
         let xPos = (state_datum.name === "Alaska") ? bounds[0][0] : (bounds[0][0] + bounds[1][0]) / 2;
         let yPos = bounds[1][1];
@@ -1104,14 +1144,22 @@
         tooltip.attr("transform", `translate(${xPos},${yPos})`);
 
       };
+
       var filters = {};
+
       function pointPassesFilters(point) {
 
         let stillPassed = true;
 
         Object.values(filters).forEach(filterFunc => {
 
-          stillPassed = filterFunc(point) && stillPassed;
+        stillPassed = filterFunc(point) && stillPassed;
+        return stillPassed;
+
+      }
+      
+      )}
+      
 
       const ageOptions = {
         0: [
@@ -1151,10 +1199,10 @@
 
       //calls update on filters when selections are changed
       function updateMapData(data) {
-
-        data = data.filter(d => pointPassesFilters(d));
         console.log(data)
         let statesInFilteredData = new Set(data.map(d => d.state));
+        data = data.filter(d => pointPassesFilters(d));
+        console.log(data)
         console.log(statesInFilteredData)
 
         let statesData = datasetsDict[columnValues.indStat].filter(function (row) {
@@ -1238,27 +1286,103 @@
         colorScaleState = d3.scaleQuantize(d3.extent(all_p_estimates), colors);
 
         statePaths.attr("fill", d => {
-
-          if (d.name == "Virgin Islands") d.color = "none" //we don't have data for Virgin Islands
-         
-          else{
-            if (statesInFilteredData.has(d.name)) {
-             d.color = colorScaleState(dataDict[d.name].p_estimate)
-          }
-           else if (columnValues.region == 0) {
-            d.color = colorScaleState(dataDict[d.name].p_estimate)
-          }
-          else {
-            if (regions[columnValues.region].includes(d.name)) {
-              d.color = colorScaleState(dataDict[d.name].p_estimate)
-            } else {
+            if (d.name == "Virgin Islands") {
+              d.color = "none" //we don't have data for Virgin Islands
+            } 
+            else if (columnValues.region == 0) {
+                if(statesInFilteredData.has(d.name)){
+                  d.color = colorScaleState(dataDict[d.name].p_estimate)
+                }
+                else{
+                  d.color = "grey"
+                }
+            }
+            else if (regions[columnValues.region].includes(d.name)){ 
+                  if(statesInFilteredData.has(d.name)){
+                  d.color = colorScaleState(dataDict[d.name].p_estimate)
+                  }
+                else{
+                  d.color = "grey"
+                }
+            }
+            else{
               d.color = "grey"
             }
-          }
-          }
-          return d.color
-        })
-          .attr("stroke", "grey");
+            return d.color
+            })
+            
+  
+        //   .attr("stroke", "grey");
+          //  statePaths.attr("fill", d => {
+          //   if (d.name == "Virgin Islands") d.color = "none" //we don't ha
+          //   else if (columnValues.region == 0) {
+          //   d.color = colorScaleState (dataDict [d.name].p_estimate)}
+          //   else  {
+          //     if (regions [columnValues.region].includes (d.name) && statesInFilteredData.has(d.name) ) {
+          //     d.color = colorScaleState(dataDict [d.name].p_estimate)
+          //     } 
+          //     else {
+          //     d.color = "grey"
+          //     }
+          //   }
+
+          //       return d.color
+          // })
+
+      
+
+
+
+
+
+
+
+          // statePaths.attr("fill", d => {
+          //       if (d.name == "Virgin Islands") d.color = "none"; //we don't ha
+          //       else if (statesInFilteredData.has(d.name)){
+          //         d.color = colorScaleState(dataDict[d.name].p_estimate);
+          //       }
+          //       else{
+          //       // else if (columnValues.region == 0) {
+          //       //   d.color = colorScaleState(dataDict[d.name].p_estimate);
+          //       // } else {
+          //       //   if (regions[columnValues.region].includes(d.name) && statesInFilteredData.has(d.name)) {
+          //       //     d.color = colorScaleState(dataDict[d.name].p_estimate);
+          //       //   } else {
+          //           d.color = "grey";
+          //         }
+                
+          //       return d.color;
+          //     })
+
+
+
+
+
+
+          //   else if (statesInFilteredData.has(d.name)){
+          //     d.color = colorScaleState (dataDict [d.name].p_estimate)
+          //   }
+          //   else{
+          //     d.color = "grey"
+          //   }
+          //   return d.color
+
+          //  })
+          //   else if (columnValues.region == 0) {
+          //   d.color = colorScaleState (dataDict [d.name].p_estimate)}
+          //   else {
+          //   if (regions [columnValues.region].includes (d.name) ) {
+          //   d.color = colorScaleState(dataDict [d.name].p_estimate)
+          //   } else {
+          //   d.color = "grey"
+          //   }
+          //   }     
+          //       return d.color
+          // })
+      .attr("stroke", "grey");
+
+
 
         //update subheadings for above map
 
@@ -1273,132 +1397,147 @@
         d3.select("span#dynamic_p_estimate").text(`${dataDict["the United States"].p_estimate}%`).style("margin-bottom", "2em;");
         
         
-      
-
+    
       }
 
-      // updateMapData();
+         // updateMapData();
 
       
+        function makeSlider(container, label, attribute, sliderWidth, sliderHeight) {
+          let selectedValue = 4;
+          let sliderdata;
+
+          const selectElement = document.getElementById('indStat');
+        
+          selectedValue = selectElement.value;
+          console.log(selectedValue)
 
 
+          if (columnValues.indStat === 0 ){
+            sliderdata = employmentAll;
+          }
+          else if (columnValues.indStat === 1){
+            sliderdata = prevalenceAll;
+          }
+          else if (olumnValues.indStat === 1){
+            sliderdata = povertyAll;
+          }
 
-
-      function makeSlider(container, label, attribute, sliderWidth, sliderHeight) {
+        
           d3.select("#controlfilter").select("*").remove()
           console.log(statesData)
+          console.log(employmentAll)
 
-            // Get a raw array of values for this property
-            let values = statesData.map(d => d[attribute]);
-            // console.log(values);
+          // Get a raw array of values for this property
+          let values = statesData.map(d => d[attribute]);
+          // console.log(values);
 
-            // Find min and max for some scales
-            let minMax = d3.extent(values);
-            console.log(minMax);
-            let xScale = d3.scaleLinear().domain(minMax)
-              .range([10, sliderWidth - 10]); // padding here for ease
-            let xAxis = d3.axisBottom(xScale).tickFormat(d3.format(""));
-
-
-            // Create some HTML elements
-            let wrapper = container.append("div").attr("class", "controls");
-            wrapper.append("div").text(label);
-            let canvas = wrapper.append("svg").attr("width", sliderWidth)
-              .attr("height", sliderHeight + 20)
-              .attr("attribute", attribute);
-            canvas.append("g").attr("transform", `translate(0,${sliderHeight})`)
-              .call(xAxis);
-
-            // Make an area chart
-            let areaLayer = canvas.append("g");
-
-            // Built-in d3 helper function to count up data
-            let numBins = 20;
-
-            // Program a histogram generator to count up data into "bins"
-            let histoGen = d3.histogram().domain(minMax)
-              .thresholds(numBins);
-            let counts = histoGen(values);
-
-            // add dummy object at start of graph
-            counts.unshift({
-              x0: 0,
-              x1: counts[0].x0,
-              length: counts[0].length
-            });
-
-            let yScale = d3.scaleLinear().domain(d3.extent(counts, d => d.length))
-              .range([sliderHeight, 4]);
-
-            // Area generator is like a lineGen, but we give y0 and y1 to fill it in
-            let area = d3.area().x(d => xScale(d.x1))
-              .y0(yScale(0))
-              .y1(d => yScale(d.length))
-              .curve(d3.curveNatural);
-
-            // Adding the path works just like a line (the area generator just makes a filled region)
-            areaLayer.append("path").datum(counts)
-              .attr("class", "area")
-              .attr("fill", "#3A7C98")
-              .attr("d", area);
+          // Find min and max for some scales
+          let minMax = d3.extent(values);
+          console.log(minMax);
+          let xScale = d3.scaleLinear().domain(minMax)
+            .range([10, sliderWidth - 10]); // padding here for ease
+          let xAxis = d3.axisBottom(xScale).tickFormat(d3.format(""));
 
 
-            let filterFunc = d => true;
-            filters[attribute] = filterFunc;
+          // Create some HTML elements
+          let wrapper = container.append("div").attr("class", "controls");
+          wrapper.append("div").text(label);
+          let canvas = wrapper.append("svg").attr("width", sliderWidth)
+            .attr("height", sliderHeight + 20)
+            .attr("attribute", attribute);
+          canvas.append("g").attr("transform", `translate(0,${sliderHeight})`)
+            .call(xAxis);
 
-            var brush = d3.brushX().extent([[10, 0],                           // Upper left corner
-            [sliderWidth - 10, sliderHeight]])  // Lower right corner
-              .on("brush end", brushMoved);
-            // NOTE: we still need to *call the brush* towards the end of our code to "paste" it into HTML
+          // Make an area chart
+          let areaLayer = canvas.append("g");
 
-            function brushMoved(event) {
+          // Built-in d3 helper function to count up data
+          let numBins = 20;
 
-              console.log(event.type, event.selection);
+          // Program a histogram generator to count up data into "bins"
+          let histoGen = d3.histogram().domain(minMax)
+            .thresholds(numBins);
+          let counts = histoGen(values);
 
-              // Everything but clicking on brush area
-              if (event.selection !== null) {
+          // add dummy object at start of graph
+          counts.unshift({
+            x0: 0,
+            x1: counts[0].x0,
+            length: counts[0].length
+          });
 
-                // Run scales in reverse to get data values for the ends of the brush
-                //  If a scale turns data -> pixels, then scale.invert turns pixels -> data
-                let start = xScale.invert(event.selection[0]);
-                let end = xScale.invert(event.selection[1]);
-                let filteredData = statesAll.filter(d => d[attribute] >= start && d[attribute] <= end);
+          let yScale = d3.scaleLinear().domain(d3.extent(counts, d => d.length))
+            .range([sliderHeight, 4]);
+
+          // Area generator is like a lineGen, but we give y0 and y1 to fill it in
+          let area = d3.area().x(d => xScale(d.x1))
+            .y0(yScale(0))
+            .y1(d => yScale(d.length))
+            .curve(d3.curveNatural);
+
+          // Adding the path works just like a line (the area generator just makes a filled region)
+          areaLayer.append("path").datum(counts)
+            .attr("class", "area")
+            .attr("fill", "#3A7C98")
+            .attr("d", area);
 
 
-                // Overwrite old filter in our dictionary
-                // This filter now only returns True if the point's value is between start and end
-                let filterFunc = d => d[attribute] >= start && d[attribute] <= end;
-                console.log(filterFunc);
-                filters[attribute] = filterFunc;
-                console.log(filters[attribute]);
+          let filterFunc = d => true;
+          filters[attribute] = filterFunc;
 
-                updateMapData(statesData)
-              }
-              // Clicking on brush area to empty it out
-              else {
-                // Selected nothing, let everything pass
-                let filterFunc = d => true;
-                filters[attribute] = filterFunc;
+          var brush = d3.brushX().extent([[10, 0],                           // Upper left corner
+          [sliderWidth - 10, sliderHeight]])  // Lower right corner
+            .on("brush end", brushMoved);
+          // NOTE: we still need to *call the brush* towards the end of our code to "paste" it into HTML
 
-                updateMapData(statesData)
+          function brushMoved(event) {
 
-              }
+            console.log(event.type, event.selection);
+
+            // Everything but clicking on brush area
+            if (event.selection !== null) {
+
+              // Run scales in reverse to get data values for the ends of the brush
+              //  If a scale turns data -> pixels, then scale.invert turns pixels -> data
+              let start = xScale.invert(event.selection[0]);
+              let end = xScale.invert(event.selection[1]);
+              let filteredData = sliderdata.filter(d => d[attribute] >= start && d[attribute] <= end);
+              console.log(filteredData);
+
+              // Overwrite old filter in our dictionary
+              // This filter now only returns True if the point's value is between start and end
+              let filterFunc = d => d[attribute] >= start && d[attribute] <= end;
+              console.log(filterFunc);
+              filters[attribute] = filterFunc;
+              console.log(filters[attribute]);
+
+              updateMapData(filteredData)
+            }
+            // Clicking on brush area to empty it out
+            else {
+              // Selected nothing, let everything pass
+              let filterFunc = d => true;
+              filters[attribute] = filterFunc;
+
+              updateMapData(statesData)
 
             }
-            canvas.append("g").attr("class", "brush").call(brush);
-    }
+
+          }
+          canvas.append("g").attr("class", "brush").call(brush);
+        }
 
 
-    function updateData() {
-        updateMapData(statesData);
-
-        let controls = d3.select("#controlfilter");
-        makeSlider(controls, "Employment Rate (Click + Drag to Filter):", "p_estimate", 700, 60);
-      }
+        function updateData() {
+            updateMapData(statesData);
+            let controls = d3.select("#controlfilter");
+            makeSlider(controls, "Employment Rate (Click + Drag to Filter):", "p_estimate", 700, 60);
+          }
   
-      
-      updateData();
-    }
+  
+        updateData();
+      }
 
     requestMapData();
 
@@ -1486,7 +1625,7 @@
         ================== -->
   <script>
 
-    // --- We are going to make the table
+    //--- We are going to make the table
     // Create the <svg> where it lives or select it
     // Make the extra g tags for annotations and lines and labels etc
     // Call updateTableRows on your data array to fill in each row
@@ -2424,6 +2563,7 @@
       updateTableRows(sortedTableData);
 
     }
+  
     // loadEmpData();
 
 
